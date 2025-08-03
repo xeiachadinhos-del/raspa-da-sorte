@@ -55,17 +55,19 @@ export default function PixPaymentModal({
     
     try {
       // Testar conectividade primeiro
+      console.log('=== INÍCIO DO TESTE DE PIX ===');
       console.log('Testando conectividade com a API...');
       const isConnected = await paymentAPI.testConnection();
       console.log('Conectividade:', isConnected);
       
       if (!isConnected) {
-        setError('Erro de conectividade com o gateway de pagamento. Verifique sua conexão.');
+        setError('❌ Erro de conectividade com o gateway de pagamento. Verifique sua conexão.');
         return;
       }
 
       const numericAmount = parseFloat(amount.replace(',', '.'));
       console.log('Criando cobrança para valor:', numericAmount);
+      console.log('Dados do usuário:', user);
       
       const response = await paymentAPI.createPixCharge(user, numericAmount);
       console.log('Resposta da cobrança:', response);
@@ -78,9 +80,20 @@ export default function PixPaymentModal({
         onPaymentSuccess();
         onClose();
       }
+      
+      console.log('=== FIM DO TESTE DE PIX ===');
     } catch (err) {
-      console.error('Erro detalhado:', err);
-      setError(`Erro ao gerar cobrança PIX: ${err.message}`);
+      console.error('=== ERRO DETALHADO ===');
+      console.error('Mensagem de erro:', err.message);
+      console.error('Stack trace:', err.stack);
+      console.error('Erro completo:', err);
+      console.error('=== FIM DO ERRO ===');
+      
+      // Manter o modal aberto e mostrar erro detalhado
+      setError(`❌ Erro ao gerar cobrança PIX: ${err.message}`);
+      
+      // Não fechar o modal em caso de erro
+      // onClose(); // REMOVIDO
     } finally {
       setLoading(false);
     }
@@ -175,14 +188,28 @@ export default function PixPaymentModal({
 
           {/* Error */}
           {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
-              <p className="text-red-400 text-sm">{error}</p>
-              <button
-                onClick={createPixCharge}
-                className="mt-2 text-red-400 hover:text-red-300 text-sm underline"
-              >
-                Tentar novamente
-              </button>
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+                <p className="text-red-400 font-medium">Erro no Pagamento</p>
+              </div>
+              <p className="text-red-300 text-sm">{error}</p>
+              <div className="flex gap-2">
+                <button
+                  onClick={createPixCharge}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                >
+                  🔄 Tentar Novamente
+                </button>
+                <button
+                  onClick={onClose}
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                >
+                  ❌ Fechar
+                </button>
+              </div>
             </div>
           )}
 
@@ -250,16 +277,18 @@ export default function PixPaymentModal({
             </div>
           )}
 
-          {/* Debug Info (apenas em desenvolvimento) */}
-          {process.env.NODE_ENV === 'development' && (
-            <div className="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-300">
-              <p><strong>Debug Info:</strong></p>
-              <p>Status: {paymentStatus}</p>
-              <p>Payment ID: {paymentData?.id || 'N/A'}</p>
-              <p>Amount: R$ {amount}</p>
-              <p>User ID: {user?.id || 'N/A'}</p>
-            </div>
-          )}
+          {/* Debug Info (sempre visível para debug) */}
+          <div className="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-300">
+            <p><strong>🔧 Informações Técnicas:</strong></p>
+            <p>Status: {paymentStatus}</p>
+            <p>Payment ID: {paymentData?.id || 'N/A'}</p>
+            <p>Amount: R$ {amount}</p>
+            <p>User ID: {user?.id || 'N/A'}</p>
+            <p>User Email: {user?.email || 'N/A'}</p>
+            <p>Loading: {loading ? 'Sim' : 'Não'}</p>
+            <p>Error: {error ? 'Sim' : 'Não'}</p>
+            <p>API URL: {paymentAPI.baseURL}</p>
+          </div>
         </div>
       </div>
     </div>
