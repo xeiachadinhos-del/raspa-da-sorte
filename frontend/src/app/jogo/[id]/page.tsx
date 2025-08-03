@@ -64,6 +64,7 @@ export default function GamePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // Verificar se o usuário está logado
   useEffect(() => {
@@ -154,7 +155,17 @@ export default function GamePage() {
 
   const handleBuy = () => {
     // Implementar lógica de compra
-    alert('Funcionalidade de compra será implementada!');
+    setIsPlaying(true);
+  };
+
+  const handlePlayAgain = () => {
+    // Implementar lógica de jogar novamente
+    alert('Funcionalidade de jogar novamente será implementada!');
+  };
+
+  const handleAuto = () => {
+    // Implementar lógica de auto
+    alert('Funcionalidade de auto será implementada!');
   };
 
   if (!game) {
@@ -225,10 +236,6 @@ export default function GamePage() {
             <div className="text-center mb-6">
               <h1 className="text-3xl font-bold text-white mb-2">{game.title}</h1>
               <p className="text-gray-400 mb-4">{game.description}</p>
-              <div className="bg-gray-800 rounded-lg p-4 mb-6">
-                <p className="text-lg text-white mb-2">Prêmio Máximo</p>
-                <p className="text-2xl font-bold" style={{color: '#50c50d'}}>{game.maxPrize}</p>
-              </div>
             </div>
 
             {/* Componente da Raspadinha */}
@@ -238,9 +245,12 @@ export default function GamePage() {
               price={game.price}
               maxPrize={game.maxPrize}
               isLoggedIn={isLoggedIn}
+              isPlaying={isPlaying}
               onLogin={() => setShowLoginSheet(true)}
               onRegister={() => setShowRegisterSheet(true)}
               onBuy={handleBuy}
+              onPlayAgain={handlePlayAgain}
+              onAuto={handleAuto}
             />
           </div>
         </div>

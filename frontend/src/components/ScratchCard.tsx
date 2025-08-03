@@ -8,9 +8,12 @@ interface ScratchCardProps {
   price: string;
   maxPrize: string;
   isLoggedIn: boolean;
+  isPlaying: boolean;
   onLogin: () => void;
   onRegister: () => void;
   onBuy: () => void;
+  onPlayAgain: () => void;
+  onAuto: () => void;
 }
 
 export default function ScratchCard({
@@ -19,9 +22,12 @@ export default function ScratchCard({
   price,
   maxPrize,
   isLoggedIn,
+  isPlaying,
   onLogin,
   onRegister,
-  onBuy
+  onBuy,
+  onPlayAgain,
+  onAuto
 }: ScratchCardProps) {
   const [isScratched, setIsScratched] = useState(false);
 
@@ -77,86 +83,95 @@ export default function ScratchCard({
 
       {/* Área da Raspadinha */}
       <div className="relative bg-gray-800 rounded-2xl p-6 min-h-[400px]">
-        {/* Estrelas decorativas */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-4 left-4 text-white/20 text-lg">⭐</div>
-          <div className="absolute top-8 right-8 text-white/20 text-lg">⭐</div>
-          <div className="absolute top-16 left-12 text-white/20 text-lg">⭐</div>
-          <div className="absolute top-20 right-16 text-white/20 text-lg">⭐</div>
-          <div className="absolute bottom-16 left-8 text-white/20 text-lg">⭐</div>
-          <div className="absolute bottom-8 right-12 text-white/20 text-lg">⭐</div>
-        </div>
+        {/* Imagem da Raspadinha */}
+        <div className="relative w-full max-w-md mx-auto">
+          <img 
+            src="https://i.postimg.cc/65kTBtsM/download.png" 
+            alt="Raspadinha" 
+            className={`w-full h-auto rounded-lg transition-opacity duration-300 ${
+              !isLoggedIn ? 'opacity-40' : isPlaying ? 'opacity-100' : 'opacity-60'
+            }`}
+          />
 
-        {/* Instrução superior */}
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
-            <span>⚡</span>
-            <span>Clique em "comprar e raspar" para iniciar o jogo</span>
-          </div>
-        </div>
-
-        {/* Grid da Raspadinha */}
-        <div className="grid grid-cols-3 gap-2 max-w-xs mx-auto mb-6">
-          {Array.from({ length: 9 }).map((_, index) => (
-            <div
-              key={index}
-              className="aspect-square bg-gray-600 rounded-lg border border-gray-500"
-            />
-          ))}
-        </div>
-
-        {/* Overlay de Login (quando não logado) */}
-        {!isLoggedIn && (
-          <div className="absolute inset-0 bg-black/60 rounded-2xl flex flex-col items-center justify-center">
-            <div className="text-center">
-              <div className="w-20 h-20 mx-auto mb-4 bg-gray-700 rounded-full flex items-center justify-center">
-                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
+          {/* Overlay de Login (quando não logado) */}
+          {!isLoggedIn && (
+            <div className="absolute inset-0 bg-black/40 rounded-lg flex flex-col items-center justify-center">
+              <div className="text-center">
+                <div className="w-20 h-20 mx-auto mb-4 bg-gray-700 rounded-full flex items-center justify-center">
+                  <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold text-white mb-2">Faça login pra jogar</h2>
+                <p className="text-gray-400 mb-6">Entre ou registre-se para começar a jogar</p>
+                <button
+                  onClick={onRegister}
+                  className="px-8 py-3 rounded-lg font-medium transition-colors"
+                  style={{backgroundColor: '#50c50d'}}
+                >
+                  Registrar
+                </button>
               </div>
-              <h2 className="text-xl font-bold text-white mb-2">Faça login pra jogar</h2>
-              <p className="text-gray-400 mb-6">Entre ou registre-se para começar a jogar</p>
-              <button
-                onClick={onRegister}
-                className="px-8 py-3 rounded-lg font-medium transition-colors"
-                style={{backgroundColor: '#50c50d'}}
-              >
-                Registrar
-              </button>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* Interface de Compra (quando logado) */}
-        {isLoggedIn && (
-          <div className="text-center">
-            <div className="w-20 h-20 mx-auto mb-4 bg-gray-700 rounded-full flex items-center justify-center">
-              <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <p className="text-white mb-4">Comprar por {price}</p>
-            <button
-              onClick={onBuy}
-              className="px-8 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto"
-              style={{backgroundColor: '#50c50d'}}
-            >
-              <span>Comprar</span>
-              <div className="bg-green-600 px-2 py-1 rounded text-sm">
-                {price}
+          {/* Interface de Compra (quando logado mas não jogando) */}
+          {isLoggedIn && !isPlaying && (
+            <div className="absolute inset-0 bg-black/20 rounded-lg flex flex-col items-center justify-center">
+              <div className="text-center">
+                <p className="text-white mb-4 text-lg font-semibold">Comprar por {price}</p>
+                <button
+                  onClick={onBuy}
+                  className="px-8 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto"
+                  style={{backgroundColor: '#50c50d'}}
+                >
+                  <span>Jogar</span>
+                  <div className="bg-green-600 px-2 py-1 rounded text-sm">
+                    {price}
+                  </div>
+                </button>
               </div>
-            </button>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
         {/* Instruções do jogo */}
         <div className="text-center mt-6">
           <p className="text-gray-400 text-sm">
             Raspe os 9 quadradinhos, encontre 3 símbolos iguais e ganhe o prêmio!
           </p>
-          <div className="text-4xl font-bold text-white/10 mt-2">RASPE AQUI!</div>
         </div>
       </div>
+
+      {/* Botões de Controle (quando jogando) */}
+      {isPlaying && (
+        <div className="flex gap-3 mt-6">
+          <button
+            onClick={onPlayAgain}
+            className="flex-1 px-6 py-3 rounded-lg font-medium transition-colors"
+            style={{backgroundColor: '#50c50d'}}
+          >
+            Jogar Novamente
+          </button>
+          <button
+            onClick={onAuto}
+            className="px-4 py-3 rounded-lg font-medium bg-gray-700 hover:bg-gray-600 transition-colors"
+          >
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+          <button
+            onClick={onAuto}
+            className="px-4 py-3 rounded-lg font-medium bg-gray-700 hover:bg-gray-600 transition-colors flex items-center gap-2"
+          >
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span className="text-white text-sm">Auto</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 } 
