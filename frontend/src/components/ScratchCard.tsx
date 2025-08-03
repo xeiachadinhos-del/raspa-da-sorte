@@ -82,65 +82,62 @@ export default function ScratchCard({
       </div>
 
       {/* Área da Raspadinha */}
-      <div className="relative bg-gray-800 rounded-2xl p-6 min-h-[400px]">
-        {/* Imagem da Raspadinha */}
-        <div className="relative w-full max-w-md mx-auto">
-          <img 
-            src="https://i.postimg.cc/65kTBtsM/download.png" 
-            alt="Raspadinha" 
-            className={`w-full h-auto rounded-lg transition-opacity duration-300 ${
-              !isLoggedIn ? 'opacity-40' : isPlaying ? 'opacity-100' : 'opacity-60'
-            }`}
-          />
+      <div className="relative w-full max-w-md mx-auto">
+        <img 
+          src="https://i.postimg.cc/65kTBtsM/download.png" 
+          alt="Raspadinha" 
+          className={`w-full h-auto rounded-lg transition-opacity duration-300 ${
+            !isLoggedIn ? 'opacity-40' : isPlaying ? 'opacity-100' : 'opacity-60'
+          }`}
+        />
 
-          {/* Overlay de Login (quando não logado) */}
-          {!isLoggedIn && (
-            <div className="absolute inset-0 bg-black/40 rounded-lg flex flex-col items-center justify-center">
-              <div className="text-center">
-                <div className="w-20 h-20 mx-auto mb-4 bg-gray-700 rounded-full flex items-center justify-center">
-                  <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
+        {/* Overlay de Login (quando não logado) */}
+        {!isLoggedIn && (
+          <div className="absolute inset-0 bg-black/40 rounded-lg flex flex-col items-center justify-center">
+            <div className="text-center">
+              <div className="w-20 h-20 mx-auto mb-4 bg-gray-700 rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-bold text-white mb-2">Faça login pra jogar</h2>
+              <p className="text-gray-400 mb-6">Entre ou registre-se para começar a jogar</p>
+              <button
+                onClick={onRegister}
+                className="px-8 py-3 rounded-lg font-medium transition-colors"
+                style={{backgroundColor: '#50c50d'}}
+              >
+                Registrar
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Interface de Compra (quando logado mas não jogando) */}
+        {isLoggedIn && !isPlaying && (
+          <div className="absolute inset-0 bg-black/20 rounded-lg flex flex-col items-center justify-center">
+            <div className="text-center">
+              <p className="text-white mb-4 text-lg font-semibold">Comprar por {price}</p>
+              <button
+                onClick={onBuy}
+                className="px-8 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto"
+                style={{backgroundColor: '#50c50d'}}
+              >
+                <span>Jogar</span>
+                <div className="bg-green-600 px-2 py-1 rounded text-sm">
+                  {price}
                 </div>
-                <h2 className="text-xl font-bold text-white mb-2">Faça login pra jogar</h2>
-                <p className="text-gray-400 mb-6">Entre ou registre-se para começar a jogar</p>
-                <button
-                  onClick={onRegister}
-                  className="px-8 py-3 rounded-lg font-medium transition-colors"
-                  style={{backgroundColor: '#50c50d'}}
-                >
-                  Registrar
-                </button>
-              </div>
+              </button>
             </div>
-          )}
+          </div>
+        )}
+      </div>
 
-          {/* Interface de Compra (quando logado mas não jogando) */}
-          {isLoggedIn && !isPlaying && (
-            <div className="absolute inset-0 bg-black/20 rounded-lg flex flex-col items-center justify-center">
-              <div className="text-center">
-                <p className="text-white mb-4 text-lg font-semibold">Comprar por {price}</p>
-                <button
-                  onClick={onBuy}
-                  className="px-8 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto"
-                  style={{backgroundColor: '#50c50d'}}
-                >
-                  <span>Jogar</span>
-                  <div className="bg-green-600 px-2 py-1 rounded text-sm">
-                    {price}
-                  </div>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Instruções do jogo */}
-        <div className="text-center mt-6">
-          <p className="text-gray-400 text-sm">
-            Raspe os 9 quadradinhos, encontre 3 símbolos iguais e ganhe o prêmio!
-          </p>
-        </div>
+      {/* Instruções do jogo */}
+      <div className="text-center mt-6">
+        <p className="text-gray-400 text-sm">
+          Raspe os 9 quadradinhos, encontre 3 símbolos iguais e ganhe o prêmio!
+        </p>
       </div>
 
       {/* Botões de Controle (quando jogando) */}
