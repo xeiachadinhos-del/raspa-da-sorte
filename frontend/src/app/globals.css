@@ -2,6 +2,200 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Estilos personalizados */
+@layer utilities {
+  .bg-gradient-radial {
+    background: radial-gradient(circle, transparent 0%, transparent 50%, rgba(0, 0, 0, 0.1) 100%);
+  }
+  
+  .text-shadow {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  .drop-shadow-lg {
+    filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1));
+  }
+}
+
+/* Animações personalizadas */
+@keyframes pulse-green {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-green {
+  animation: pulse-green 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Animação do carrossel */
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-scroll {
+  animation: scroll 30s linear infinite;
+}
+
+/* Animação mais lenta do carrossel */
+.animate-scroll-slow {
+  animation: scroll 60s linear infinite;
+}
+
+/* Pausa a animação no hover */
+.animate-scroll:hover,
+.animate-scroll-slow:hover {
+  animation-play-state: paused;
+}
+
+/* Animação do carrossel swiper */
+.swiper-wrapper {
+  animation: scroll 30s linear infinite;
+}
+
+.swiper-wrapper:hover {
+  animation-play-state: paused;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #10b981;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #059669;
+}
+
+/* Efeitos de hover */
+.hover-lift {
+  transition: transform 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+/* Gradientes personalizados */
+.bg-gradient-green {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.bg-gradient-dark {
+  background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+}
+
+/* Efeitos de brilho */
+.glow-green {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.glow-yellow {
+  box-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+
+/* Classes para o carrossel minimalista */
+.list-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.hover\:bg-secondary:hover {
+  background-color: rgba(55, 65, 81, 0.5);
+}
+
+/* Variáveis CSS para os cards */
+:root {
+  --primary: #4ebf0b;
+  --surface: transparent;
+  --bg-color: transparent;
+  --border-color: linear-gradient(74.5deg, #4ebf0b, #000000);
+}
+
+/* Animação wiggle para o ícone de presente */
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out;
+}
+
+/* Efeito de brilho nas células premiadas */
+.scratch-cell-premium {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.5);
+  }
+  to {
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.8);
+  }
+}
+
+/* Efeito de brilho nas células ganhadas */
+.scratch-cell-won {
+  background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Efeito de célula raspada */
+.scratch-cell-revealed {
+  position: relative;
+  overflow: hidden;
+}
+
+.scratch-cell-revealed::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+  animation: scratch-reveal 0.5s ease-out;
+}
+
+@keyframes scratch-reveal {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Efeito metálico para células não raspadas */
+.scratch-cell-unrevealed {
+  background: linear-gradient(135deg, #4b5563 0%, #6b7280 50%, #4b5563 100%);
+  border: 1px solid #374151;
+  box-shadow: 
+    inset 0 1px 0 rgba(255,255,255,0.1),
+    0 2px 4px rgba(0,0,0,0.3);
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
