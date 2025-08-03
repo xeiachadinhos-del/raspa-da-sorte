@@ -4,6 +4,9 @@ const PAYMENT_API_URL = 'https://api.nomadfy.app/v1'; // URL correta da API Noma
 // Teste de conectividade com a API
 const testAPIConnection = async () => {
   try {
+    console.log('Testando conectividade com:', `${PAYMENT_API_URL}/charges?page=1&size=1`);
+    console.log('API Key:', API_KEY.substring(0, 20) + '...');
+    
     const response = await fetch(`${PAYMENT_API_URL}/charges?page=1&size=1`, {
       method: 'GET',
       headers: {
@@ -11,7 +14,15 @@ const testAPIConnection = async () => {
         'Authorization': `Bearer ${API_KEY}`,
       }
     });
-    console.log('Teste de conectividade:', response.status);
+    
+    console.log('Status da resposta:', response.status);
+    console.log('Headers da resposta:', Object.fromEntries(response.headers.entries()));
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Erro na resposta:', errorText);
+    }
+    
     return response.ok;
   } catch (error) {
     console.error('Erro no teste de conectividade:', error);
@@ -52,15 +63,8 @@ class PaymentAPI {
       console.log('Ambiente:', process.env.NODE_ENV);
       console.log('Callback URL:', callbackUrl);
       
-      // Estrutura correta baseada na documentação da API Nomadfy
+      // Estrutura simplificada baseada na documentação da API Nomadfy
       const payload = {
-        customer: {
-          name: userData.name || 'Usuário',
-          cpfCnpj: userData.cpfCnpj || '00000000000',
-          email: userData.email,
-          phone: userData.phone || '(11) 99999-9999',
-          accountId: userData.id || 'user-' + Date.now()
-        },
         payment: {
           method: 'PIX',
           amount: amount.toString(),
@@ -69,6 +73,13 @@ class PaymentAPI {
           installments: 1
         },
         dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Vencimento em 24h
+        customer: {
+          name: userData.name || 'Usuário',
+          cpfCnpj: userData.cpfCnpj || '00000000000',
+          email: userData.email,
+          phone: userData.phone || '(11) 99999-9999',
+          accountId: userData.id || 'user-' + Date.now()
+        },
         callbackUrl: callbackUrl,
         items: [
           {}
@@ -80,24 +91,38 @@ class PaymentAPI {
       console.log('URL da requisição:', `${this.baseURL}/charges`);
       console.log('Headers:', this.getHeaders());
 
-      const response = await fetch(`${this.baseURL}/charges`, {
-        method: 'POST',
-        headers: this.getHeaders(),
-        body: JSON.stringify(payload)
-      });
+      try {
+        const response = await fetch(`${this.baseURL}/charges`, {
+          method: 'POST',
+          headers: this.getHeaders(),
+          body: JSON.stringify(payload)
+        });
 
-      console.log('Status da resposta:', response.status);
-      console.log('Headers da resposta:', Object.fromEntries(response.headers.entries()));
+        console.log('Status da resposta:', response.status);
+        console.log('Headers da resposta:', Object.fromEntries(response.headers.entries()));
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Erro na API:', errorData);
-        throw new Error(`Erro na API: ${response.status} - ${errorData.message || errorData.error || 'Erro desconhecido'}`);
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Erro na API - Status:', response.status);
+          console.error('Erro na API - Texto:', errorText);
+          
+          let errorData = {};
+          try {
+            errorData = JSON.parse(errorText);
+          } catch (e) {
+            console.error('Erro ao fazer parse do JSON:', e);
+          }
+          
+          throw new Error(`Erro na API: ${response.status} - ${errorData.message || errorData.error || errorText || 'Erro desconhecido'}`);
+        }
+
+        const data = await response.json();
+        console.log('Resposta da API:', data);
+        return data;
+      } catch (fetchError) {
+        console.error('Erro na requisição fetch:', fetchError);
+        throw fetchError;
       }
-
-      const data = await response.json();
-      console.log('Resposta da API:', data);
-      return data;
     } catch (error) {
       console.error('Erro ao criar cobrança PIX:', error);
       throw error;
