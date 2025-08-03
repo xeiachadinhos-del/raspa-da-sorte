@@ -58,8 +58,14 @@ export default function PixPaymentModal({
   // Criar cobrança PIX quando o modal abrir
   useEffect(() => {
     if (isOpen && amount && user) {
+      console.log('Modal aberto, iniciando criação de cobrança...');
+      console.log('isOpen:', isOpen);
+      console.log('amount:', amount);
+      console.log('user:', user);
+      
       // Pequeno delay para garantir que o modal está aberto
       setTimeout(() => {
+        console.log('Executando createPixCharge...');
         createPixCharge();
       }, 100);
     }
@@ -74,9 +80,14 @@ export default function PixPaymentModal({
   }, [paymentData?.id, paymentStatus]);
 
   const createPixCharge = async () => {
+    console.log('=== INÍCIO DA FUNÇÃO createPixCharge ===');
+    console.log('Estado inicial - loading:', loading, 'error:', error, 'forceOpen:', forceOpen);
+    
     setLoading(true);
     setError(null);
     setForceOpen(true); // Força o modal a permanecer aberto
+    
+    console.log('Estados atualizados - loading: true, error: null, forceOpen: true');
     
     try {
       // Testar conectividade primeiro
@@ -86,7 +97,9 @@ export default function PixPaymentModal({
       console.log('Conectividade:', isConnected);
       
       if (!isConnected) {
+        console.log('❌ Conectividade falhou, definindo erro...');
         setError('❌ Erro de conectividade com o gateway de pagamento. Verifique sua conexão.');
+        console.log('Erro definido, retornando...');
         return;
       }
 
@@ -102,6 +115,7 @@ export default function PixPaymentModal({
       
       // Se o pagamento já foi confirmado
       if (response.status === 'CONFIRMED' || response.status === 'RECEIVED' || response.status === 'PAID' || response.status === 'APPROVED' || response.status === 'SETTLED') {
+        console.log('Pagamento confirmado, fechando modal...');
         onPaymentSuccess();
         onClose();
       }
@@ -114,13 +128,17 @@ export default function PixPaymentModal({
       console.error('Erro completo:', err);
       console.error('=== FIM DO ERRO ===');
       
+      console.log('Definindo erro no estado...');
       // Manter o modal aberto e mostrar erro detalhado
       setError(`❌ Erro ao gerar cobrança PIX: ${err.message}`);
       
+      console.log('Erro definido, NÃO fechando modal!');
       // NÃO fechar o modal em caso de erro - IMPORTANTE!
       // onClose(); // REMOVIDO
     } finally {
+      console.log('Finally executado, definindo loading: false');
       setLoading(false);
+      console.log('=== FIM DA FUNÇÃO createPixCharge ===');
     }
   };
 
@@ -208,7 +226,14 @@ export default function PixPaymentModal({
   };
 
   // Modal deve permanecer aberto se forceOpen for true, mesmo se isOpen for false
-  if (!isOpen && !forceOpen) return null;
+  console.log('Verificando renderização do modal - isOpen:', isOpen, 'forceOpen:', forceOpen, 'error:', error);
+  
+  if (!isOpen && !forceOpen) {
+    console.log('Modal não deve ser renderizado');
+    return null;
+  }
+  
+  console.log('Modal será renderizado');
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
