@@ -5,10 +5,27 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authAPI, gameAPI, utils } from "../../services/api";
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  credits: number;
+  balance: number;
+  level: number;
+  xp: number;
+}
+
+interface Prize {
+  id: string;
+  name: string;
+  value: number;
+  type: string;
+}
+
 export default function Jogo() {
   const [raspado, setRaspado] = useState(false);
-  const [premio, setPremio] = useState(null);
-  const [user, setUser] = useState(null);
+  const [premio, setPremio] = useState<Prize | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -17,7 +34,7 @@ export default function Jogo() {
     try {
       const userData = await authAPI.getUser();
       setUser(userData);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Erro ao carregar dados do usuário:", error);
       authAPI.logout();
       router.push("/login");
@@ -46,8 +63,9 @@ export default function Jogo() {
       setRaspado(true);
       setPremio(result.prize);
       setUser(result.user);
-    } catch (error) {
-      setError(error.message || "Erro ao jogar");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Erro ao jogar";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -58,15 +76,16 @@ export default function Jogo() {
     setPremio(null);
   };
 
-  const handlePurchaseCredits = async (credits, amount) => {
+  const handlePurchaseCredits = async (credits: number, amount: number) => {
     setLoading(true);
     setError("");
 
     try {
       const result = await gameAPI.purchaseCredits(credits, amount);
       setUser(result.user);
-    } catch (error) {
-      setError(error.message || "Erro ao comprar créditos");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Erro ao comprar créditos";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
