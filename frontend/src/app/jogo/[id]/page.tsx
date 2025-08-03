@@ -1,23 +1,74 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 
-export default function Home() {
-  const router = useRouter();
+interface GameData {
+  id: string;
+  title: string;
+  maxPrize: string;
+  price: string;
+  banner: string;
+  description: string;
+}
+
+const gamesData: { [key: string]: GameData } = {
+  '1000-reais': {
+    id: '1000-reais',
+    title: '1.000 Reais',
+    maxPrize: 'R$ 1.000,00',
+    price: 'R$ 1.000,00',
+    banner: 'https://i.postimg.cc/NGWD1v8X/banner-raspapix.png',
+    description: 'Raspe os 9 quadradinhos, encontre 3 símbolos iguais e ganhe o prêmio!'
+  },
+  '700-reais': {
+    id: '700-reais',
+    title: '700 Reais',
+    maxPrize: 'R$ 700,00',
+    price: 'R$ 700,00',
+    banner: 'https://i.postimg.cc/NGWD1v8X/banner-raspapix.png',
+    description: 'Raspe os 9 quadradinhos, encontre 3 símbolos iguais e ganhe o prêmio!'
+  },
+  '500-reais': {
+    id: '500-reais',
+    title: '500 Reais',
+    maxPrize: 'R$ 500,00',
+    price: 'R$ 500,00',
+    banner: 'https://i.postimg.cc/NGWD1v8X/banner-raspapix.png',
+    description: 'Raspe os 9 quadradinhos, encontre 3 símbolos iguais e ganhe o prêmio!'
+  },
+  'troco-premiado': {
+    id: 'troco-premiado',
+    title: 'Troco Premiado',
+    maxPrize: 'R$ 50,00',
+    price: 'R$ 50,00',
+    banner: 'https://i.postimg.cc/NGWD1v8X/banner-raspapix.png',
+    description: 'Raspe os 9 quadradinhos, encontre 3 símbolos iguais e ganhe o prêmio!'
+  }
+};
+
+export default function GamePage() {
+  const params = useParams();
+  const gameId = params.id as string;
+  const [game, setGame] = useState<GameData | null>(null);
   const [showLoginSheet, setShowLoginSheet] = useState(false);
   const [showRegisterSheet, setShowRegisterSheet] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Função de login
+  useEffect(() => {
+    if (gameId && gamesData[gameId]) {
+      setGame(gamesData[gameId]);
+    }
+  }, [gameId]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -35,15 +86,12 @@ export default function Home() {
       const data = await response.json();
 
       if (response.ok) {
-        // Salvar token e dados do usuário
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Fechar aba e redirecionar
         setShowLoginSheet(false);
         setEmail('');
         setPassword('');
-        router.push('/jogo');
+        window.location.reload();
       } else {
         setError(data.message || 'Erro ao fazer login');
       }
@@ -54,7 +102,6 @@ export default function Home() {
     }
   };
 
-  // Função de cadastro
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -78,17 +125,14 @@ export default function Home() {
       const data = await response.json();
 
       if (response.ok) {
-        // Salvar token e dados do usuário
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Fechar aba e redirecionar
         setShowRegisterSheet(false);
         setName('');
         setEmail('');
         setPassword('');
         setConfirmPassword('');
-        router.push('/jogo');
+        window.location.reload();
       } else {
         setError(data.message || 'Erro ao fazer cadastro');
       }
@@ -99,223 +143,154 @@ export default function Home() {
     }
   };
 
-  // Dados dos ganhadores ao vivo
-  const liveWinners = [
-    { name: 'Maurício Ma***', prize: 'Volkswagen Nivus', amount: '120.000,00', image: 'https://ik.imagekit.io/azx3nlpdu/banner/01K0BEAQVG9N3GAAJDCKAY5ECP.png' },
-    { name: 'Jácomo Pe***', prize: 'Apple Watch Ultra 2', amount: '9.000,00', image: 'https://ik.imagekit.io/azx3nlpdu/variant_apple_watch_ultra_2_pulseira_loop_alpina_azul_p.png?updatedAt=1751634892598' },
-    { name: 'Maicon Ma*****', prize: '200 Reais', amount: '200,00', image: 'https://ik.imagekit.io/azx3nlpdu/200-REAIS.png?updatedAt=1752865094953' },
-    { name: 'James Sa***', prize: 'Copo Stanley azul', amount: '165,00', image: 'https://ik.imagekit.io/azx3nlpdu/item_copo_termico_stanley_azul.png?updatedAt=1751634891016' },
-    { name: 'Ítalo So***', prize: 'Controle Xb', amount: '700,00', image: 'https://ik.imagekit.io/azx3nlpdu/item_controle_xbox_astral_purple.png?updatedAt=1751634897414' },
-    { name: 'Ivana Gu****', prize: '5 Reais', amount: '5,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/5%20REAIS.png?updatedAt=1752047821734' },
-    { name: 'Demian Ar****', prize: 'Micro-ondas', amount: '1.000,00', image: 'https://ik.imagekit.io/azx3nlpdu/item_micro_ondas_flat.png?updatedAt=1751634890350' },
-    { name: 'Vitor Du****', prize: '3 Reais', amount: '3,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/3%20REAIS.png?updatedAt=1752047821897' },
-    { name: 'Murilo Ce*******', prize: 'Churrasqueira a gás GS Performance', amount: '5.000,00', image: 'https://ik.imagekit.io/azx3nlpdu/item_churrasqueira_a_g_s_performance_340s.png?updatedAt=1751634896209' },
-    { name: 'Michelle Ta****', prize: 'Air Fryer', amount: '850,00', image: 'https://ik.imagekit.io/azx3nlpdu/item_air_fryer.png?updatedAt=1751634894630' },
-    { name: 'Abgail Co*****', prize: 'Apple AirPods 3ª geração', amount: '1.900,00', image: 'https://ik.imagekit.io/azx3nlpdu/item_airpods_3_gera_o.png?updatedAt=1751634894740' },
-    { name: 'Mariah Te***', prize: '1000 Reais', amount: '1.000,00', image: 'https://ik.imagekit.io/azx3nlpdu/1K.png?updatedAt=1752865094958' },
-    { name: 'Andréa Ba*****', prize: 'Cabo USB tipo C para recarga', amount: '360,00', image: 'https://ik.imagekit.io/azx3nlpdu/item_cabo_para_recarga_usb_c.png?updatedAt=1751634895696' },
-    { name: 'Malena Ra*****', prize: 'Galaxy Z Flip5', amount: '6.000,00', image: 'https://ik.imagekit.io/azx3nlpdu/variant_galaxy_z_flip5_256_gb_creme.png?updatedAt=1751634892797' },
-  ];
-
-  // Dados dos jogos em destaque
-  const featuredGames = [
-    {
-      id: '1000-reais',
-      title: '1.000 Reais',
-      banner: '1.000 REAIS',
-      maxPrize: 'R$ 1.000,00',
-      price: 'R$ 1.000,00',
-      icon: 'https://i.postimg.cc/FFW5mz44/imgi-74-troco-premiado.png'
-    },
-    {
-      id: '700-reais',
-      title: '700 Reais',
-      banner: '700 REAIS',
-      maxPrize: 'R$ 700,00',
-      price: 'R$ 700,00',
-      icon: 'https://i.postimg.cc/X7rMvWjy/imgi-75-Tech-Mania.png'
-    },
-    {
-      id: '500-reais',
-      title: '500 Reais',
-      banner: '500 REAIS',
-      maxPrize: 'R$ 500,00',
-      price: 'R$ 500,00',
-      icon: 'https://i.postimg.cc/L6wcYW5Q/imgi-76-apple-mania.png'
-    },
-    {
-      id: 'troco-premiado',
-      title: 'Troco Premiado',
-      banner: 'TROCO PREMIADO',
-      maxPrize: 'R$ 50,00',
-      price: 'R$ 50,00',
-      icon: 'https://i.postimg.cc/3xGPgZD8/imgi-77-beleza-premiada.png'
-    }
-  ];
-
-
-
+  if (!game) {
     return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Jogo não encontrado</h1>
+          <Link href="/" className="text-green-500 hover:text-green-400">
+            Voltar para a página inicial
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
     <div className="min-h-screen bg-black text-white pb-20 md:pb-0">
       {/* Header */}
-      <header className="bg-black px-4 py-3 flex justify-between items-center">
-        <div className="flex items-center">
-          <img 
-            src="https://i.postimg.cc/LXKwCgLt/imgi-1-RASPAPIXBR-1.png" 
-            alt="RASPA PIXBR" 
-            className="h-8 sm:h-10 md:h-12"
-          />
-        </div>
-        
-        <div className="flex gap-2">
-          <button 
-            onClick={() => setShowLoginSheet(true)}
-            className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-          >
-            Entrar
-          </button>
-          <button 
-            onClick={() => setShowRegisterSheet(true)}
-            className="text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1 transition-colors"
-            style={{backgroundColor: '#50c50d'}}
-          >
-            <span>+</span>
-            Registrar
-          </button>
+      <header className="bg-black py-4 px-6 border-b border-gray-800">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <Link href="/" className="flex items-center">
+            <img
+              src="https://i.postimg.cc/LXKwCgLt/imgi-1-RASPAPIXBR-1.png"
+              alt="RASPA PIXBR"
+              className="h-8 sm:h-10 md:h-12"
+            />
+          </Link>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setShowLoginSheet(true)}
+              className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Entrar
+            </button>
+            <button
+              onClick={() => setShowRegisterSheet(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
+              style={{backgroundColor: '#50c50d'}}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Registrar
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* Container Principal - Balão Cinza Escuro */}
-      <div className="px-4 py-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: '#171717' }}>
-            
-            {/* Main Banner */}
-            <section className="relative px-4">
-              <div 
-                className="w-full h-40 sm:h-48 md:h-56 lg:h-64 xl:h-72 bg-contain bg-center bg-no-repeat mx-auto"
-                style={{
-                  backgroundImage: 'url("https://i.postimg.cc/NGWD1v8X/banner-raspapix.png")',
-                  borderRadius: '20px'
-                }}
-              ></div>
-            </section>
+      {/* Main Content */}
+      <div className="max-w-6xl mx-auto px-4 py-6">
+        <div 
+          className="rounded-2xl shadow-2xl overflow-hidden"
+          style={{ backgroundColor: '#171717' }}
+        >
+          {/* Game Banner */}
+          <div className="px-4 py-1">
+            <div 
+              className="w-full h-48 md:h-64 bg-cover bg-center bg-no-repeat rounded-2xl"
+              style={{
+                backgroundImage: `url(${game.banner})`,
+                borderRadius: '20px'
+              }}
+            />
+          </div>
 
-            {/* Seção AO VIVO */}
-            <section className="py-1 px-6">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-                <h2 className="text-xl font-bold">
-                  <span className="text-gray-400">AO</span>
-                  <span className="text-green-500 ml-1">VIVO</span>
-                </h2>
+          {/* Game Info */}
+          <div className="px-6 py-4">
+            <div className="text-center mb-6">
+              <h1 className="text-3xl font-bold text-white mb-2">{game.title}</h1>
+              <p className="text-gray-400 mb-4">{game.description}</p>
+              <div className="bg-gray-800 rounded-lg p-4 mb-6">
+                <p className="text-lg text-white mb-2">Prêmio Máximo</p>
+                <p className="text-2xl font-bold" style={{color: '#50c50d'}}>{game.maxPrize}</p>
               </div>
+            </div>
 
-              {/* Carrossel de Ganhadores - Layout Minimalista */}
-              <div className="relative overflow-hidden">
-                <div className="flex animate-scroll-slow" style={{ width: 'max-content' }}>
-                  {liveWinners.map((winner, index) => (
-                    <div key={index} className="flex items-center gap-3 py-2 px-4 mr-6 rounded-lg border border-gray-600">
-                      <img src={winner.image} className="w-8 h-8 object-contain" alt={winner.prize} />
-                      <div className="flex flex-col text-xs">
-                        <span className="font-medium text-amber-400/95">
-                          {winner.name}
-                        </span>
-                        <span className="text-gray-400">
-                          {winner.prize}
-                        </span>
-                        <span className="font-semibold text-emerald-300">
-                          R$ {winner.amount}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                  
-                  {/* Duplicação para loop infinito */}
-                  {liveWinners.map((winner, index) => (
-                    <div key={`duplicate-${index}`} className="flex items-center gap-3 py-2 px-4 mr-6 rounded-lg border border-gray-600">
-                      <img src={winner.image} className="w-8 h-8 object-contain" alt={winner.prize} />
-                      <div className="flex flex-col text-xs">
-                        <span className="font-medium text-amber-400/95">
-                          {winner.name}
-                        </span>
-                        <span className="text-gray-400">
-                          {winner.prize}
-                        </span>
-                        <span className="font-semibold text-emerald-300">
-                          R$ {winner.amount}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-            {/* Seção Destaques */}
-            <section className="py-8 px-6">
-              <div className="flex justify-between items-center mb-6">
-                <div className="flex items-center gap-2">
-                  <svg className="w-6 h-6 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clipRule="evenodd" />
+            {/* Login Prompt */}
+            <div className="text-center py-8">
+              <div className="mb-6">
+                <div className="w-20 h-20 mx-auto mb-4 bg-gray-800 rounded-full flex items-center justify-center">
+                  <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
-                  <h3 className="text-xl font-bold text-white">Destaques</h3>
                 </div>
-                <Link href="/jogos" className="text-white hover:text-green-400 transition-colors">
-                  Ver mais &gt;
-                </Link>
+                <h2 className="text-xl font-bold text-white mb-2">Faça login pra jogar</h2>
+                <p className="text-gray-400 mb-6">Entre ou registre-se para começar a jogar</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {featuredGames.map((game) => (
-                  <div key={game.id} className="text-card-foreground flex flex-col relative p-4 shadow-sm max-w-[26.083rem] max-h-[13.604rem] gap-4 select-none rounded-lg transition-all duration-400 group" style={{background: 'transparent', border: '1px solid transparent', borderImage: 'linear-gradient(74.5deg, #4ebf0b, #000000) 1', borderRadius: '12px'}}>
-                    
-                    {/* Banner do jogo */}
-                    <div className="w-full aspect-[5/1] overflow-hidden rounded-lg">
-                      <img src={game.icon} alt={game.title} className="w-full h-full object-cover rounded-lg" />
-                    </div>
-                    
-                    {/* Título e prêmio */}
-                    <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-2.5">
-                      <h1 className="font-semibold text-white">{game.title}</h1>
-                      <h2 className="text-xs text-amber-400 font-medium opacity-90 uppercase">PRÊMIOS DE ATÉ {game.maxPrize}</h2>
-                    </div>
-                    
-                    {/* Botões */}
-                    <div className="flex items-end sm:items-center justify-between">
-                      <Link href={`/jogo/${game.id}`} className="">
-                        <button className="active:scale-95 transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive text-white shadow-xs h-10 rounded-md px-4 cursor-pointer" style={{backgroundColor: '#50c50d'}}>
-                          <section className="flex gap-2 justify-between items-center">
-                            <div className="flex gap-1 items-center font-semibold text-gray-800">
-                              <svg fill="currentColor" viewBox="0 0 256 256" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg" className="size-5">
-                                <path d="M198.51 56.09C186.44 35.4 169.92 24 152 24h-48c-17.92 0-34.44 11.4-46.51 32.09C46.21 75.42 40 101 40 128s6.21 52.58 17.49 71.91C69.56 220.6 86.08 232 104 232h48c17.92 0 34.44-11.4 46.51-32.09C209.79 180.58 216 155 216 128s-6.21-52.58-17.49-71.91Zm1.28 63.91h-32a152.8 152.8 0 0 0-9.68-48h30.59c6.12 13.38 10.16 30 11.09 48Zm-20.6-64h-28.73a83 83 0 0 0-12-16H152c10 0 19.4 6 27.19 16ZM152 216h-13.51a83 83 0 0 0 12-16h28.73C171.4 210 162 216 152 216Zm36.7-32h-30.58a152.8 152.8 0 0 0 9.68-48h32c-.94 18-4.98 34.62-11.1 48Z"></path>
-                              </svg>
-                              <span className="font-semibold">Jogar</span>
-                            </div>
-                            <div className="bg-black rounded-md p-1.5 flex items-center gap-1 text-xs">
-                              <span className="text-green-400">R$</span> <span className="text-white">{game.price.replace('R$ ', '')}</span>
-                            </div>
-                          </section>
-                        </button>
-                      </Link>
-                      
-                      <Link href={`/jogo/${game.id}#rewards`} className="sm:pt-3 pb-0.5 sm:pb-0 flex items-center gap-1.5 text-xs font-semibold cursor-pointer hover:text-emerald-400 active:text-emerald-400 active:scale-95 transition-all duration-200">
-                        <svg viewBox="0 0 512 512" fill="currentColor" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg" className="group-hover:animate-wiggle size-3">
-                          <path d="m190.5 68.8 34.8 59.2H152c-22.1 0-40-17.9-40-40s17.9-40 40-40h2.2c14.9 0 28.8 7.9 36.3 20.8zM64 88c0 14.4 3.5 28 9.6 40H32c-17.7 0-32 14.3-32 32v64c0 17.7 14.3 32 32 32h448c17.7 0 32-14.3 32-32v-64c0-17.7-14.3-32-32-32h-41.6c6.1-12 9.6-25.6 9.6-40 0-48.6-39.4-88-88-88h-2.2c-31.9 0-61.5 16.9-77.7 44.4L256 85.5l-24.1-41C215.7 16.9 186.1 0 154.2 0H152c-48.6 0-88 39.4-88 88zm336 0c0 22.1-17.9 40-40 40h-73.3l34.8-59.2c7.6-12.9 21.4-20.8 36.3-20.8h2.2c22.1 0 40 17.9 40 40zM32 288v176c0 26.5 21.5 48 48 48h144V288zm256 224h144c26.5 0 48-21.5 48-48V288H288z"></path>
-                        </svg>
-                        <span>VER PRÊMIOS</span>
-                        <svg width="1em" height="1em" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="size-3">
-                          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m8 4 8 8-8 8"></path>
-                        </svg>
-                      </Link>
-                    </div>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={() => setShowLoginSheet(true)}
+                  className="px-8 py-3 rounded-lg font-medium transition-colors"
+                  style={{backgroundColor: '#50c50d'}}
+                >
+                  Entrar
+                </button>
+                <button
+                  onClick={() => setShowRegisterSheet(true)}
+                  className="px-8 py-3 rounded-lg font-medium border border-gray-600 text-white hover:bg-gray-800 transition-colors"
+                >
+                  Registrar
+                </button>
+              </div>
+            </div>
+
+            {/* Game Instructions */}
+            <div className="bg-gray-800 rounded-lg p-6 mt-6">
+              <h3 className="text-lg font-bold text-white mb-4">Como Jogar</h3>
+              <div className="space-y-3 text-gray-300">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-sm font-bold">1</span>
                   </div>
-                ))}
+                  <p>Faça login ou registre-se na plataforma</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-sm font-bold">2</span>
+                  </div>
+                  <p>Clique em "Jogar" para iniciar a raspadinha</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-sm font-bold">3</span>
+                  </div>
+                  <p>Raspe os 9 quadradinhos para revelar os símbolos</p>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-white text-sm font-bold">4</span>
+                  </div>
+                  <p>Encontre 3 símbolos iguais para ganhar o prêmio</p>
+                </div>
               </div>
-            </section>
+            </div>
 
-
-
+            {/* Prize Info */}
+            <div className="bg-gray-800 rounded-lg p-6 mt-6">
+              <h3 className="text-lg font-bold text-white mb-4">Informações do Prêmio</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="text-gray-400 text-sm">Preço para jogar</p>
+                  <p className="text-white font-bold">{game.price}</p>
+                </div>
+                <div>
+                  <p className="text-gray-400 text-sm">Prêmio máximo</p>
+                  <p className="text-white font-bold" style={{color: '#50c50d'}}>{game.maxPrize}</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -327,9 +302,9 @@ export default function Home() {
             {/* Logo e Copyright */}
             <div>
               <div className="flex items-center mb-4">
-                <img 
-                  src="https://i.postimg.cc/LXKwCgLt/imgi-1-RASPAPIXBR-1.png" 
-                  alt="RASPA PIXBR" 
+                <img
+                  src="https://i.postimg.cc/LXKwCgLt/imgi-1-RASPAPIXBR-1.png"
+                  alt="RASPA PIXBR"
                   className="h-8 sm:h-10 md:h-12"
                 />
               </div>
@@ -364,51 +339,65 @@ export default function Home() {
         </div>
       </footer>
 
-      {/* Navegação Mobile */}
+      {/* Mobile Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 md:hidden">
         <div className="flex justify-around items-center py-2">
-          <Link href="/" className="flex flex-col items-center text-green-500">
-            <span className="text-xl">🏠</span>
+          <Link href="/" className="flex flex-col items-center text-gray-400 hover:text-white transition-colors">
+            <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
             <span className="text-xs">Início</span>
           </Link>
-          <Link href="/raspadinhas" className="flex flex-col items-center text-gray-400">
-            <span className="text-xl">🎫</span>
+          <Link href="/raspadinhas" className="flex flex-col items-center text-gray-400 hover:text-white transition-colors">
+            <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
             <span className="text-xs">Raspadinhas</span>
           </Link>
-          <button onClick={() => setShowRegisterSheet(true)} className="flex flex-col items-center">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{backgroundColor: '#50c50d'}}>
-              <span className="text-white text-xl">+</span>
-            </div>
-            <span className="text-xs text-white">Registrar</span>
+          <button
+            onClick={() => setShowRegisterSheet(true)}
+            className="flex flex-col items-center justify-center w-12 h-12 rounded-full transition-colors"
+            style={{backgroundColor: '#50c50d'}}
+          >
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
           </button>
-          <Link href="/premios" className="flex flex-col items-center text-gray-400">
-            <span className="text-xl">🎁</span>
+          <Link href="/premios" className="flex flex-col items-center text-gray-400 hover:text-white transition-colors">
+            <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+            </svg>
             <span className="text-xs">Prêmios</span>
           </Link>
-          <Link href="/login" className="flex flex-col items-center text-gray-400">
-            <span className="text-xl">👤</span>
+          <button
+            onClick={() => setShowLoginSheet(true)}
+            className="flex flex-col items-center text-gray-400 hover:text-white transition-colors"
+          >
+            <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
             <span className="text-xs">Entrar</span>
-          </Link>
+          </button>
         </div>
       </nav>
 
-            {/* Aba de Login (Bottom Sheet) */}
+      {/* Login Bottom Sheet */}
       {showLoginSheet && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-50"
           onClick={() => setShowLoginSheet(false)}
         >
-          <div 
+          <div
             className="absolute bottom-0 left-0 right-0 bg-[#191919] rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Handle superior */}
             <div className="w-12 h-1 bg-gray-600 rounded-full mx-auto mb-6"></div>
-            
+
             {/* Título */}
             <h2 className="text-2xl font-bold text-white mb-2">Bem vindo de volta!</h2>
             <p className="text-gray-400 mb-6">Conecte-se para acompanhar seus prêmios, depósitos e muito mais.</p>
-            
+
             {/* Formulário */}
             <form onSubmit={handleLogin} className="space-y-4">
               {error && (
@@ -434,7 +423,7 @@ export default function Home() {
                   />
                 </div>
               </div>
-              
+
               {/* Senha */}
               <div>
                 <label className="block text-white text-sm font-medium mb-2">Digite sua senha</label>
@@ -460,7 +449,7 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-              
+
               {/* Botão Entrar */}
               <button
                 type="submit"
@@ -481,18 +470,18 @@ export default function Home() {
                 )}
               </button>
             </form>
-            
+
             {/* Separador */}
             <div className="flex items-center my-6">
               <div className="flex-1 border-t border-gray-700"></div>
               <span className="px-4 text-gray-400 text-sm">OU</span>
               <div className="flex-1 border-t border-gray-700"></div>
             </div>
-            
+
             {/* Link para registro */}
             <div className="text-center">
               <p className="text-white mb-2">Ainda não tem uma conta?</p>
-              <button 
+              <button
                 onClick={() => {
                   setShowLoginSheet(false);
                   setShowRegisterSheet(true);
@@ -503,7 +492,7 @@ export default function Home() {
                 Registrar
               </button>
             </div>
-            
+
             {/* Botão Google */}
             <button className="w-full bg-white text-gray-900 font-medium py-3 px-4 rounded-lg mt-4 flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors">
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -518,23 +507,23 @@ export default function Home() {
         </div>
       )}
 
-      {/* Aba de Cadastro (Bottom Sheet) */}
+      {/* Register Bottom Sheet */}
       {showRegisterSheet && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-50"
           onClick={() => setShowRegisterSheet(false)}
         >
-          <div 
+          <div
             className="absolute bottom-0 left-0 right-0 bg-[#191919] rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Handle superior */}
             <div className="w-12 h-1 bg-gray-600 rounded-full mx-auto mb-6"></div>
-            
+
             {/* Título */}
-            <h2 className="text-2xl font-bold text-white mb-2">Criar conta</h2>
-            <p className="text-gray-400 mb-6">Cadastre-se para começar a jogar e ganhar prêmios incríveis.</p>
-            
+            <h2 className="text-2xl font-bold text-white mb-2">Crie sua conta!</h2>
+            <p className="text-gray-400 mb-6">Registre-se para começar a jogar e ganhar prêmios incríveis.</p>
+
             {/* Formulário */}
             <form onSubmit={handleRegister} className="space-y-4">
               {error && (
@@ -561,7 +550,7 @@ export default function Home() {
                   />
                 </div>
               </div>
-              
+
               {/* Email */}
               <div>
                 <label className="block text-white text-sm font-medium mb-2">Email</label>
@@ -580,7 +569,7 @@ export default function Home() {
                   />
                 </div>
               </div>
-              
+
               {/* Senha */}
               <div>
                 <label className="block text-white text-sm font-medium mb-2">Senha</label>
@@ -606,7 +595,7 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-              
+
               {/* Confirmar Senha */}
               <div>
                 <label className="block text-white text-sm font-medium mb-2">Confirmar senha</label>
@@ -632,8 +621,8 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-              
-              {/* Botão Cadastrar */}
+
+              {/* Botão Registrar */}
               <button
                 type="submit"
                 disabled={isLoading}
@@ -646,25 +635,25 @@ export default function Home() {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Cadastrando...
+                    Registrando...
                   </>
                 ) : (
-                  'CADASTRAR'
+                  'REGISTRAR'
                 )}
               </button>
             </form>
-            
+
             {/* Separador */}
             <div className="flex items-center my-6">
               <div className="flex-1 border-t border-gray-700"></div>
               <span className="px-4 text-gray-400 text-sm">OU</span>
               <div className="flex-1 border-t border-gray-700"></div>
             </div>
-            
+
             {/* Link para login */}
             <div className="text-center">
               <p className="text-white mb-2">Já tem uma conta?</p>
-              <button 
+              <button
                 onClick={() => {
                   setShowRegisterSheet(false);
                   setShowLoginSheet(true);
@@ -672,10 +661,10 @@ export default function Home() {
                 className="font-medium"
                 style={{color: '#50c50d'}}
               >
-                Entrar
+                Fazer Login
               </button>
             </div>
-            
+
             {/* Botão Google */}
             <button className="w-full bg-white text-gray-900 font-medium py-3 px-4 rounded-lg mt-4 flex items-center justify-center gap-2 hover:bg-gray-100 transition-colors">
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -684,11 +673,11 @@ export default function Home() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Fazer Cadastro com o Google
+              Registrar com o Google
             </button>
           </div>
         </div>
       )}
     </div>
   );
-}
+} 
