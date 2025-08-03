@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/services/api';
 
@@ -17,6 +17,42 @@ export default function Home() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  // Verificar se o usuário está logado
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    
+    if (token && userData) {
+      setIsLoggedIn(true);
+      setUser(JSON.parse(userData));
+    }
+  }, []);
+
+  // Função de logout
+  const handleLogout = () => {
+    authAPI.logout();
+    setIsLoggedIn(false);
+    setUser(null);
+    setShowUserMenu(false);
+  };
+
+  // Fechar menu quando clicar fora
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showUserMenu) {
+        setShowUserMenu(false);
+      }
+    };
+
+    document.addEventListener('click', handleClickOutside);
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showUserMenu]);
 
   // Função de login
   const handleLogin = async (e: React.FormEvent) => {
@@ -27,11 +63,14 @@ export default function Home() {
     try {
       const response = await authAPI.login({ email, password });
       
-      // Fechar aba e redirecionar
+      // Atualizar estado
+      setIsLoggedIn(true);
+      setUser(response.user);
+      
+      // Fechar aba e limpar campos
       setShowLoginSheet(false);
       setEmail('');
       setPassword('');
-      router.push('/jogo');
     } catch (err: any) {
       setError(err.message || 'Erro de conexão. Tente novamente.');
     } finally {
@@ -54,13 +93,16 @@ export default function Home() {
     try {
       const response = await authAPI.register({ name, email, password });
       
-      // Fechar aba e redirecionar
+      // Atualizar estado
+      setIsLoggedIn(true);
+      setUser(response.user);
+      
+      // Fechar aba e limpar campos
       setShowRegisterSheet(false);
       setName('');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
-      router.push('/jogo');
     } catch (err: any) {
       setError(err.message || 'Erro de conexão. Tente novamente.');
     } finally {
@@ -136,22 +178,112 @@ export default function Home() {
           />
         </div>
         
-        <div className="flex gap-2">
-          <button 
-            onClick={() => setShowLoginSheet(true)}
-            className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-          >
-            Entrar
-          </button>
-          <button 
-            onClick={() => setShowRegisterSheet(true)}
-            className="text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1 transition-colors"
-            style={{backgroundColor: '#50c50d'}}
-          >
-            <span>+</span>
-            Registrar
-          </button>
-        </div>
+        {isLoggedIn ? (
+          <div className="flex items-center gap-3">
+            {/* Saldo */}
+            <div className="bg-gray-800 rounded-lg px-3 py-2 flex items-center gap-2">
+              <span className="text-white font-medium">R$ {user?.balance?.toFixed(2) || '0,00'}</span>
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+            
+            {/* Botão Carteira */}
+            <button className="bg-green-600 hover:bg-green-700 p-2 rounded-lg transition-colors">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+            </button>
+            
+            {/* Avatar do Usuário */}
+            <div className="relative">
+              <button 
+                onClick={() => setShowUserMenu(!showUserMenu)}
+                className="flex items-center gap-2"
+              >
+                <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              
+              {/* Menu Dropdown */}
+              {showUserMenu && (
+                <div className="absolute right-0 top-12 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50">
+                  <div className="py-2">
+                    <button className="w-full px-4 py-3 text-left hover:bg-gray-700 flex items-center gap-3 border-l-4 border-green-500">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                      </svg>
+                      <span className="text-white">Conta</span>
+                    </button>
+                    
+                    <button className="w-full px-4 py-3 text-left hover:bg-gray-700 flex items-center gap-3">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                      </svg>
+                      <span className="text-white">Sacar</span>
+                    </button>
+                    
+                    <button className="w-full px-4 py-3 text-left hover:bg-gray-700 flex items-center gap-3">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="text-white">Histórico de Jogos</span>
+                    </button>
+                    
+                    <button className="w-full px-4 py-3 text-left hover:bg-gray-700 flex items-center gap-3">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <span className="text-white">Transações</span>
+                    </button>
+                    
+                    <button className="w-full px-4 py-3 text-left hover:bg-gray-700 flex items-center gap-3">
+                      <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                      <span className="text-white">Segurança</span>
+                    </button>
+                    
+                    <div className="border-t border-gray-700 my-2"></div>
+                    
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full px-4 py-3 text-left hover:bg-gray-700 flex items-center gap-3 text-red-400"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                      </svg>
+                      <span>Sair</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setShowLoginSheet(true)}
+              className="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            >
+              Entrar
+            </button>
+            <button 
+              onClick={() => setShowRegisterSheet(true)}
+              className="text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-1 transition-colors"
+              style={{backgroundColor: '#50c50d'}}
+            >
+              <span>+</span>
+              Registrar
+            </button>
+          </div>
+        )}
       </header>
 
       {/* Container Principal - Balão Cinza Escuro */}
@@ -344,20 +476,42 @@ export default function Home() {
             <span className="text-xl">🎫</span>
             <span className="text-xs">Raspadinhas</span>
           </Link>
-          <button onClick={() => setShowRegisterSheet(true)} className="flex flex-col items-center">
-            <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{backgroundColor: '#50c50d'}}>
-              <span className="text-white text-xl">+</span>
-            </div>
-            <span className="text-xs text-white">Registrar</span>
-          </button>
+          {isLoggedIn ? (
+            <button className="flex flex-col items-center">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{backgroundColor: '#50c50d'}}>
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                </svg>
+              </div>
+              <span className="text-xs text-white">Depositar</span>
+            </button>
+          ) : (
+            <button onClick={() => setShowRegisterSheet(true)} className="flex flex-col items-center">
+              <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{backgroundColor: '#50c50d'}}>
+                <span className="text-white text-xl">+</span>
+              </div>
+              <span className="text-xs text-white">Registrar</span>
+            </button>
+          )}
           <Link href="/premios" className="flex flex-col items-center text-gray-400">
             <span className="text-xl">🎁</span>
             <span className="text-xs">Prêmios</span>
           </Link>
-          <Link href="/login" className="flex flex-col items-center text-gray-400">
-            <span className="text-xl">👤</span>
-            <span className="text-xs">Entrar</span>
-          </Link>
+          {isLoggedIn ? (
+            <button onClick={() => setShowUserMenu(!showUserMenu)} className="flex flex-col items-center text-green-500">
+              <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <span className="text-xs">Conta</span>
+            </button>
+          ) : (
+            <Link href="/login" className="flex flex-col items-center text-gray-400">
+              <span className="text-xl">👤</span>
+              <span className="text-xs">Entrar</span>
+            </Link>
+          )}
         </div>
       </nav>
 
