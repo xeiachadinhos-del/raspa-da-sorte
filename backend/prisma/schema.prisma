@@ -22,6 +22,7 @@ model User {
   balance   Float    @default(0)
   level     Int      @default(1)
   xp        Int      @default(0)
+  isBlocked Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

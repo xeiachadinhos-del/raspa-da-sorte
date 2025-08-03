@@ -170,4 +170,89 @@ export const utils = {
   formatDate: (date) => {
     return new Date(date).toLocaleDateString('pt-BR');
   },
-}; 
+};
+
+// API Administrativa
+class AdminAPI {
+  constructor() {
+    this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  }
+
+  getHeaders() {
+    const token = localStorage.getItem('token');
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    };
+  }
+
+  async getStats() {
+    const response = await fetch(`${this.baseURL}/api/admin/stats`, {
+      method: 'GET',
+      headers: this.getHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao buscar estatísticas');
+    }
+
+    return response.json();
+  }
+
+  async getUsers() {
+    const response = await fetch(`${this.baseURL}/api/admin/users`, {
+      method: 'GET',
+      headers: this.getHeaders()
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao buscar usuários');
+    }
+
+    return response.json();
+  }
+
+  async blockUser(userId, blocked) {
+    const response = await fetch(`${this.baseURL}/api/admin/users/${userId}/block`, {
+      method: 'PUT',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ blocked })
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao bloquear usuário');
+    }
+
+    return response.json();
+  }
+
+  async updateWinRate(winRate) {
+    const response = await fetch(`${this.baseURL}/api/admin/settings/win-rate`, {
+      method: 'PUT',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ winRate })
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao atualizar taxa de vitória');
+    }
+
+    return response.json();
+  }
+
+  async approvePayout(userId, amount) {
+    const response = await fetch(`${this.baseURL}/api/admin/payouts/${userId}/approve`, {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ amount })
+    });
+
+    if (!response.ok) {
+      throw new Error('Erro ao aprovar saque');
+    }
+
+    return response.json();
+  }
+}
+
+export const adminAPI = new AdminAPI(); 

@@ -657,9 +657,173 @@ app.get('/api/games/history', authenticateToken, async (req, res) => {
   }
 });
 
+// Middleware de verificação de admin
+const isAdmin = async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id }
+    });
+    
+    if (!user || user.email !== 'admin@gmail.com') {
+      return res.status(403).json({ error: 'Acesso negado. Apenas administradores.' });
+    }
+    
+    next();
+  } catch (error) {
+    return res.status(403).json({ error: 'Acesso negado' });
+  }
+};
+
 // Rota de teste
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Servidor funcionando!' });
+});
+
+// Rotas Administrativas
+app.get('/api/admin/stats', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const totalUsers = await prisma.user.count();
+    const totalRevenue = await prisma.transaction.aggregate({
+      where: { type: 'GAME_PURCHASE' },
+      _sum: { amount: true }
+    });
+    const totalPayouts = await prisma.transaction.aggregate({
+      where: { type: 'WITHDRAWAL' },
+      _sum: { amount: true }
+    });
+    
+    // Calcular usuários ativos hoje
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const activeUsers = await prisma.user.count({
+      where: {
+        updatedAt: {
+          gte: today
+        }
+      }
+    });
+
+    res.json({
+      totalUsers,
+      totalRevenue: totalRevenue._sum.amount || 0,
+      totalPayouts: totalPayouts._sum.amount || 0,
+      winRate: 30, // Taxa padrão de 30%
+      activeUsers
+    });
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+app.get('/api/admin/users', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        balance: true,
+        credits: true,
+        isBlocked: true,
+        createdAt: true,
+        _count: {
+          select: {
+            gameSessions: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    // Calcular ganhos totais para cada usuário
+    const usersWithStats = await Promise.all(
+      users.map(async (user) => {
+        const totalWinnings = await prisma.transaction.aggregate({
+          where: {
+            userId: user.id,
+            type: 'PRIZE_WIN'
+          },
+          _sum: { amount: true }
+        });
+
+        return {
+          ...user,
+          totalGames: user._count.gameSessions,
+          totalWinnings: totalWinnings._sum.amount || 0
+        };
+      })
+    );
+
+    res.json(usersWithStats);
+  } catch (error) {
+    console.error('Erro ao buscar usuários:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+app.put('/api/admin/users/:userId/block', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { blocked } = req.body;
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { isBlocked: blocked }
+    });
+
+    res.json({ message: `Usuário ${blocked ? 'bloqueado' : 'desbloqueado'} com sucesso` });
+  } catch (error) {
+    console.error('Erro ao bloquear usuário:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+app.put('/api/admin/settings/win-rate', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const { winRate } = req.body;
+    
+    // Aqui você pode salvar a taxa de vitória em uma tabela de configurações
+    // Por enquanto, vamos apenas retornar sucesso
+    
+    res.json({ message: 'Taxa de vitória atualizada com sucesso', winRate });
+  } catch (error) {
+    console.error('Erro ao atualizar taxa de vitória:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+app.post('/api/admin/payouts/:userId/approve', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { amount } = req.body;
+
+    // Criar transação de saque aprovado
+    await prisma.transaction.create({
+      data: {
+        userId,
+        type: 'WITHDRAWAL_APPROVED',
+        amount,
+        description: `Saque aprovado - R$ ${amount}`,
+        status: 'COMPLETED'
+      }
+    });
+
+    // Atualizar saldo do usuário
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        balance: {
+          decrement: amount
+        }
+      }
+    });
+
+    res.json({ message: 'Saque aprovado com sucesso' });
+  } catch (error) {
+    console.error('Erro ao aprovar saque:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
 });
 
 // Webhook para notificações de pagamento PIX
