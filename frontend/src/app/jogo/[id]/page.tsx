@@ -220,23 +220,8 @@ export default function GamePage() {
           className="rounded-2xl shadow-2xl overflow-hidden"
           style={{ backgroundColor: '#171717' }}
         >
-          {/* Game Banner */}
-          <div className="px-4 py-1">
-            <div 
-              className="w-full h-48 md:h-64 bg-cover bg-center bg-no-repeat rounded-2xl"
-              style={{
-                backgroundImage: `url(${game.banner})`,
-                borderRadius: '20px'
-              }}
-            />
-          </div>
-
-          {/* Game Info */}
+                    {/* Game Info */}
           <div className="px-6 py-4">
-            <div className="text-center mb-6">
-              <h1 className="text-3xl font-bold text-white mb-2">{game.title}</h1>
-              <p className="text-gray-400 mb-4">{game.description}</p>
-            </div>
 
             {/* Componente da Raspadinha */}
             <ScratchCard
