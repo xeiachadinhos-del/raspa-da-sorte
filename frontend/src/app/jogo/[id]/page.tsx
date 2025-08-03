@@ -16,35 +16,51 @@ interface GameData {
 }
 
 const gamesData: { [key: string]: GameData } = {
-  '1000-reais': {
-    id: '1000-reais',
-    title: '1.000 Reais',
-    maxPrize: 'R$ 1.000,00',
-    price: 'R$ 1.000,00',
+  'raspadinha-1': {
+    id: 'raspadinha-1',
+    title: 'Raspadinha 1',
+    maxPrize: 'R$ 100,00',
+    price: 'R$ 0,50',
     banner: 'https://i.postimg.cc/NGWD1v8X/banner-raspapix.png',
     description: 'Raspe os 9 quadradinhos, encontre 3 símbolos iguais e ganhe o prêmio!'
   },
-  '700-reais': {
-    id: '700-reais',
-    title: '700 Reais',
-    maxPrize: 'R$ 700,00',
-    price: 'R$ 700,00',
+  'raspadinha-2': {
+    id: 'raspadinha-2',
+    title: 'Raspadinha 2',
+    maxPrize: 'R$ 200,00',
+    price: 'R$ 1,00',
     banner: 'https://i.postimg.cc/NGWD1v8X/banner-raspapix.png',
     description: 'Raspe os 9 quadradinhos, encontre 3 símbolos iguais e ganhe o prêmio!'
   },
-  '500-reais': {
-    id: '500-reais',
-    title: '500 Reais',
+  'raspadinha-3': {
+    id: 'raspadinha-3',
+    title: 'Raspadinha 3',
     maxPrize: 'R$ 500,00',
-    price: 'R$ 500,00',
+    price: 'R$ 2,50',
     banner: 'https://i.postimg.cc/NGWD1v8X/banner-raspapix.png',
     description: 'Raspe os 9 quadradinhos, encontre 3 símbolos iguais e ganhe o prêmio!'
   },
-  'troco-premiado': {
-    id: 'troco-premiado',
-    title: 'Troco Premiado',
-    maxPrize: 'R$ 50,00',
-    price: 'R$ 50,00',
+  'raspadinha-4': {
+    id: 'raspadinha-4',
+    title: 'Raspadinha 4',
+    maxPrize: 'R$ 1.000,00',
+    price: 'R$ 5,00',
+    banner: 'https://i.postimg.cc/NGWD1v8X/banner-raspapix.png',
+    description: 'Raspe os 9 quadradinhos, encontre 3 símbolos iguais e ganhe o prêmio!'
+  },
+  'raspadinha-5': {
+    id: 'raspadinha-5',
+    title: 'Raspadinha 5',
+    maxPrize: 'R$ 2.000,00',
+    price: 'R$ 10,00',
+    banner: 'https://i.postimg.cc/NGWD1v8X/banner-raspapix.png',
+    description: 'Raspe os 9 quadradinhos, encontre 3 símbolos iguais e ganhe o prêmio!'
+  },
+  'raspadinha-6': {
+    id: 'raspadinha-6',
+    title: 'Raspadinha 6',
+    maxPrize: 'R$ 5.000,00',
+    price: 'R$ 25,00',
     banner: 'https://i.postimg.cc/NGWD1v8X/banner-raspapix.png',
     description: 'Raspe os 9 quadradinhos, encontre 3 símbolos iguais e ganhe o prêmio!'
   }
@@ -68,19 +84,34 @@ export default function GamePage() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [userBalance, setUserBalance] = useState(0);
   const [currentGameSessionId, setCurrentGameSessionId] = useState('');
+  const [user, setUser] = useState<any>(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   // Verificar se o usuário está logado e carregar saldo
   useEffect(() => {
     const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
-    const isLoggedIn = !!(token && user);
+    const userData = localStorage.getItem('user');
+    const isLoggedIn = !!(token && userData);
     setIsLoggedIn(isLoggedIn);
     
-    if (isLoggedIn && user) {
-      const userData = JSON.parse(user);
-      setUserBalance(userData.balance || 0);
+    if (isLoggedIn && userData) {
+      const userObj = JSON.parse(userData);
+      setUser(userObj);
+      setUserBalance(userObj.balance || 0);
     }
   }, []);
+
+  // Fechar menu quando clicar fora
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowUserMenu(false);
+    };
+
+    if (showUserMenu) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showUserMenu]);
 
 
 
@@ -128,6 +159,15 @@ export default function GamePage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Função de logout
+  const handleLogout = () => {
+    authAPI.logout();
+    setIsLoggedIn(false);
+    setUser(null);
+    setUserBalance(0);
+    setShowUserMenu(false);
   };
 
   const handleLoginSuccess = () => {
@@ -185,24 +225,114 @@ export default function GamePage() {
               className="h-8 sm:h-10 md:h-12"
             />
           </Link>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setShowLoginSheet(true)}
-              className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              Entrar
-            </button>
-            <button
-              onClick={() => setShowRegisterSheet(true)}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
-              style={{backgroundColor: '#50c50d'}}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Registrar
-            </button>
-          </div>
+          {isLoggedIn ? (
+            <div className="flex items-center gap-3">
+              {/* Saldo */}
+              <div className="bg-gray-800 rounded-lg px-3 py-2 flex items-center gap-2">
+                <span className="text-white font-medium">R$ {userBalance.toFixed(2)}</span>
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              
+              {/* Botão Carteira */}
+              <button className="bg-green-600 hover:bg-green-700 p-2 rounded-lg transition-colors">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                </svg>
+              </button>
+              
+              {/* Avatar do Usuário */}
+              <div className="relative">
+                <button 
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center gap-2"
+                >
+                  <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                
+                {/* Menu Dropdown */}
+                {showUserMenu && (
+                  <div className="absolute right-0 top-12 w-64 bg-gray-800 rounded-lg shadow-xl border border-gray-700 z-50">
+                    <div className="py-2">
+                      <button className="w-full px-4 py-3 text-left hover:bg-gray-700 flex items-center gap-3 border-l-4 border-green-500">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span className="text-white">Conta</span>
+                      </button>
+                      
+                      <button className="w-full px-4 py-3 text-left hover:bg-gray-700 flex items-center gap-3">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                        </svg>
+                        <span className="text-white">Sacar</span>
+                      </button>
+                      
+                      <button className="w-full px-4 py-3 text-left hover:bg-gray-700 flex items-center gap-3">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-white">Histórico de Jogos</span>
+                      </button>
+                      
+                      <button className="w-full px-4 py-3 text-left hover:bg-gray-700 flex items-center gap-3">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <span className="text-white">Transações</span>
+                      </button>
+                      
+                      <button className="w-full px-4 py-3 text-left hover:bg-gray-700 flex items-center gap-3">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                        </svg>
+                        <span className="text-white">Segurança</span>
+                      </button>
+                      
+                      <div className="border-t border-gray-700 my-2"></div>
+                      
+                      <button 
+                        onClick={handleLogout}
+                        className="w-full px-4 py-3 text-left hover:bg-gray-700 flex items-center gap-3 text-red-400"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span>Sair</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowLoginSheet(true)}
+                className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                Entrar
+              </button>
+              <button
+                onClick={() => setShowRegisterSheet(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg transition-colors"
+                style={{backgroundColor: '#50c50d'}}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Registrar
+              </button>
+            </div>
+          )}
         </div>
       </header>
 

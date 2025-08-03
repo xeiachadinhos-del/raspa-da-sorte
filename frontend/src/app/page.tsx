@@ -131,36 +131,52 @@ export default function Home() {
   // Dados dos jogos em destaque
   const featuredGames = [
     {
-      id: '1000-reais',
-      title: '1.000 Reais',
-      banner: '1.000 REAIS',
-      maxPrize: 'R$ 1.000,00',
-      price: 'R$ 1.000,00',
+      id: 'raspadinha-1',
+      title: 'Raspadinha 1',
+      banner: 'RASPADINHA 1',
+      maxPrize: 'R$ 100,00',
+      price: 'R$ 0,50',
       icon: 'https://i.postimg.cc/FFW5mz44/imgi-74-troco-premiado.png'
     },
     {
-      id: '700-reais',
-      title: '700 Reais',
-      banner: '700 REAIS',
-      maxPrize: 'R$ 700,00',
-      price: 'R$ 700,00',
+      id: 'raspadinha-2',
+      title: 'Raspadinha 2',
+      banner: 'RASPADINHA 2',
+      maxPrize: 'R$ 200,00',
+      price: 'R$ 1,00',
       icon: 'https://i.postimg.cc/X7rMvWjy/imgi-75-Tech-Mania.png'
     },
     {
-      id: '500-reais',
-      title: '500 Reais',
-      banner: '500 REAIS',
+      id: 'raspadinha-3',
+      title: 'Raspadinha 3',
+      banner: 'RASPADINHA 3',
       maxPrize: 'R$ 500,00',
-      price: 'R$ 500,00',
+      price: 'R$ 2,50',
       icon: 'https://i.postimg.cc/L6wcYW5Q/imgi-76-apple-mania.png'
     },
     {
-      id: 'troco-premiado',
-      title: 'Troco Premiado',
-      banner: 'TROCO PREMIADO',
-      maxPrize: 'R$ 50,00',
-      price: 'R$ 50,00',
+      id: 'raspadinha-4',
+      title: 'Raspadinha 4',
+      banner: 'RASPADINHA 4',
+      maxPrize: 'R$ 1.000,00',
+      price: 'R$ 5,00',
       icon: 'https://i.postimg.cc/3xGPgZD8/imgi-77-beleza-premiada.png'
+    },
+    {
+      id: 'raspadinha-5',
+      title: 'Raspadinha 5',
+      banner: 'RASPADINHA 5',
+      maxPrize: 'R$ 2.000,00',
+      price: 'R$ 10,00',
+      icon: 'https://i.postimg.cc/FFW5mz44/imgi-74-troco-premiado.png'
+    },
+    {
+      id: 'raspadinha-6',
+      title: 'Raspadinha 6',
+      banner: 'RASPADINHA 6',
+      maxPrize: 'R$ 5.000,00',
+      price: 'R$ 25,00',
+      icon: 'https://i.postimg.cc/X7rMvWjy/imgi-75-Tech-Mania.png'
     }
   ];
 
