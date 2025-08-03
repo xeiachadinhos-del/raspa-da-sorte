@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import ScratchCard from '@/components/ScratchCard';
+import { authAPI } from '@/services/api';
 
 interface GameData {
   id: string;
@@ -89,28 +90,14 @@ export default function GamePage() {
     setError('');
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setShowLoginSheet(false);
-        setEmail('');
-        setPassword('');
-        setIsLoggedIn(true);
-      } else {
-        setError(data.message || 'Erro ao fazer login');
-      }
-    } catch (err) {
-      setError('Erro de conexão. Tente novamente.');
+      const response = await authAPI.login({ email, password });
+      setShowLoginSheet(false);
+      setEmail('');
+      setPassword('');
+      setIsLoggedIn(true);
+      setUserBalance(response.user.balance || 0);
+    } catch (err: any) {
+      setError(err.message || 'Erro de conexão. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -128,30 +115,16 @@ export default function GamePage() {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        setShowRegisterSheet(false);
-        setName('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
-        setIsLoggedIn(true);
-      } else {
-        setError(data.message || 'Erro ao fazer cadastro');
-      }
-    } catch (err) {
-      setError('Erro de conexão. Tente novamente.');
+      const response = await authAPI.register({ name, email, password });
+      setShowRegisterSheet(false);
+      setName('');
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      setIsLoggedIn(true);
+      setUserBalance(response.user.balance || 0);
+    } catch (err: any) {
+      setError(err.message || 'Erro de conexão. Tente novamente.');
     } finally {
       setIsLoading(false);
     }

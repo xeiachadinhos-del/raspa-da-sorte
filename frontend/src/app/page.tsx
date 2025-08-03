@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { authAPI } from '@/services/api';
 
 export default function Home() {
   const router = useRouter();
@@ -24,31 +25,15 @@ export default function Home() {
     setError('');
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Salvar token e dados do usuário
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Fechar aba e redirecionar
-        setShowLoginSheet(false);
-        setEmail('');
-        setPassword('');
-        router.push('/jogo');
-      } else {
-        setError(data.message || 'Erro ao fazer login');
-      }
-    } catch (err) {
-      setError('Erro de conexão. Tente novamente.');
+      const response = await authAPI.login({ email, password });
+      
+      // Fechar aba e redirecionar
+      setShowLoginSheet(false);
+      setEmail('');
+      setPassword('');
+      router.push('/jogo');
+    } catch (err: any) {
+      setError(err.message || 'Erro de conexão. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
@@ -67,33 +52,17 @@ export default function Home() {
     }
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Salvar token e dados do usuário
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        // Fechar aba e redirecionar
-        setShowRegisterSheet(false);
-        setName('');
-        setEmail('');
-        setPassword('');
-        setConfirmPassword('');
-        router.push('/jogo');
-      } else {
-        setError(data.message || 'Erro ao fazer cadastro');
-      }
-    } catch (err) {
-      setError('Erro de conexão. Tente novamente.');
+      const response = await authAPI.register({ name, email, password });
+      
+      // Fechar aba e redirecionar
+      setShowRegisterSheet(false);
+      setName('');
+      setEmail('');
+      setPassword('');
+      setConfirmPassword('');
+      router.push('/jogo');
+    } catch (err: any) {
+      setError(err.message || 'Erro de conexão. Tente novamente.');
     } finally {
       setIsLoading(false);
     }
