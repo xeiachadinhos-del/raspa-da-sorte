@@ -866,21 +866,21 @@ export default function Home() {
           onClick={() => setShowDepositSheet(false)}
         >
           <div 
-            className="absolute bottom-0 left-0 right-0 bg-gradient-to-b from-primary from-[-60%] via-[5%] to-100% via-background to-background rounded-t-lg max-h-[80vh] overflow-y-auto"
+            className="absolute bottom-0 left-0 right-0 bg-[#191919] rounded-t-lg max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Handle superior */}
-            <div className="bg-muted mx-auto mt-4 h-2 w-[100px] shrink-0 rounded-full"></div>
+            <div className="bg-gray-600 mx-auto mt-4 h-2 w-[100px] shrink-0 rounded-full"></div>
             
             {/* Header com Banner */}
-            <div className="flex flex-col gap-1.5 p-4 text-center -mt-1">
-              <div className="-m-10 mb-0 select-none relative">
+            <div className="flex flex-col gap-1.5 p-4 text-center">
+              <div className="relative overflow-hidden rounded-t-lg">
                 <img 
                   src="https://i.postimg.cc/6pgMtHtr/imgi-81-deposit-bg.jpg" 
-                  className="w-full sm:rounded-t-lg"
+                  className="w-full h-32 object-cover"
                   alt="Deposit Banner"
                 />
-                <div className="absolute bg-gradient-to-b from-black/10 via-black/10 from-0% via-85% to-100% to-background size-full z-10 top-0"></div>
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/30"></div>
               </div>
             </div>
             
@@ -894,7 +894,7 @@ export default function Home() {
             </div>
             
             {/* Formulário */}
-            <form className="space-y-3 overflow-hidden px-4">
+            <form className="space-y-3 overflow-hidden px-4 pb-6">
               {/* Campo de Valor */}
               <div>
                 <label className="flex items-center font-medium select-none mb-2 text-base text-white">
@@ -906,7 +906,7 @@ export default function Home() {
                     type="tel"
                     value="0,00"
                     readOnly
-                    className="pl-10 w-full rounded-md border bg-transparent px-3.5 py-2.5 text-base text-white border-gray-600"
+                    className="pl-10 w-full rounded-md border bg-gray-800 px-3.5 py-2.5 text-base text-white border-gray-600"
                   />
                 </div>
                 <div className="mt-1 text-xs text-rose-600/90">O valor mínimo é R$ 10,00</div>
@@ -915,10 +915,10 @@ export default function Home() {
               {/* Botões de Valores */}
               <div className="overflow-hidden">
                 <div className="flex gap-2 overflow-x-auto pb-2 pt-3">
-                  <button className="bg-primary/10 text-primary text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-primary/20 whitespace-nowrap">
+                  <button className="bg-green-600/20 text-green-500 text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-green-600/30 whitespace-nowrap border border-green-600/30">
                     R$ 10,00
                   </button>
-                  <button className="bg-primary/10 text-primary text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-primary/20 ring-2 ring-yellow-400 relative whitespace-nowrap">
+                  <button className="bg-green-600/20 text-green-500 text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-green-600/30 ring-2 ring-yellow-400 relative whitespace-nowrap border border-green-600/30">
                     <span className="bg-yellow-400 rounded-md absolute -top-0.5 left-2/4 -translate-y-2/4 -translate-x-2/4 text-xs text-black leading-4 px-1 uppercase flex gap-1 items-center">
                       <svg width="1em" height="1em" fill="currentColor" className="w-3 h-3" viewBox="0 0 16 16">
                         <path d="M8 16c3.314 0 6-2 6-5.5 0-1.5-.5-4-2.5-6 .25 1.5-1.25 2-1.25 2C11 4 9 .5 6 0c.357 2 .5 4-2 6-1.25 1-2 2.729-2 4.5C2 14 4.686 16 8 16m0-1c-1.657 0-3-1-3-2.75 0-.75.25-2 1.25-3C6.125 10 7 10.5 7 10.5c-.375-1.25.5-3.25 2-3.5-.179 1-.25 2 1 3 .625.5 1 1.364 1 2.25C11 14 9.657 15 8 15"></path>
@@ -927,23 +927,23 @@ export default function Home() {
                     </span>
                     R$ 30,00
                   </button>
-                  <button className="bg-primary/10 text-primary text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-primary/20 whitespace-nowrap">
+                  <button className="bg-green-600/20 text-green-500 text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-green-600/30 whitespace-nowrap border border-green-600/30">
                     R$ 50,00
                   </button>
-                  <button className="bg-primary/10 text-primary text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-primary/20 whitespace-nowrap">
+                  <button className="bg-green-600/20 text-green-500 text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-green-600/30 whitespace-nowrap border border-green-600/30">
                     R$ 100,00
                   </button>
-                  <button className="bg-primary/10 text-primary text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-primary/20 whitespace-nowrap">
+                  <button className="bg-green-600/20 text-green-500 text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-green-600/30 whitespace-nowrap border border-green-600/30">
                     R$ 200,00
                   </button>
-                  <button className="bg-primary/10 text-primary text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-primary/20 whitespace-nowrap">
+                  <button className="bg-green-600/20 text-green-500 text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-green-600/30 whitespace-nowrap border border-green-600/30">
                     R$ 500,00
                   </button>
                 </div>
               </div>
               
               {/* Botão Gerar QR Code */}
-              <button className="active:scale-95 transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-10 rounded-md px-6 w-full mx-auto mt-4 relative overflow-hidden py-6 cursor-pointer">
+              <button className="active:scale-95 transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all bg-green-600 text-white shadow-xs hover:bg-green-700 h-10 rounded-md px-6 w-full mx-auto mt-4 relative overflow-hidden py-6 cursor-pointer">
                 <svg width="1em" height="1em" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
                   <path fill="currentColor" d="M8 6H6v2h2zm-5-.75A2.25 2.25 0 0 1 5.25 3h3.5A2.25 2.25 0 0 1 11 5.25v3.5A2.25 2.25 0 0 1 8.75 11h-3.5A2.25 2.25 0 0 1 3 8.75zm2.25-.75a.75.75 0 0 0-.75.75v3.5c0 .414.336.75.75.75h3.5a.75.75 0 0 0 .75-.75v-3.5a.75.75 0 0 0-.75-.75zM6 16h2v2H6zm-3-.75A2.25 2.25 0 0 1 5.25 13h3.5A2.25 2.25 0 0 1 11 15.25v3.5A2.25 2.25 0 0 1 8.75 21h-3.5A2.25 2.25 0 0 1 3 18.75zm2.25-.75a.75.75 0 0 0-.75.75v3.5c0 .414.336.75.75.75h3.5a.75.75 0 0 0 .75-.75v-3.5a.75.75 0 0 0-.75-.75zM18 6h-2v2h2zm-2.75-3A2.25 2.25 0 0 0 13 5.25v3.5A2.25 2.25 0 0 0 15.25 11h3.5A2.25 2.25 0 0 0 21 8.75v-3.5A2.25 2.25 0 0 0 18.75 3zm-.75 2.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-.75.75h-3.5a.75.75 0 0 1-.75-.75zM13 13h2.75v2.75H13zm5.25 2.75h-2.5v2.5H13V21h2.75v-2.75h2.5V21H21v-2.75h-2.75zm0 0V13H21v2.75z"></path>
                 </svg>
