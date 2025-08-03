@@ -424,6 +424,47 @@ app.get('/api/achievements', authenticateToken, async (req, res) => {
   }
 });
 
+// Rota para adicionar saldo (apenas para desenvolvimento/teste)
+app.post('/api/user/add-balance', authenticateToken, async (req, res) => {
+  try {
+    const { amount } = req.body;
+    
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Valor inválido' });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { balance: req.user.balance + amount }
+    });
+
+    // Criar transação
+    await prisma.transaction.create({
+      data: {
+        userId: req.user.id,
+        type: 'BALANCE_ADD',
+        amount: amount,
+        status: 'COMPLETED'
+      }
+    });
+
+    res.json({
+      success: true,
+      message: `Saldo adicionado: R$ ${amount.toFixed(2)}`,
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        credits: updatedUser.credits,
+        balance: updatedUser.balance
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao adicionar saldo:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
 // Rota para obter estatísticas do usuário
 app.get('/api/user/stats', authenticateToken, async (req, res) => {
   try {
