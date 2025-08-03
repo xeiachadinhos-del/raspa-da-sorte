@@ -18,9 +18,18 @@ interface Achievement {
   completedAt: string | null;
 }
 
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  credits: number;
+  level: number;
+  xp: number;
+}
+
 export default function Conquistas() {
   const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const router = useRouter();
@@ -56,8 +65,9 @@ export default function Conquistas() {
       const result = await gamificationAPI.dailyLogin();
       setUser(result.user);
       alert(result.message);
-    } catch (error: any) {
-      alert(error.message || "Erro ao fazer login diário");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Erro ao fazer login diário";
+      alert(errorMessage);
     }
   };
 
