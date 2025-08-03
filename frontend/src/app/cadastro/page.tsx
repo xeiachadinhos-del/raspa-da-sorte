@@ -21,8 +21,9 @@ export default function Cadastro() {
     try {
       await authAPI.register({ name, email, password });
       router.push("/jogo");
-    } catch (error) {
-      setError(error.message || "Erro ao cadastrar");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Erro ao cadastrar";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

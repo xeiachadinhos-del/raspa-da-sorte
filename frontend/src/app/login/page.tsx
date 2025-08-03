@@ -20,8 +20,9 @@ export default function Login() {
     try {
       await authAPI.login({ email, password });
       router.push("/jogo");
-    } catch (error) {
-      setError(error.message || "Erro ao fazer login");
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Erro ao fazer login";
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
