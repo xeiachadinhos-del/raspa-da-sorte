@@ -9,6 +9,7 @@ export default function Home() {
   const router = useRouter();
   const [showLoginSheet, setShowLoginSheet] = useState(false);
   const [showRegisterSheet, setShowRegisterSheet] = useState(false);
+  const [showDepositSheet, setShowDepositSheet] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -484,16 +485,28 @@ export default function Home() {
       {/* Navegação Mobile */}
       <nav className="fixed bottom-0 left-0 right-0 bg-black border-t border-gray-800 md:hidden">
         <div className="flex justify-around items-center py-2">
-          <Link href="/" className="flex flex-col items-center text-green-500">
-            <span className="text-xl">🏠</span>
+          {/* Início */}
+          <Link href="/" className="flex flex-col items-center text-gray-400">
+            <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
             <span className="text-xs">Início</span>
           </Link>
+          
+          {/* Raspadinhas */}
           <Link href="/raspadinhas" className="flex flex-col items-center text-gray-400">
-            <span className="text-xl">🎫</span>
+            <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
             <span className="text-xs">Raspadinhas</span>
           </Link>
+          
+          {/* Botão Central - Registrar/Depositar */}
           {isLoggedIn ? (
-            <button className="flex flex-col items-center">
+            <button 
+              onClick={() => setShowDepositSheet(true)} 
+              className="flex flex-col items-center"
+            >
               <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{backgroundColor: '#50c50d'}}>
                 <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
@@ -502,31 +515,48 @@ export default function Home() {
               <span className="text-xs text-white">Depositar</span>
             </button>
           ) : (
-            <button onClick={() => setShowRegisterSheet(true)} className="flex flex-col items-center">
+            <button 
+              onClick={() => setShowRegisterSheet(true)} 
+              className="flex flex-col items-center"
+            >
               <div className="w-12 h-12 rounded-full flex items-center justify-center" style={{backgroundColor: '#50c50d'}}>
-                <span className="text-white text-xl">+</span>
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
               </div>
               <span className="text-xs text-white">Registrar</span>
             </button>
           )}
+          
+          {/* Prêmios */}
           <Link href="/premios" className="flex flex-col items-center text-gray-400">
-            <span className="text-xl">🎁</span>
+            <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+            </svg>
             <span className="text-xs">Prêmios</span>
           </Link>
+          
+          {/* Entrar/Conta */}
           {isLoggedIn ? (
-            <button onClick={() => setShowUserMenu(!showUserMenu)} className="flex flex-col items-center text-green-500">
-              <div className="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center">
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
+            <button 
+              onClick={() => setShowUserMenu(!showUserMenu)} 
+              className="flex flex-col items-center text-gray-400"
+            >
+              <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
               <span className="text-xs">Conta</span>
             </button>
           ) : (
-            <Link href="/login" className="flex flex-col items-center text-gray-400">
-              <span className="text-xl">👤</span>
+            <button 
+              onClick={() => setShowLoginSheet(true)} 
+              className="flex flex-col items-center text-gray-400"
+            >
+              <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
               <span className="text-xs">Entrar</span>
-            </Link>
+            </button>
           )}
         </div>
       </nav>
@@ -824,6 +854,72 @@ export default function Home() {
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
               Fazer Cadastro com o Google
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Depósito */}
+      {showDepositSheet && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-50"
+          onClick={() => setShowDepositSheet(false)}
+        >
+          <div 
+            className="absolute bottom-0 left-0 right-0 bg-[#191919] rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Handle superior */}
+            <div className="w-12 h-1 bg-gray-600 rounded-full mx-auto mb-6"></div>
+            
+            {/* Título */}
+            <div className="flex items-center gap-3 mb-6">
+              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+              <h2 className="text-2xl font-bold text-white">Depositar</h2>
+            </div>
+            
+            {/* Campo de Valor */}
+            <div className="mb-4">
+              <label className="block text-white text-sm font-medium mb-2">Valor:</label>
+              <input
+                type="text"
+                value="R$ 0,00"
+                readOnly
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
+              />
+              <p className="text-red-400 text-sm mt-1">O valor mínimo é R$ 10,00</p>
+            </div>
+            
+            {/* Botões de Valores Pré-definidos */}
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <button className="px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                R$ 10,00
+              </button>
+              <button className="px-4 py-3 border border-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-500/10 transition-colors relative">
+                <div className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                  </svg>
+                  QUENTE
+                </div>
+                R$ 30,00
+              </button>
+              <button className="px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                R$ 50,00
+              </button>
+              <button className="px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
+                R$ 100,00
+              </button>
+            </div>
+            
+            {/* Botão Gerar QR Code */}
+            <button className="w-full bg-green-600 text-white font-bold py-4 px-6 rounded-lg flex items-center justify-center gap-3 hover:bg-green-700 transition-colors">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z" />
+              </svg>
+              Gerar QR Code
             </button>
           </div>
         </div>
