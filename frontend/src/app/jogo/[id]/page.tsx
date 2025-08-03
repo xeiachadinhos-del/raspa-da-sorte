@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import ScratchCard from '@/components/ScratchCard';
 
 interface GameData {
   id: string;
@@ -62,6 +63,14 @@ export default function GamePage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  // Verificar se o usuário está logado
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    setIsLoggedIn(!!(token && user));
+  }, []);
 
 
 
@@ -87,7 +96,7 @@ export default function GamePage() {
         setShowLoginSheet(false);
         setEmail('');
         setPassword('');
-        window.location.reload();
+        setIsLoggedIn(true);
       } else {
         setError(data.message || 'Erro ao fazer login');
       }
@@ -128,7 +137,7 @@ export default function GamePage() {
         setEmail('');
         setPassword('');
         setConfirmPassword('');
-        window.location.reload();
+        setIsLoggedIn(true);
       } else {
         setError(data.message || 'Erro ao fazer cadastro');
       }
@@ -137,6 +146,15 @@ export default function GamePage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+  };
+
+  const handleBuy = () => {
+    // Implementar lógica de compra
+    alert('Funcionalidade de compra será implementada!');
   };
 
   if (!game) {
@@ -213,80 +231,17 @@ export default function GamePage() {
               </div>
             </div>
 
-            {/* Login Prompt */}
-            <div className="text-center py-8">
-              <div className="mb-6">
-                <div className="w-20 h-20 mx-auto mb-4 bg-gray-800 rounded-full flex items-center justify-center">
-                  <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                </div>
-                <h2 className="text-xl font-bold text-white mb-2">Faça login pra jogar</h2>
-                <p className="text-gray-400 mb-6">Entre ou registre-se para começar a jogar</p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button
-                  onClick={() => setShowLoginSheet(true)}
-                  className="px-8 py-3 rounded-lg font-medium transition-colors"
-                  style={{backgroundColor: '#50c50d'}}
-                >
-                  Entrar
-                </button>
-                <button
-                  onClick={() => setShowRegisterSheet(true)}
-                  className="px-8 py-3 rounded-lg font-medium border border-gray-600 text-white hover:bg-gray-800 transition-colors"
-                >
-                  Registrar
-                </button>
-              </div>
-            </div>
-
-            {/* Game Instructions */}
-            <div className="bg-gray-800 rounded-lg p-6 mt-6">
-              <h3 className="text-lg font-bold text-white mb-4">Como Jogar</h3>
-              <div className="space-y-3 text-gray-300">
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-white text-sm font-bold">1</span>
-                  </div>
-                  <p>Faça login ou registre-se na plataforma</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-white text-sm font-bold">2</span>
-                  </div>
-                  <p>Clique em "Jogar" para iniciar a raspadinha</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-white text-sm font-bold">3</span>
-                  </div>
-                  <p>Raspe os 9 quadradinhos para revelar os símbolos</p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-white text-sm font-bold">4</span>
-                  </div>
-                  <p>Encontre 3 símbolos iguais para ganhar o prêmio</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Prize Info */}
-            <div className="bg-gray-800 rounded-lg p-6 mt-6">
-              <h3 className="text-lg font-bold text-white mb-4">Informações do Prêmio</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-gray-400 text-sm">Preço para jogar</p>
-                  <p className="text-white font-bold">{game.price}</p>
-                </div>
-                <div>
-                  <p className="text-gray-400 text-sm">Prêmio máximo</p>
-                  <p className="text-white font-bold" style={{color: '#50c50d'}}>{game.maxPrize}</p>
-                </div>
-              </div>
-            </div>
+            {/* Componente da Raspadinha */}
+            <ScratchCard
+              gameId={game.id}
+              title={game.title}
+              price={game.price}
+              maxPrize={game.maxPrize}
+              isLoggedIn={isLoggedIn}
+              onLogin={() => setShowLoginSheet(true)}
+              onRegister={() => setShowRegisterSheet(true)}
+              onBuy={handleBuy}
+            />
           </div>
         </div>
       </div>
