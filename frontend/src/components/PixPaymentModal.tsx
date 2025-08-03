@@ -54,20 +54,33 @@ export default function PixPaymentModal({
     setError(null);
     
     try {
+      // Testar conectividade primeiro
+      console.log('Testando conectividade com a API...');
+      const isConnected = await paymentAPI.testConnection();
+      console.log('Conectividade:', isConnected);
+      
+      if (!isConnected) {
+        setError('Erro de conectividade com o gateway de pagamento. Verifique sua conexão.');
+        return;
+      }
+
       const numericAmount = parseFloat(amount.replace(',', '.'));
+      console.log('Criando cobrança para valor:', numericAmount);
+      
       const response = await paymentAPI.createPixCharge(user, numericAmount);
+      console.log('Resposta da cobrança:', response);
       
       setPaymentData(response);
-      setPaymentStatus(response.status);
+      setPaymentStatus(response.status || 'pending');
       
       // Se o pagamento já foi confirmado
-      if (response.status === 'CONFIRMED' || response.status === 'RECEIVED') {
+      if (response.status === 'CONFIRMED' || response.status === 'RECEIVED' || response.status === 'PAID') {
         onPaymentSuccess();
         onClose();
       }
     } catch (err) {
-      setError('Erro ao gerar cobrança PIX. Tente novamente.');
-      console.error('Erro ao criar cobrança:', err);
+      console.error('Erro detalhado:', err);
+      setError(`Erro ao gerar cobrança PIX: ${err.message}`);
     } finally {
       setLoading(false);
     }
@@ -234,6 +247,17 @@ export default function PixPaymentModal({
               <p className="text-orange-400 text-sm">
                 O QR Code expira em: <span className="font-medium">24 horas</span>
               </p>
+            </div>
+          )}
+
+          {/* Debug Info (apenas em desenvolvimento) */}
+          {process.env.NODE_ENV === 'development' && (
+            <div className="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-300">
+              <p><strong>Debug Info:</strong></p>
+              <p>Status: {paymentStatus}</p>
+              <p>Payment ID: {paymentData?.id || 'N/A'}</p>
+              <p>Amount: R$ {amount}</p>
+              <p>User ID: {user?.id || 'N/A'}</p>
             </div>
           )}
         </div>
