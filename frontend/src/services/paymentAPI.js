@@ -1,5 +1,5 @@
 const API_KEY = 'nd-key.01986eef-4879-70bd-bb28-5a1231656124.r4GFRBZi0Wbwx6Rv1xb1rlWswIT4iz7thBpZ03QP63GhGu1KobZ0muMIsI4D2nnYSZMJO2pihF4PX0zRcb5ka0GFnA3YJHhZGHtfKrR9nrdY0ul3Roao';
-const PAYMENT_API_URL = 'https://api.asaas.com/v3'; // Ajuste para a URL correta do seu gateway
+const PAYMENT_API_URL = 'https://api.asaas.com/v3'; // URL do gateway de pagamento
 
 class PaymentAPI {
   constructor() {
@@ -11,7 +11,7 @@ class PaymentAPI {
   getHeaders() {
     return {
       'Content-Type': 'application/json',
-      'access_token': this.apiKey,
+      'Authorization': `Bearer ${this.apiKey}`,
     };
   }
 
@@ -49,14 +49,16 @@ class PaymentAPI {
         }
       };
 
-      const response = await fetch(`${this.baseURL}/payments`, {
+      const response = await fetch(`${this.baseURL}/charges`, {
         method: 'POST',
         headers: this.getHeaders(),
         body: JSON.stringify(payload)
       });
 
       if (!response.ok) {
-        throw new Error(`Erro na API: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Erro na API:', errorData);
+        throw new Error(`Erro na API: ${response.status} - ${errorData.message || 'Erro desconhecido'}`);
       }
 
       const data = await response.json();
@@ -70,13 +72,15 @@ class PaymentAPI {
   // Consultar status do pagamento
   async getPaymentStatus(paymentId) {
     try {
-      const response = await fetch(`${this.baseURL}/payments/${paymentId}`, {
+      const response = await fetch(`${this.baseURL}/charges/${paymentId}`, {
         method: 'GET',
         headers: this.getHeaders()
       });
 
       if (!response.ok) {
-        throw new Error(`Erro na API: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Erro na API:', errorData);
+        throw new Error(`Erro na API: ${response.status} - ${errorData.message || 'Erro desconhecido'}`);
       }
 
       const data = await response.json();
@@ -90,13 +94,15 @@ class PaymentAPI {
   // Gerar QR Code PIX (se a API retornar os dados do PIX)
   async generatePixQRCode(paymentId) {
     try {
-      const response = await fetch(`${this.baseURL}/payments/${paymentId}/pixQrCode`, {
+      const response = await fetch(`${this.baseURL}/charges/${paymentId}/pixQrCode`, {
         method: 'GET',
         headers: this.getHeaders()
       });
 
       if (!response.ok) {
-        throw new Error(`Erro na API: ${response.status}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Erro na API:', errorData);
+        throw new Error(`Erro na API: ${response.status} - ${errorData.message || 'Erro desconhecido'}`);
       }
 
       const data = await response.json();

@@ -133,7 +133,7 @@ export default function PixPaymentModal({
       <div className="bg-[#191919] rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
-          <h2 className="text-xl font-semibold text-white">Pagamento PIX</h2>
+          <h2 className="text-xl font-semibold text-white">Depositar</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white"
@@ -145,20 +145,12 @@ export default function PixPaymentModal({
         </div>
 
         <div className="p-4 space-y-4">
-          {/* Valor */}
+          {/* Instruções */}
           <div className="text-center">
-            <p className="text-gray-400 text-sm">Valor a pagar</p>
-            <p className="text-2xl font-bold text-white">R$ {amount}</p>
+            <p className="text-white text-sm">
+              Escaneie o QR Code abaixo usando o app do seu banco para realizar o pagamento
+            </p>
           </div>
-
-          {/* Status */}
-          {paymentStatus && (
-            <div className="text-center">
-              <p className={`text-sm font-medium ${getStatusColor(paymentStatus)}`}>
-                {getStatusText(paymentStatus)}
-              </p>
-            </div>
-          )}
 
           {/* Loading */}
           {loading && (
@@ -183,7 +175,7 @@ export default function PixPaymentModal({
 
           {/* QR Code */}
           {paymentData?.payment?.pixQrCode && !loading && !error && (
-            <div className="text-center space-y-4">
+            <div className="text-center">
               <div className="bg-white p-4 rounded-lg inline-block">
                 <img
                   src={`data:image/png;base64,${paymentData.payment.pixQrCode}`}
@@ -191,75 +183,59 @@ export default function PixPaymentModal({
                   className="w-48 h-48"
                 />
               </div>
-              <p className="text-gray-400 text-sm">
-                Escaneie o QR Code com seu app bancário
+            </div>
+          )}
+
+          {/* Detalhes do Depósito */}
+          {paymentData && !loading && !error && (
+            <div className="border-2 border-dashed border-white rounded-lg p-4 space-y-3">
+              {/* Valor */}
+              <div className="flex items-center justify-between">
+                <span className="text-green-500 text-xl font-bold">R$ {amount}</span>
+                <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+              </div>
+
+              {/* Código PIX */}
+              {paymentData.payment?.pixCode && (
+                <div className="space-y-2">
+                  <div className="bg-gray-800 rounded px-3 py-2">
+                    <input
+                      type="text"
+                      value={paymentData.payment.pixCode}
+                      readOnly
+                      className="w-full bg-transparent text-white text-sm border-none outline-none"
+                    />
+                  </div>
+                  <button
+                    onClick={() => copyToClipboard(paymentData.payment.pixCode)}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded text-sm font-medium transition-colors"
+                  >
+                    {copied ? 'Copiado!' : 'Copiar Código'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Status do Pagamento */}
+          {paymentStatus && paymentStatus !== 'pending' && (
+            <div className="text-center">
+              <p className={`text-sm font-medium ${getStatusColor(paymentStatus)}`}>
+                {getStatusText(paymentStatus)}
               </p>
             </div>
           )}
 
-          {/* Código PIX */}
-          {paymentData?.payment?.pixCode && !loading && !error && (
-            <div className="space-y-2">
-              <p className="text-gray-400 text-sm">Código PIX:</p>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={paymentData.payment.pixCode}
-                  readOnly
-                  className="flex-1 bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white text-sm"
-                />
-                <button
-                  onClick={() => copyToClipboard(paymentData.payment.pixCode)}
-                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm"
-                >
-                  {copied ? 'Copiado!' : 'Copiar'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Chave PIX */}
-          {paymentData?.payment?.pixKey && !loading && !error && (
-            <div className="space-y-2">
-              <p className="text-gray-400 text-sm">Chave PIX:</p>
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={paymentData.payment.pixKey}
-                  readOnly
-                  className="flex-1 bg-gray-800 border border-gray-600 rounded px-3 py-2 text-white text-sm"
-                />
-                <button
-                  onClick={() => copyToClipboard(paymentData.payment.pixKey)}
-                  className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm"
-                >
-                  {copied ? 'Copiado!' : 'Copiar'}
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Instruções */}
+          {/* Aviso de Expiração */}
           {paymentData && !loading && !error && (
-            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-              <p className="text-blue-400 text-sm font-medium mb-2">Como pagar:</p>
-              <ol className="text-blue-300 text-sm space-y-1">
-                <li>1. Abra seu app bancário</li>
-                <li>2. Escolha a opção PIX</li>
-                <li>3. Escaneie o QR Code ou cole o código PIX</li>
-                <li>4. Confirme o pagamento</li>
-                <li>5. Aguarde a confirmação automática</li>
-              </ol>
+            <div className="text-center">
+              <p className="text-orange-400 text-sm">
+                O QR Code expira em: <span className="font-medium">24 horas</span>
+              </p>
             </div>
           )}
-
-          {/* Botão Fechar */}
-          <button
-            onClick={onClose}
-            className="w-full bg-gray-600 hover:bg-gray-700 text-white py-2 rounded-lg transition-colors"
-          >
-            Fechar
-          </button>
         </div>
       </div>
     </div>
