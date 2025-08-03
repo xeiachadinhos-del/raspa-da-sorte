@@ -164,144 +164,144 @@ export default function ScratchCard({
 
         {/* Grid de prêmios */}
         <div className="flex overflow-x-auto gap-2 pb-2 xl:grid xl:grid-cols-8 xl:overflow-x-visible">
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/variant_jbl_boombox_3_black.png?updatedAt=1751634894498" className="size-full p-3 object-contain" alt="Caixa de som JBL Boombox 3" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">Caixa de som JBL Boombox 3</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 2.500,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/variant_jbl_boombox_3_black.png?updatedAt=1751634894498" className="size-full p-2 object-contain" alt="Caixa de som JBL Boombox 3" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">Caixa de som JBL Boombox 3</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 2.500,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/item_iphone_12.png?updatedAt=1751634890863" className="size-full p-3 object-contain" alt="iPhone 12" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">iPhone 12</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 2.500,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/item_iphone_12.png?updatedAt=1751634890863" className="size-full p-2 object-contain" alt="iPhone 12" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">iPhone 12</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 2.500,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/1K.png?updatedAt=1752865094958" className="size-full p-3 object-contain" alt="1.000 Reais" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">1.000 Reais</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 1.000,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/1K.png?updatedAt=1752865094958" className="size-full p-2 object-contain" alt="1.000 Reais" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">1.000 Reais</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 1.000,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/item_c2_nk109.png?updatedAt=1751634895731" className="size-full p-3 object-contain" alt="Smartphone modelo C2 NK109" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">Smartphone modelo C2 NK109</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 800,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/item_c2_nk109.png?updatedAt=1751634895731" className="size-full p-2 object-contain" alt="Smartphone modelo C2 NK109" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">Smartphone modelo C2 NK109</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 800,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/700.png?updatedAt=1752856623225" className="size-full p-3 object-contain" alt="700 Reais" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">700 Reais</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 700,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/700.png?updatedAt=1752856623225" className="size-full p-2 object-contain" alt="700 Reais" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">700 Reais</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 700,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/item_ft_5_branca_e_preta.png?updatedAt=1751634891004" className="size-full p-3 object-contain" alt="Bola de futebol tamanho 5" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">Bola de futebol tamanho 5</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 500,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/item_ft_5_branca_e_preta.png?updatedAt=1751634891004" className="size-full p-2 object-contain" alt="Bola de futebol tamanho 5" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">Bola de futebol tamanho 5</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 500,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/item_212_vip_black.png?updatedAt=1751634894437" className="size-full p-3 object-contain" alt="Perfume 212 VIP Black" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">Perfume 212 VIP Black</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 399,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/item_212_vip_black.png?updatedAt=1751634894437" className="size-full p-2 object-contain" alt="Perfume 212 VIP Black" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">Perfume 212 VIP Black</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 399,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/item_camisa_do_seu_time.png?updatedAt=1751634896240" className="size-full p-3 object-contain" alt="Camisa de time de futebol" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">Camisa de time de futebol</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 350,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/item_camisa_do_seu_time.png?updatedAt=1751634896240" className="size-full p-2 object-contain" alt="Camisa de time de futebol" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">Camisa de time de futebol</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 350,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/item_fone_de_ouvido_lenovo.png?updatedAt=1751634891006" className="size-full p-3 object-contain" alt="Fone de ouvido Lenovo" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">Fone de ouvido Lenovo</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 220,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/item_fone_de_ouvido_lenovo.png?updatedAt=1751634891006" className="size-full p-2 object-contain" alt="Fone de ouvido Lenovo" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">Fone de ouvido Lenovo</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 220,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/200-REAIS.png?updatedAt=1752865094953" className="size-full p-3 object-contain" alt="200 Reais" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">200 Reais</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 200,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/200-REAIS.png?updatedAt=1752865094953" className="size-full p-2 object-contain" alt="200 Reais" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">200 Reais</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 200,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/item_copo_t_rmico_stanley_preto.png?updatedAt=1751634897660" className="size-full p-3 object-contain" alt="Copo Stanley preto" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">Copo Stanley preto</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 165,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/item_copo_t_rmico_stanley_preto.png?updatedAt=1751634897660" className="size-full p-2 object-contain" alt="Copo Stanley preto" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">Copo Stanley preto</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 165,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/100%20REAIS.png?updatedAt=1752047821876" className="size-full p-3 object-contain" alt="100 Reais" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">100 Reais</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 100,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/100%20REAIS.png?updatedAt=1752047821876" className="size-full p-2 object-contain" alt="100 Reais" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">100 Reais</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 100,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/banner/01K0F5KTMSEJBQF1STFZ4BCKXM.png" className="size-full p-3 object-contain" alt="PowerBank" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">PowerBank</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 60,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/banner/01K0F5KTMSEJBQF1STFZ4BCKXM.png" className="size-full p-2 object-contain" alt="PowerBank" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">PowerBank</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 60,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/50%20REAIS.png?updatedAt=1752047821745" className="size-full p-3 object-contain" alt="50 Reais" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">50 Reais</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 50,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/50%20REAIS.png?updatedAt=1752047821745" className="size-full p-2 object-contain" alt="50 Reais" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">50 Reais</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 50,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/item_chinelo_havaianas_top_branco.png?updatedAt=1751634896291" className="size-full p-3 object-contain" alt="Chinelo Havaianas branco" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">Chinelo Havaianas branco</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 35,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/item_chinelo_havaianas_top_branco.png?updatedAt=1751634896291" className="size-full p-2 object-contain" alt="Chinelo Havaianas branco" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">Chinelo Havaianas branco</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 35,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/10%20REAIS.png?updatedAt=1752047821681" className="size-full p-3 object-contain" alt="10 Reais" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">10 Reais</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 10,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/10%20REAIS.png?updatedAt=1752047821681" className="size-full p-2 object-contain" alt="10 Reais" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">10 Reais</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 10,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/5%20REAIS.png?updatedAt=1752047821734" className="size-full p-3 object-contain" alt="5 Reais" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">5 Reais</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 5,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/5%20REAIS.png?updatedAt=1752047821734" className="size-full p-2 object-contain" alt="5 Reais" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">5 Reais</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 5,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/3%20REAIS.png?updatedAt=1752047821897" className="size-full p-3 object-contain" alt="3 Reais" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">3 Reais</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 3,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/3%20REAIS.png?updatedAt=1752047821897" className="size-full p-2 object-contain" alt="3 Reais" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">3 Reais</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 3,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/2%20REAIS.png?updatedAt=1752047821644" className="size-full p-3 object-contain" alt="2 Reais" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">2 Reais</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 2,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/2%20REAIS.png?updatedAt=1752047821644" className="size-full p-2 object-contain" alt="2 Reais" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">2 Reais</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 2,00</div>
             </div>
           </div>
-          <div className="flex-shrink-0 w-38 xl:w-auto">
-            <div className="flex flex-col border-2 border-gray-600 p-3 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
-              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/1%20REAL.png?updatedAt=1752047821586" className="size-full p-3 object-contain" alt="1 Real" />
-              <h3 className="text-sm font-semibold mb-3 overflow-hidden text-ellipsis text-nowrap w-30">1 Real</h3>
-              <div className="px-1.5 py-1 bg-white text-black rounded-sm text-sm font-semibold self-start">R$ 1,00</div>
+          <div className="flex-shrink-0 w-24 xl:w-auto">
+            <div className="flex flex-col border-2 border-gray-600 p-2 rounded-lg bg-gradient-to-t from-green-500/17 from-[0%] to-[35%] to-gray-800 cursor-pointer aspect-square">
+              <img src="https://ik.imagekit.io/azx3nlpdu/Notas/1%20REAL.png?updatedAt=1752047821586" className="size-full p-2 object-contain" alt="1 Real" />
+              <h3 className="text-xs font-semibold mb-2 overflow-hidden text-ellipsis text-nowrap">1 Real</h3>
+              <div className="px-1 py-0.5 bg-white text-black rounded-sm text-xs font-semibold self-start">R$ 1,00</div>
             </div>
           </div>
         </div>
