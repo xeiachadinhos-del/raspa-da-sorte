@@ -33,11 +33,15 @@ export default function PixPaymentModal({
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
+  const [forceOpen, setForceOpen] = useState(false);
 
   // Criar cobrança PIX quando o modal abrir
   useEffect(() => {
     if (isOpen && amount && user) {
-      createPixCharge();
+      // Pequeno delay para garantir que o modal está aberto
+      setTimeout(() => {
+        createPixCharge();
+      }, 100);
     }
   }, [isOpen, amount, user]);
 
@@ -52,6 +56,7 @@ export default function PixPaymentModal({
   const createPixCharge = async () => {
     setLoading(true);
     setError(null);
+    setForceOpen(true); // Força o modal a permanecer aberto
     
     try {
       // Testar conectividade primeiro
@@ -92,7 +97,7 @@ export default function PixPaymentModal({
       // Manter o modal aberto e mostrar erro detalhado
       setError(`❌ Erro ao gerar cobrança PIX: ${err.message}`);
       
-      // Não fechar o modal em caso de erro
+      // NÃO fechar o modal em caso de erro - IMPORTANTE!
       // onClose(); // REMOVIDO
     } finally {
       setLoading(false);
@@ -182,7 +187,8 @@ export default function PixPaymentModal({
     }
   };
 
-  if (!isOpen) return null;
+  // Modal deve permanecer aberto se forceOpen for true, mesmo se isOpen for false
+  if (!isOpen && !forceOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
