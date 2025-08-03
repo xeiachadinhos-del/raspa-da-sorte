@@ -13,7 +13,7 @@ export default function Cadastro() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -44,7 +44,7 @@ export default function Cadastro() {
             type="text"
             placeholder="Nome completo"
             value={name}
-            onChange={(e) => setName(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
             className="border border-yellow-300 rounded px-4 py-2 focus:outline-yellow-500"
             required
           />
@@ -52,7 +52,7 @@ export default function Cadastro() {
             type="email"
             placeholder="E-mail"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
             className="border border-yellow-300 rounded px-4 py-2 focus:outline-yellow-500"
             required
           />
@@ -60,7 +60,7 @@ export default function Cadastro() {
             type="password"
             placeholder="Senha"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
             className="border border-yellow-300 rounded px-4 py-2 focus:outline-yellow-500"
             required
           />
