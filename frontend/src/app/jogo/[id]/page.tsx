@@ -65,12 +65,20 @@ export default function GamePage() {
   const [error, setError] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [userBalance, setUserBalance] = useState(0);
+  const [currentGameSessionId, setCurrentGameSessionId] = useState('');
 
-  // Verificar se o usuário está logado
+  // Verificar se o usuário está logado e carregar saldo
   useEffect(() => {
     const token = localStorage.getItem('token');
     const user = localStorage.getItem('user');
-    setIsLoggedIn(!!(token && user));
+    const isLoggedIn = !!(token && user);
+    setIsLoggedIn(isLoggedIn);
+    
+    if (isLoggedIn && user) {
+      const userData = JSON.parse(user);
+      setUserBalance(userData.balance || 0);
+    }
   }, []);
 
 
@@ -153,9 +161,20 @@ export default function GamePage() {
     setIsLoggedIn(true);
   };
 
-  const handleBuy = () => {
-    // Implementar lógica de compra
+  const handleBuy = (gameSessionId: string) => {
+    setCurrentGameSessionId(gameSessionId);
     setIsPlaying(true);
+  };
+
+  const handleBalanceUpdate = (newBalance: number) => {
+    setUserBalance(newBalance);
+    // Atualizar também no localStorage
+    const user = localStorage.getItem('user');
+    if (user) {
+      const userData = JSON.parse(user);
+      userData.balance = newBalance;
+      localStorage.setItem('user', JSON.stringify(userData));
+    }
   };
 
   const handlePlayAgain = () => {
@@ -231,11 +250,13 @@ export default function GamePage() {
               maxPrize={game.maxPrize}
               isLoggedIn={isLoggedIn}
               isPlaying={isPlaying}
+              userBalance={userBalance}
               onLogin={() => setShowLoginSheet(true)}
               onRegister={() => setShowRegisterSheet(true)}
               onBuy={handleBuy}
               onPlayAgain={handlePlayAgain}
               onAuto={handleAuto}
+              onBalanceUpdate={handleBalanceUpdate}
             />
           </div>
         </div>

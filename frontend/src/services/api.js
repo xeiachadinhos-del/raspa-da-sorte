@@ -85,11 +85,25 @@ export const authAPI = {
 
 // Jogo
 export const gameAPI = {
-  // Jogar raspadinha
-  play: async () => {
-    return await apiRequest('/game/play', {
+  // Comprar raspadinha
+  buyScratch: async (gameId, price) => {
+    return await apiRequest('/games/buy-scratch', {
       method: 'POST',
+      body: JSON.stringify({ gameId, price }),
     });
+  },
+
+  // Revelar raspadinha
+  revealScratch: async (gameSessionId) => {
+    return await apiRequest('/games/reveal-scratch', {
+      method: 'POST',
+      body: JSON.stringify({ gameSessionId }),
+    });
+  },
+
+  // Obter histórico de jogos
+  getGameHistory: async () => {
+    return await apiRequest('/games/history');
   },
 
   // Comprar créditos

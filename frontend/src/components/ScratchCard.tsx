@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { gameAPI } from '@/services/api';
 
 interface ScratchCardProps {
   gameId: string;
@@ -9,11 +10,13 @@ interface ScratchCardProps {
   maxPrize: string;
   isLoggedIn: boolean;
   isPlaying: boolean;
+  userBalance?: number;
   onLogin: () => void;
   onRegister: () => void;
-  onBuy: () => void;
+  onBuy: (gameSessionId: string) => void;
   onPlayAgain: () => void;
   onAuto: () => void;
+  onBalanceUpdate: (newBalance: number) => void;
 }
 
 export default function ScratchCard({
@@ -23,13 +26,49 @@ export default function ScratchCard({
   maxPrize,
   isLoggedIn,
   isPlaying,
+  userBalance = 0,
   onLogin,
   onRegister,
   onBuy,
   onPlayAgain,
-  onAuto
+  onAuto,
+  onBalanceUpdate
 }: ScratchCardProps) {
   const [isScratched, setIsScratched] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleBuyScratch = async () => {
+    if (!isLoggedIn) {
+      onLogin();
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      // Converter preço de string para número (remover "R$ " e vírgulas)
+      const priceValue = parseFloat(price.replace('R$ ', '').replace('.', '').replace(',', '.'));
+      
+      if (userBalance < priceValue) {
+        setError('Saldo insuficiente para comprar esta raspadinha');
+        setIsLoading(false);
+        return;
+      }
+
+      const response = await gameAPI.buyScratch(gameId, priceValue);
+      
+      if (response.success) {
+        onBalanceUpdate(response.user.balance);
+        onBuy(response.gameSession.id);
+      }
+    } catch (error: any) {
+      setError(error.message || 'Erro ao comprar raspadinha');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="relative">
@@ -113,24 +152,37 @@ export default function ScratchCard({
           </div>
         )}
 
-        {/* Interface de Compra (quando logado mas não jogando) */}
-        {isLoggedIn && !isPlaying && (
-          <div className="absolute inset-0 bg-black/20 rounded-lg flex flex-col items-center justify-center">
-            <div className="text-center">
-              <p className="text-white mb-4 text-lg font-semibold">Comprar por {price}</p>
-              <button
-                onClick={onBuy}
-                className="px-8 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto"
-                style={{backgroundColor: '#50c50d'}}
-              >
-                <span>Jogar</span>
-                <div className="bg-green-600 px-2 py-1 rounded text-sm">
-                  {price}
-                </div>
-              </button>
-            </div>
-          </div>
-        )}
+                            {/* Interface de Compra (quando logado mas não jogando) */}
+                    {isLoggedIn && !isPlaying && (
+                      <div className="absolute inset-0 bg-black/20 rounded-lg flex flex-col items-center justify-center">
+                        <div className="text-center">
+                          <p className="text-white mb-4 text-lg font-semibold">Comprar por {price}</p>
+                          {error && (
+                            <p className="text-red-400 text-sm mb-2">{error}</p>
+                          )}
+                          <button
+                            onClick={handleBuyScratch}
+                            disabled={isLoading}
+                            className="px-8 py-3 rounded-lg font-medium transition-colors flex items-center gap-2 mx-auto disabled:opacity-50"
+                            style={{backgroundColor: '#50c50d'}}
+                          >
+                            {isLoading ? (
+                              <span>Comprando...</span>
+                            ) : (
+                              <>
+                                <span>Jogar</span>
+                                <div className="bg-green-600 px-2 py-1 rounded text-sm">
+                                  {price}
+                                </div>
+                              </>
+                            )}
+                          </button>
+                          {userBalance > 0 && (
+                            <p className="text-gray-300 text-sm mt-2">Saldo: R$ {userBalance.toFixed(2)}</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
       </div>
 
       {/* Instruções do jogo */}
