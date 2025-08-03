@@ -18,7 +18,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<{id: string; name: string; email: string; balance: number; credits: number} | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   // Verificar se o usuário está logado
@@ -42,7 +42,7 @@ export default function Home() {
 
   // Fechar menu quando clicar fora
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = () => {
       if (showUserMenu) {
         setShowUserMenu(false);
       }
