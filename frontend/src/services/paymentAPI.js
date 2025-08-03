@@ -1,5 +1,5 @@
 const API_KEY = 'nd-key.01986eef-4879-70bd-bb28-5a1231656124.r4GFRBZi0Wbwx6Rv1xb1rlWswIT4iz7thBpZ03QP63GhGu1KobZ0muMIsI4D2nnYSZMJO2pihF4PX0zRcb5ka0GFnA3YJHhZGHtfKrR9nrdY0ul3Roao';
-const PAYMENT_API_URL = 'https://api.asaas.com/v3'; // URL do gateway de pagamento
+const PAYMENT_API_URL = 'https://api.nomadfy.app/v1'; // URL correta da API Nomadfy
 
 // Teste de conectividade com a API
 const testAPIConnection = async () => {
@@ -43,14 +43,8 @@ class PaymentAPI {
     try {
       console.log('Iniciando criação de cobrança PIX:', { userData, amount });
       
+      // Estrutura correta baseada na documentação da API Nomadfy
       const payload = {
-        customer: {
-          name: userData.name || 'Usuário',
-          cpfCnpj: userData.cpfCnpj || '00000000000',
-          email: userData.email,
-          phone: userData.phone || '(11) 99999-9999',
-          accountId: userData.id || 'user-' + Date.now()
-        },
         payment: {
           method: 'PIX',
           amount: amount.toString(),
@@ -58,6 +52,13 @@ class PaymentAPI {
           installments: 1
         },
         dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Vencimento em 24h
+        customer: {
+          name: userData.name || 'Usuário',
+          cpfCnpj: userData.cpfCnpj || '00000000000',
+          email: userData.email,
+          phone: userData.phone || '(11) 99999-9999',
+          accountId: userData.id || 'user-' + Date.now()
+        },
         callbackUrl: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/payment/webhook`,
         items: [
           {

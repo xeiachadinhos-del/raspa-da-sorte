@@ -76,7 +76,7 @@ export default function PixPaymentModal({
       setPaymentStatus(response.status || 'pending');
       
       // Se o pagamento já foi confirmado
-      if (response.status === 'CONFIRMED' || response.status === 'RECEIVED' || response.status === 'PAID') {
+      if (response.status === 'CONFIRMED' || response.status === 'RECEIVED' || response.status === 'PAID' || response.status === 'APPROVED' || response.status === 'SETTLED') {
         onPaymentSuccess();
         onClose();
       }
@@ -106,7 +106,7 @@ export default function PixPaymentModal({
       const response = await paymentAPI.getPaymentStatus(paymentData.id);
       setPaymentStatus(response.status);
       
-      if (response.status === 'CONFIRMED' || response.status === 'RECEIVED') {
+      if (response.status === 'CONFIRMED' || response.status === 'RECEIVED' || response.status === 'PAID' || response.status === 'APPROVED' || response.status === 'SETTLED') {
         onPaymentSuccess();
         onClose();
       }
@@ -129,10 +129,21 @@ export default function PixPaymentModal({
     switch (status) {
       case 'CONFIRMED':
       case 'RECEIVED':
+      case 'PAID':
+      case 'APPROVED':
+      case 'SETTLED':
         return 'text-green-500';
       case 'OVERDUE':
       case 'CANCELLED':
+      case 'CANCELED':
+      case 'UNPAID':
+      case 'EXPIRED':
         return 'text-red-500';
+      case 'IDENTIFIED':
+      case 'CONTESTED':
+        return 'text-orange-500';
+      case 'WAITING':
+      case 'NEW':
       default:
         return 'text-yellow-500';
     }
@@ -142,11 +153,30 @@ export default function PixPaymentModal({
     switch (status) {
       case 'CONFIRMED':
       case 'RECEIVED':
+      case 'PAID':
         return 'Pagamento Confirmado';
       case 'OVERDUE':
         return 'Vencido';
       case 'CANCELLED':
+      case 'CANCELED':
         return 'Cancelado';
+      case 'WAITING':
+      case 'NEW':
+        return 'Aguardando Pagamento';
+      case 'IDENTIFIED':
+        return 'Pagamento Identificado';
+      case 'APPROVED':
+        return 'Pagamento Aprovado';
+      case 'UNPAID':
+        return 'Não Pago';
+      case 'REFUNDED':
+        return 'Reembolsado';
+      case 'CONTESTED':
+        return 'Contestado';
+      case 'SETTLED':
+        return 'Liquidado';
+      case 'EXPIRED':
+        return 'Expirado';
       default:
         return 'Aguardando Pagamento';
     }
