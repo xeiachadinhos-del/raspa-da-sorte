@@ -13,12 +13,32 @@ interface PixPaymentModalProps {
 
 interface PaymentData {
   id: string;
+  amount: string;
+  dueDate: string;
   status: string;
+  accountId: string;
   payment: {
-    pixQrCode?: string;
-    pixKey?: string;
-    pixCode?: string;
+    method: string;
+    amount: string;
+    message: string;
+    status: string;
+    details: {
+      pixQrCode?: string;
+      pixKey?: string;
+      pixCode?: string;
+    };
   };
+  customer: {
+    id: string;
+    name: string;
+    cpfCnpj: string;
+    email: string;
+    phone: string;
+  };
+  items: any[];
+  createdAt: string;
+  callbackUrl?: string;
+  metadata?: any;
 }
 
 export default function PixPaymentModal({ 
@@ -250,11 +270,11 @@ export default function PixPaymentModal({
           )}
 
           {/* QR Code */}
-          {paymentData?.payment?.pixQrCode && !loading && !error && (
+          {paymentData?.payment?.details?.pixQrCode && !loading && !error && (
             <div className="text-center">
               <div className="bg-white p-4 rounded-lg inline-block">
                 <img
-                  src={`data:image/png;base64,${paymentData.payment.pixQrCode}`}
+                  src={`data:image/png;base64,${paymentData.payment.details.pixQrCode}`}
                   alt="QR Code PIX"
                   className="w-48 h-48"
                 />
@@ -274,18 +294,18 @@ export default function PixPaymentModal({
               </div>
 
               {/* Código PIX */}
-              {paymentData.payment?.pixCode && (
+              {paymentData.payment?.details?.pixCode && (
                 <div className="space-y-2">
                   <div className="bg-gray-800 rounded px-3 py-2">
                     <input
                       type="text"
-                      value={paymentData.payment.pixCode}
+                      value={paymentData.payment.details.pixCode}
                       readOnly
                       className="w-full bg-transparent text-white text-sm border-none outline-none"
                     />
                   </div>
                   <button
-                    onClick={() => copyToClipboard(paymentData.payment.pixCode)}
+                    onClick={() => copyToClipboard(paymentData.payment.details.pixCode)}
                     className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded text-sm font-medium transition-colors"
                   >
                     {copied ? 'Copiado!' : 'Copiar Código'}

@@ -45,13 +45,6 @@ class PaymentAPI {
       
       // Estrutura correta baseada na documentação da API Nomadfy
       const payload = {
-        payment: {
-          method: 'PIX',
-          amount: amount.toString(),
-          message: `Depósito Raspa da Sorte - R$ ${amount}`,
-          installments: 1
-        },
-        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Vencimento em 24h
         customer: {
           name: userData.name || 'Usuário',
           cpfCnpj: userData.cpfCnpj || '00000000000',
@@ -59,20 +52,19 @@ class PaymentAPI {
           phone: userData.phone || '(11) 99999-9999',
           accountId: userData.id || 'user-' + Date.now()
         },
+        payment: {
+          method: 'PIX',
+          amount: amount.toString(),
+          message: `Depósito Raspa da Sorte - R$ ${amount}`,
+          card: {},
+          installments: 1
+        },
+        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Vencimento em 24h
         callbackUrl: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/payment/webhook`,
         items: [
-          {
-            name: 'Depósito Raspa da Sorte',
-            unitPrice: amount.toString(),
-            quantity: 1,
-            externalRef: `deposit-${userData.id}-${Date.now()}`
-          }
+          {}
         ],
-        metadata: {
-          userId: userData.id,
-          type: 'deposit',
-          game: 'raspa-da-sorte'
-        }
+        metadata: {}
       };
 
       console.log('Payload enviado:', payload);
