@@ -51,7 +51,7 @@ const gamesData: { [key: string]: GameData } = {
 export default function GamePage() {
   const params = useParams();
   const gameId = params.id as string;
-  const [game, setGame] = useState<GameData | null>(null);
+  const game = gamesData[gameId] || null;
   const [showLoginSheet, setShowLoginSheet] = useState(false);
   const [showRegisterSheet, setShowRegisterSheet] = useState(false);
   const [email, setEmail] = useState('');
@@ -63,11 +63,7 @@ export default function GamePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (gameId && gamesData[gameId]) {
-      setGame(gamesData[gameId]);
-    }
-  }, [gameId]);
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
