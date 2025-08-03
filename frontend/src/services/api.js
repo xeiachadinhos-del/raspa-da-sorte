@@ -81,6 +81,14 @@ export const authAPI = {
     const user = localStorage.getItem('user');
     return user ? JSON.parse(user) : null;
   },
+
+  // Adicionar saldo ao usuário
+  addBalance: async (amount) => {
+    return await apiRequest('/user/add-balance', {
+      method: 'POST',
+      body: JSON.stringify({ amount }),
+    });
+  },
 };
 
 // Jogo

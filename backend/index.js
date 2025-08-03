@@ -662,6 +662,83 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Servidor funcionando!' });
 });
 
+// Webhook para notificações de pagamento PIX
+app.post('/api/payment/webhook', async (req, res) => {
+  try {
+    const { event, payment } = req.body;
+    
+    console.log('Webhook recebido:', { event, payment });
+
+    // Verificar se é uma notificação de pagamento confirmado
+    if (event === 'PAYMENT_RECEIVED' || event === 'PAYMENT_CONFIRMED') {
+      const { id, status, amount, customer } = payment;
+      
+      // Extrair userId do metadata
+      const userId = payment.metadata?.userId;
+      
+      if (!userId) {
+        console.error('UserId não encontrado no metadata do pagamento');
+        return res.status(400).json({ error: 'UserId não encontrado' });
+      }
+
+      // Verificar se o pagamento já foi processado
+      const existingTransaction = await prisma.transaction.findFirst({
+        where: {
+          externalId: id,
+          type: 'DEPOSIT'
+        }
+      });
+
+      if (existingTransaction) {
+        console.log('Pagamento já processado:', id);
+        return res.status(200).json({ message: 'Pagamento já processado' });
+      }
+
+      // Atualizar saldo do usuário
+      const user = await prisma.user.findUnique({
+        where: { id: userId }
+      });
+
+      if (!user) {
+        console.error('Usuário não encontrado:', userId);
+        return res.status(404).json({ error: 'Usuário não encontrado' });
+      }
+
+      // Criar transação
+      await prisma.transaction.create({
+        data: {
+          userId: userId,
+          type: 'DEPOSIT',
+          amount: parseFloat(amount),
+          description: `Depósito PIX - R$ ${amount}`,
+          status: 'COMPLETED',
+          externalId: id,
+          metadata: {
+            paymentId: id,
+            paymentMethod: 'PIX',
+            customerEmail: customer?.email
+          }
+        }
+      });
+
+      // Atualizar saldo do usuário
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          balance: user.balance + parseFloat(amount)
+        }
+      });
+
+      console.log(`Saldo atualizado para usuário ${userId}: +R$ ${amount}`);
+    }
+
+    res.status(200).json({ message: 'Webhook processado com sucesso' });
+  } catch (error) {
+    console.error('Erro ao processar webhook:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);

@@ -4,12 +4,14 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/services/api';
+import PixPaymentModal from '../components/PixPaymentModal';
 
 export default function Home() {
   const router = useRouter();
   const [showLoginSheet, setShowLoginSheet] = useState(false);
   const [showRegisterSheet, setShowRegisterSheet] = useState(false);
   const [showDepositSheet, setShowDepositSheet] = useState(false);
+  const [showPixPaymentModal, setShowPixPaymentModal] = useState(false);
   const [depositAmount, setDepositAmount] = useState('0,00');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,6 +39,34 @@ export default function Home() {
   // Função para atualizar valor do depósito
   const handleDepositAmountChange = (amount: string) => {
     setDepositAmount(amount);
+  };
+
+  // Função para lidar com sucesso do pagamento PIX
+  const handlePaymentSuccess = async () => {
+    try {
+      // Atualizar saldo do usuário no backend
+      const numericAmount = parseFloat(depositAmount.replace(',', '.'));
+      await authAPI.addBalance(numericAmount);
+      
+      // Atualizar estado local
+      if (user) {
+        const updatedUser = { ...user, balance: user.balance + numericAmount };
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+      }
+      
+      // Fechar modais
+      setShowDepositSheet(false);
+      setShowPixPaymentModal(false);
+      
+      // Resetar valor
+      setDepositAmount('0,00');
+      
+      alert('Depósito realizado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao atualizar saldo:', error);
+      alert('Erro ao atualizar saldo. Entre em contato com o suporte.');
+    }
   };
 
   // Função de logout
@@ -996,18 +1026,36 @@ export default function Home() {
                 </div>
               </div>
               
-              {/* Botão Gerar QR Code */}
-              <button className="active:scale-95 transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all bg-green-600 text-white shadow-xs hover:bg-green-700 h-10 rounded-md px-6 w-full mx-auto mt-4 relative overflow-hidden py-6 cursor-pointer">
-                <svg width="1em" height="1em" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
-                  <path fill="currentColor" d="M8 6H6v2h2zm-5-.75A2.25 2.25 0 0 1 5.25 3h3.5A2.25 2.25 0 0 1 11 5.25v3.5A2.25 2.25 0 0 1 8.75 11h-3.5A2.25 2.25 0 0 1 3 8.75zm2.25-.75a.75.75 0 0 0-.75.75v3.5c0 .414.336.75.75.75h3.5a.75.75 0 0 0 .75-.75v-3.5a.75.75 0 0 0-.75-.75zM6 16h2v2H6zm-3-.75A2.25 2.25 0 0 1 5.25 13h3.5A2.25 2.25 0 0 1 11 15.25v3.5A2.25 2.25 0 0 1 8.75 21h-3.5A2.25 2.25 0 0 1 3 18.75zm2.25-.75a.75.75 0 0 0-.75.75v3.5c0 .414.336.75.75.75h3.5a.75.75 0 0 0 .75-.75v-3.5a.75.75 0 0 0-.75-.75zM18 6h-2v2h2zm-2.75-3A2.25 2.25 0 0 0 13 5.25v3.5A2.25 2.25 0 0 0 15.25 11h3.5A2.25 2.25 0 0 0 21 8.75v-3.5A2.25 2.25 0 0 0 18.75 3zm-.75 2.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-.75.75h-3.5a.75.75 0 0 1-.75-.75zM13 13h2.75v2.75H13zm5.25 2.75h-2.5v2.5H13V21h2.75v-2.75h2.5V21H21v-2.75h-2.75zm0 0V13H21v2.75z"></path>
-                </svg>
-                Gerar QR Code
-                <span className="bg-black/20 absolute left-0 top-0 bottom-0 w-0"></span>
-              </button>
+                                      {/* Botão Gerar QR Code */}
+                        <button 
+                          onClick={() => {
+                            if (depositAmount === '0,00') {
+                              alert('Selecione um valor para depositar');
+                              return;
+                            }
+                            setShowPixPaymentModal(true);
+                          }}
+                          className="active:scale-95 transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all bg-green-600 text-white shadow-xs hover:bg-green-700 h-10 rounded-md px-6 w-full mx-auto mt-4 relative overflow-hidden py-6 cursor-pointer"
+                        >
+                          <svg width="1em" height="1em" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
+                            <path fill="currentColor" d="M8 6H6v2h2zm-5-.75A2.25 2.25 0 0 1 5.25 3h3.5A2.25 2.25 0 0 1 11 5.25v3.5A2.25 2.25 0 0 1 8.75 11h-3.5A2.25 2.25 0 0 1 3 8.75zm2.25-.75a.75.75 0 0 0-.75.75v3.5c0 .414.336.75.75.75h3.5a.75.75 0 0 0 .75-.75v-3.5a.75.75 0 0 0-.75-.75zM6 16h2v2H6zm-3-.75A2.25 2.25 0 0 1 5.25 13h3.5A2.25 2.25 0 0 1 11 15.25v3.5A2.25 2.25 0 0 1 8.75 21h-3.5A2.25 2.25 0 0 1 3 18.75zm2.25-.75a.75.75 0 0 0-.75.75v3.5c0 .414.336.75.75.75h3.5a.75.75 0 0 0 .75-.75v-3.5a.75.75 0 0 0-.75-.75zM18 6h-2v2h2zm-2.75-3A2.25 2.25 0 0 0 13 5.25v3.5A2.25 2.25 0 0 0 15.25 11h3.5A2.25 2.25 0 0 0 21 8.75v-3.5A2.25 2.25 0 0 0 18.75 3zm-.75 2.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-.75.75h-3.5a.75.75 0 0 1-.75-.75zM13 13h2.75v2.75H13zm5.25 2.75h-2.5v2.5H13V21h2.75v-2.75h2.5V21H21v-2.75h-2.75zm0 0V13H21v2.75z"></path>
+                          </svg>
+                          Gerar QR Code
+                          <span className="bg-black/20 absolute left-0 top-0 bottom-0 w-0"></span>
+                        </button>
             </form>
           </div>
         </div>
       )}
+
+      {/* Modal de Pagamento PIX */}
+      <PixPaymentModal
+        isOpen={showPixPaymentModal}
+        onClose={() => setShowPixPaymentModal(false)}
+        amount={depositAmount}
+        user={user}
+        onPaymentSuccess={handlePaymentSuccess}
+      />
     </div>
   );
 }
