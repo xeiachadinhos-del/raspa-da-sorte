@@ -866,7 +866,13 @@ export default function Home() {
           onClick={() => setShowDepositSheet(false)}
         >
           <div 
-            className="absolute bottom-0 left-0 right-0 bg-[#191919] rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto"
+            className="absolute bottom-0 left-0 right-0 rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto"
+            style={{
+              backgroundImage: 'url(https://i.postimg.cc/6pgMtHtr/imgi-81-deposit-bg.jpg)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat'
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Handle superior */}
