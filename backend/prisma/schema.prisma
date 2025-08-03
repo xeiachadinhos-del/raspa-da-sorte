@@ -1,0 +1,132 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  credits   Int      @default(0)
+  balance   Float    @default(0)
+  level     Int      @default(1)
+  xp        Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  transactions Transaction[]
+  prizes       Prize[]
+  achievements UserAchievement[]
+  dailyLogins  DailyLogin[]
+  gameSessions GameSession[]
+
+  @@map("users")
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // CREDIT_PURCHASE, PRIZE_WITHDRAWAL, CREDIT_REFUND
+  amount    Float
+  credits   Int?
+  status    String   @default("PENDING") // PENDING, COMPLETED, FAILED, CANCELLED
+  createdAt DateTime @default(now())
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("transactions")
+}
+
+model Prize {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Float
+  claimed   Boolean  @default(false)
+  claimedAt DateTime?
+  createdAt DateTime @default(now())
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("prizes")
+}
+
+model GameSession {
+  id        String   @id @default(cuid())
+  userId    String
+  creditsUsed Int
+  prizeWon  Float?
+  xpEarned  Int      @default(0)
+  createdAt DateTime @default(now())
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("game_sessions")
+}
+
+// Sistema de Conquistas
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  type        String   // DAILY, WEEKLY, SPECIAL, MILESTONE
+  requirement Int      // Quantidade necessária
+  reward      Int      // Créditos de recompensa
+  icon        String   // Ícone da conquista
+  createdAt   DateTime @default(now())
+
+  // Relacionamentos
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  progress      Int      @default(0)
+  completed     Boolean  @default(false)
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+
+  // Relacionamentos
+  user        User        @relation(fields: [userId], references: [id])
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+// Sistema de Login Diário
+model DailyLogin {
+  id        String   @id @default(cuid())
+  userId    String
+  loginDate DateTime
+  streak    Int      @default(1) // Sequência de logins
+  reward    Int      @default(10) // Créditos ganhos
+  createdAt DateTime @default(now())
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("daily_logins")
+}
+
+// Enums convertidos para strings devido ao SQLite
+// TransactionType: CREDIT_PURCHASE, PRIZE_WITHDRAWAL, CREDIT_REFUND
+// TransactionStatus: PENDING, COMPLETED, FAILED, CANCELLED
