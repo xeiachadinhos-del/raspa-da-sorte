@@ -459,6 +459,163 @@ app.get('/api/user/stats', authenticateToken, async (req, res) => {
   }
 });
 
+// Rota para comprar raspadinha
+app.post('/api/games/buy-scratch', authenticateToken, async (req, res) => {
+  try {
+    const { gameId, price } = req.body;
+    
+    if (!gameId || !price) {
+      return res.status(400).json({ error: 'ID do jogo e preço são obrigatórios' });
+    }
+
+    // Verificar se o usuário tem saldo suficiente
+    if (req.user.balance < price) {
+      return res.status(400).json({ error: 'Saldo insuficiente para comprar esta raspadinha' });
+    }
+
+    // Deduzir o valor do saldo
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { balance: req.user.balance - price }
+    });
+
+    // Criar transação
+    await prisma.transaction.create({
+      data: {
+        userId: req.user.id,
+        type: 'GAME_PURCHASE',
+        amount: -price,
+        status: 'COMPLETED'
+      }
+    });
+
+    // Criar sessão de jogo
+    const gameSession = await prisma.gameSession.create({
+      data: {
+        userId: req.user.id,
+        creditsUsed: 1,
+        xpEarned: 10
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Raspadinha comprada com sucesso!',
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        credits: updatedUser.credits,
+        balance: updatedUser.balance
+      },
+      gameSession: {
+        id: gameSession.id,
+        creditsUsed: gameSession.creditsUsed,
+        xpEarned: gameSession.xpEarned
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao comprar raspadinha:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para revelar raspadinha e verificar prêmio
+app.post('/api/games/reveal-scratch', authenticateToken, async (req, res) => {
+  try {
+    const { gameSessionId } = req.body;
+    
+    if (!gameSessionId) {
+      return res.status(400).json({ error: 'ID da sessão de jogo é obrigatório' });
+    }
+
+    // Verificar se a sessão existe e pertence ao usuário
+    const gameSession = await prisma.gameSession.findFirst({
+      where: { 
+        id: gameSessionId,
+        userId: req.user.id
+      }
+    });
+
+    if (!gameSession) {
+      return res.status(404).json({ error: 'Sessão de jogo não encontrada' });
+    }
+
+    // Simular resultado da raspadinha (em produção, seria mais complexo)
+    const possiblePrizes = [0, 1, 2, 3, 5, 10, 50, 100, 200, 500, 1000, 2500];
+    const prizeWon = Math.random() < 0.3 ? possiblePrizes[Math.floor(Math.random() * possiblePrizes.length)] : 0;
+
+    // Atualizar sessão com o prêmio
+    const updatedSession = await prisma.gameSession.update({
+      where: { id: gameSessionId },
+      data: { prizeWon }
+    });
+
+    // Se ganhou prêmio, adicionar ao saldo e criar registro de prêmio
+    if (prizeWon > 0) {
+      await prisma.user.update({
+        where: { id: req.user.id },
+        data: { balance: req.user.balance + prizeWon }
+      });
+
+      await prisma.prize.create({
+        data: {
+          userId: req.user.id,
+          amount: prizeWon,
+          claimed: true,
+          claimedAt: new Date()
+        }
+      });
+
+      await prisma.transaction.create({
+        data: {
+          userId: req.user.id,
+          type: 'PRIZE_WIN',
+          amount: prizeWon,
+          status: 'COMPLETED'
+        }
+      });
+    }
+
+    // Buscar usuário atualizado
+    const updatedUser = await prisma.user.findUnique({
+      where: { id: req.user.id }
+    });
+
+    res.json({
+      success: true,
+      prizeWon,
+      message: prizeWon > 0 ? `Parabéns! Você ganhou R$ ${prizeWon.toFixed(2)}!` : 'Tente novamente!',
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        credits: updatedUser.credits,
+        balance: updatedUser.balance
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao revelar raspadinha:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para obter histórico de jogos
+app.get('/api/games/history', authenticateToken, async (req, res) => {
+  try {
+    const games = await prisma.gameSession.findMany({
+      where: { userId: req.user.id },
+      orderBy: { createdAt: 'desc' },
+      take: 20
+    });
+
+    res.json(games);
+  } catch (error) {
+    console.error('Erro ao buscar histórico:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
 // Rota de teste
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'Servidor funcionando!' });
