@@ -43,6 +43,15 @@ class PaymentAPI {
     try {
       console.log('Iniciando criação de cobrança PIX:', { userData, amount });
       
+      // Determinar URL do callback baseada no ambiente
+      const isDevelopment = process.env.NODE_ENV === 'development';
+      const callbackUrl = isDevelopment 
+        ? 'http://localhost:3001/api/payment/webhook'
+        : 'https://raspa-da-sorte-backend.onrender.com/api/payment/webhook';
+      
+      console.log('Ambiente:', process.env.NODE_ENV);
+      console.log('Callback URL:', callbackUrl);
+      
       // Estrutura correta baseada na documentação da API Nomadfy
       const payload = {
         customer: {
@@ -60,7 +69,7 @@ class PaymentAPI {
           installments: 1
         },
         dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Vencimento em 24h
-        callbackUrl: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/payment/webhook`,
+        callbackUrl: callbackUrl,
         items: [
           {}
         ],
