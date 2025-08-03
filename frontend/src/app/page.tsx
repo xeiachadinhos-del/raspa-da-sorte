@@ -866,67 +866,91 @@ export default function Home() {
           onClick={() => setShowDepositSheet(false)}
         >
           <div 
-            className="absolute bottom-0 left-0 right-0 rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto"
-            style={{
-              backgroundImage: 'url(https://i.postimg.cc/6pgMtHtr/imgi-81-deposit-bg.jpg)',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat'
-            }}
+            className="absolute bottom-0 left-0 right-0 bg-gradient-to-b from-primary from-[-60%] via-[5%] to-100% via-background to-background rounded-t-lg max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Handle superior */}
-            <div className="w-12 h-1 bg-gray-600 rounded-full mx-auto mb-6"></div>
+            <div className="bg-muted mx-auto mt-4 h-2 w-[100px] shrink-0 rounded-full"></div>
+            
+            {/* Header com Banner */}
+            <div className="flex flex-col gap-1.5 p-4 text-center -mt-1">
+              <div className="-m-10 mb-0 select-none relative">
+                <img 
+                  src="https://i.postimg.cc/6pgMtHtr/imgi-81-deposit-bg.jpg" 
+                  className="w-full sm:rounded-t-lg"
+                  alt="Deposit Banner"
+                />
+                <div className="absolute bg-gradient-to-b from-black/10 via-black/10 from-0% via-85% to-100% to-background size-full z-10 top-0"></div>
+              </div>
+            </div>
             
             {/* Título */}
-            <div className="flex items-center gap-3 mb-6">
-              <svg className="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+            <div className="flex items-center gap-2 px-4 mb-4">
+              <svg className="w-7 h-7 text-green-500" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 15v3m0 3v-3m0 0h-3m3 0h3"></path>
+                <path fill="currentColor" fillRule="evenodd" d="M5 5a3 3 0 0 0-3 3v8a3 3 0 0 0 3 3h7.083A6 6 0 0 1 12 18c0-1.148.322-2.22.881-3.131A3 3 0 0 1 9 12a3 3 0 1 1 5.869.881A5.97 5.97 0 0 1 18 12c1.537 0 2.939.578 4 1.528V8a3 3 0 0 0-3-3zm7 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" clipRule="evenodd"></path>
               </svg>
-              <h2 className="text-2xl font-bold text-white">Depositar</h2>
+              <h1 className="text-2xl font-medium text-white">Depositar</h1>
             </div>
             
-            {/* Campo de Valor */}
-            <div className="mb-4">
-              <label className="block text-white text-sm font-medium mb-2">Valor:</label>
-              <input
-                type="text"
-                value="R$ 0,00"
-                readOnly
-                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white"
-              />
-              <p className="text-red-400 text-sm mt-1">O valor mínimo é R$ 10,00</p>
-            </div>
-            
-            {/* Botões de Valores Pré-definidos */}
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <button className="px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
-                R$ 10,00
-              </button>
-              <button className="px-4 py-3 border border-yellow-500 text-white rounded-lg font-medium hover:bg-yellow-500/10 transition-colors relative">
-                <div className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
-                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                  </svg>
-                  QUENTE
+            {/* Formulário */}
+            <form className="space-y-3 overflow-hidden px-4">
+              {/* Campo de Valor */}
+              <div>
+                <label className="flex items-center font-medium select-none mb-2 text-base text-white">
+                  Valor:
+                </label>
+                <div className="relative">
+                  <span className="font-semibold opacity-80 absolute left-3 top-2/4 -translate-y-2/4 text-white">R$</span>
+                  <input
+                    type="tel"
+                    value="0,00"
+                    readOnly
+                    className="pl-10 w-full rounded-md border bg-transparent px-3.5 py-2.5 text-base text-white border-gray-600"
+                  />
                 </div>
-                R$ 30,00
+                <div className="mt-1 text-xs text-rose-600/90">O valor mínimo é R$ 10,00</div>
+              </div>
+              
+              {/* Botões de Valores */}
+              <div className="overflow-hidden">
+                <div className="flex gap-2 overflow-x-auto pb-2 pt-3">
+                  <button className="bg-primary/10 text-primary text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-primary/20 whitespace-nowrap">
+                    R$ 10,00
+                  </button>
+                  <button className="bg-primary/10 text-primary text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-primary/20 ring-2 ring-yellow-400 relative whitespace-nowrap">
+                    <span className="bg-yellow-400 rounded-md absolute -top-0.5 left-2/4 -translate-y-2/4 -translate-x-2/4 text-xs text-black leading-4 px-1 uppercase flex gap-1 items-center">
+                      <svg width="1em" height="1em" fill="currentColor" className="w-3 h-3" viewBox="0 0 16 16">
+                        <path d="M8 16c3.314 0 6-2 6-5.5 0-1.5-.5-4-2.5-6 .25 1.5-1.25 2-1.25 2C11 4 9 .5 6 0c.357 2 .5 4-2 6-1.25 1-2 2.729-2 4.5C2 14 4.686 16 8 16m0-1c-1.657 0-3-1-3-2.75 0-.75.25-2 1.25-3C6.125 10 7 10.5 7 10.5c-.375-1.25.5-3.25 2-3.5-.179 1-.25 2 1 3 .625.5 1 1.364 1 2.25C11 14 9.657 15 8 15"></path>
+                      </svg>
+                      QUENTE
+                    </span>
+                    R$ 30,00
+                  </button>
+                  <button className="bg-primary/10 text-primary text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-primary/20 whitespace-nowrap">
+                    R$ 50,00
+                  </button>
+                  <button className="bg-primary/10 text-primary text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-primary/20 whitespace-nowrap">
+                    R$ 100,00
+                  </button>
+                  <button className="bg-primary/10 text-primary text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-primary/20 whitespace-nowrap">
+                    R$ 200,00
+                  </button>
+                  <button className="bg-primary/10 text-primary text-base font-semibold rounded-md p-3 py-2 cursor-pointer hover:bg-primary/20 whitespace-nowrap">
+                    R$ 500,00
+                  </button>
+                </div>
+              </div>
+              
+              {/* Botão Gerar QR Code */}
+              <button className="active:scale-95 transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all bg-primary text-primary-foreground shadow-xs hover:bg-primary/90 h-10 rounded-md px-6 w-full mx-auto mt-4 relative overflow-hidden py-6 cursor-pointer">
+                <svg width="1em" height="1em" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
+                  <path fill="currentColor" d="M8 6H6v2h2zm-5-.75A2.25 2.25 0 0 1 5.25 3h3.5A2.25 2.25 0 0 1 11 5.25v3.5A2.25 2.25 0 0 1 8.75 11h-3.5A2.25 2.25 0 0 1 3 8.75zm2.25-.75a.75.75 0 0 0-.75.75v3.5c0 .414.336.75.75.75h3.5a.75.75 0 0 0 .75-.75v-3.5a.75.75 0 0 0-.75-.75zM6 16h2v2H6zm-3-.75A2.25 2.25 0 0 1 5.25 13h3.5A2.25 2.25 0 0 1 11 15.25v3.5A2.25 2.25 0 0 1 8.75 21h-3.5A2.25 2.25 0 0 1 3 18.75zm2.25-.75a.75.75 0 0 0-.75.75v3.5c0 .414.336.75.75.75h3.5a.75.75 0 0 0 .75-.75v-3.5a.75.75 0 0 0-.75-.75zM18 6h-2v2h2zm-2.75-3A2.25 2.25 0 0 0 13 5.25v3.5A2.25 2.25 0 0 0 15.25 11h3.5A2.25 2.25 0 0 0 21 8.75v-3.5A2.25 2.25 0 0 0 18.75 3zm-.75 2.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-.75.75h-3.5a.75.75 0 0 1-.75-.75zM13 13h2.75v2.75H13zm5.25 2.75h-2.5v2.5H13V21h2.75v-2.75h2.5V21H21v-2.75h-2.75zm0 0V13H21v2.75z"></path>
+                </svg>
+                Gerar QR Code
+                <span className="bg-black/20 absolute left-0 top-0 bottom-0 w-0"></span>
               </button>
-              <button className="px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
-                R$ 50,00
-              </button>
-              <button className="px-4 py-3 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors">
-                R$ 100,00
-              </button>
-            </div>
-            
-            {/* Botão Gerar QR Code */}
-            <button className="w-full bg-green-600 text-white font-bold py-4 px-6 rounded-lg flex items-center justify-center gap-3 hover:bg-green-700 transition-colors">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V6a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1zm12 0h2a1 1 0 001-1V6a1 1 0 00-1-1h-2a1 1 0 00-1 1v1a1 1 0 001 1zM5 20h2a1 1 0 001-1v-1a1 1 0 00-1-1H5a1 1 0 00-1 1v1a1 1 0 001 1z" />
-              </svg>
-              Gerar QR Code
-            </button>
+            </form>
           </div>
         </div>
       )}

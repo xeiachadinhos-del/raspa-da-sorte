@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --primary: #50c50d;
+  --primary-foreground: #ffffff;
+  --background: #000000;
+  --muted: #374151;
+}
+
 /* Estilos personalizados */
 @layer utilities {
   .bg-gradient-radial {
