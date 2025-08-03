@@ -90,6 +90,7 @@ class PaymentAPI {
       console.log('Payload enviado:', payload);
       console.log('URL da requisição:', `${this.baseURL}/charges`);
       console.log('Headers:', this.getHeaders());
+      console.log('Deploy version:', new Date().toISOString());
 
       try {
         const response = await fetch(`${this.baseURL}/charges`, {
