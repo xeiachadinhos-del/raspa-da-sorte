@@ -3,6 +3,13 @@
 import { useState, useEffect } from 'react';
 import paymentAPI from '../services/paymentAPI';
 
+// Configurações da MedusaPay
+const MEDUSAPAY_CONFIG = {
+  publicKey: 'pk_duOO6JDHwX_dG9v1-ZPjPx6BZwWQvk6Nm794LRcYd9O4aiFf',
+  secretKey: 'sk_Zw464Zyjoa8JSNXSLXbb9SFjKKY0LbBdqamPCxuWwe68VBg9',
+  apiUrl: 'https://api.medusapay.com.br/v1/transactions'
+};
+
 interface PixPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -80,7 +87,7 @@ export default function PixPaymentModal({
   }, [paymentData?.id, paymentStatus]);
 
   const createPixCharge = async () => {
-    console.log('=== INÍCIO DA FUNÇÃO createPixCharge ===');
+    console.log('=== INÍCIO DA FUNÇÃO createPixCharge (MEDUSAPAY) ===');
     console.log('Estado inicial - loading:', loading, 'error:', error, 'forceOpen:', forceOpen);
     
     setLoading(true);
@@ -90,55 +97,115 @@ export default function PixPaymentModal({
     console.log('Estados atualizados - loading: true, error: null, forceOpen: true');
     
     try {
-      // Testar conectividade primeiro
-      console.log('=== INÍCIO DO TESTE DE PIX ===');
-      console.log('Testando conectividade com a API...');
-      const isConnected = await paymentAPI.testConnection();
-      console.log('Conectividade:', isConnected);
-      
-      if (!isConnected) {
-        console.log('❌ Conectividade falhou, definindo erro...');
-        setError('❌ Erro de conectividade com o gateway de pagamento. Verifique sua conexão.');
-        console.log('Erro definido, retornando...');
-        return;
-      }
-
       const numericAmount = parseFloat(amount.replace(',', '.'));
-      console.log('Criando cobrança para valor:', numericAmount);
+      console.log('Criando cobrança MedusaPay para valor:', numericAmount);
       console.log('Dados do usuário:', user);
       
-      const response = await paymentAPI.createPixCharge(user, numericAmount);
-      console.log('Resposta da cobrança:', response);
+      // Criar payload para MedusaPay
+      const payload = {
+        amount: Math.round(numericAmount * 100), // MedusaPay usa centavos
+        paymentMethod: 'pix',
+        externalRef: `deposit_${user.id}_${Date.now()}`,
+        metadata: {
+          userId: user.id,
+          userEmail: user.email,
+          depositAmount: numericAmount
+        },
+        customer: {
+          name: user.name || 'Usuário',
+          email: user.email,
+          phone: user.phone || '11999999999',
+          document: {
+            type: 'cpf',
+            number: user.cpf || '00000000000'
+          }
+        },
+        items: [
+          {
+            title: `Depósito - ${amount} reais`,
+            quantity: 1,
+            tangible: false,
+            unitPrice: Math.round(numericAmount * 100),
+            externalRef: `deposit_item_${Date.now()}`
+          }
+        ]
+      };
+
+      console.log('Payload MedusaPay:', payload);
       
-      setPaymentData(response);
-      setPaymentStatus(response.status || 'pending');
+      // Autenticação Basic
+      const auth = 'Basic ' + Buffer.from(MEDUSAPAY_CONFIG.publicKey + ':' + MEDUSAPAY_CONFIG.secretKey).toString('base64');
       
-      // Se o pagamento já foi confirmado
-      if (response.status === 'CONFIRMED' || response.status === 'RECEIVED' || response.status === 'PAID' || response.status === 'APPROVED' || response.status === 'SETTLED') {
-        console.log('Pagamento confirmado, fechando modal...');
-        onPaymentSuccess();
-        onClose();
+      const response = await fetch(MEDUSAPAY_CONFIG.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': auth,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log('Resposta da MedusaPay:', response.status, response.statusText);
+      
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Erro da MedusaPay:', errorText);
+        throw new Error(`Erro da MedusaPay: ${response.status} - ${errorText}`);
       }
+
+      const data = await response.json();
+      console.log('Dados da MedusaPay:', data);
       
-      console.log('=== FIM DO TESTE DE PIX ===');
+      // Converter resposta da MedusaPay para formato esperado
+      const paymentData = {
+        id: data.data.id.toString(),
+        amount: (data.data.amount / 100).toFixed(2),
+        dueDate: data.data.pix?.expirationDate || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+        status: data.data.status,
+        accountId: data.data.tenantId,
+        payment: {
+          method: 'pix',
+          amount: (data.data.amount / 100).toFixed(2),
+          message: 'Pagamento via PIX',
+          status: data.data.status,
+          details: {
+            pixQrCode: data.data.pix?.qrcode,
+            pixKey: 'Chave PIX disponível no QR Code',
+            pixCode: data.data.pix?.qrcode
+          }
+        },
+        customer: {
+          id: data.data.customer?.id?.toString() || user.id,
+          name: data.data.customer?.name || user.name,
+          cpfCnpj: data.data.customer?.document?.number || user.cpf,
+          email: data.data.customer?.email || user.email,
+          phone: data.data.customer?.phone || user.phone
+        },
+        items: data.data.items || [],
+        createdAt: data.data.createdAt,
+        callbackUrl: data.data.postbackUrl,
+        metadata: data.data.metadata
+      };
+      
+      setPaymentData(paymentData);
+      setPaymentStatus(data.data.status);
+      
+      console.log('=== FIM DO TESTE DE PIX (MEDUSAPAY) ===');
     } catch (err) {
-      console.error('=== ERRO DETALHADO ===');
+      console.error('=== ERRO DETALHADO (MEDUSAPAY) ===');
       console.error('Mensagem de erro:', err.message);
       console.error('Stack trace:', err.stack);
       console.error('Erro completo:', err);
       console.error('=== FIM DO ERRO ===');
       
       console.log('Definindo erro no estado...');
-      // Manter o modal aberto e mostrar erro detalhado
       setError(`❌ Erro ao gerar cobrança PIX: ${err.message}`);
       
       console.log('Erro definido, NÃO fechando modal!');
-      // NÃO fechar o modal em caso de erro - IMPORTANTE!
-      // onClose(); // REMOVIDO
     } finally {
       console.log('Finally executado, definindo loading: false');
       setLoading(false);
-      console.log('=== FIM DA FUNÇÃO createPixCharge ===');
+      console.log('=== FIM DA FUNÇÃO createPixCharge (MEDUSAPAY) ===');
     }
   };
 
@@ -146,15 +213,34 @@ export default function PixPaymentModal({
     if (!paymentData?.id) return;
 
     try {
-      const response = await paymentAPI.getPaymentStatus(paymentData.id);
-      setPaymentStatus(response.status);
+      // Verificar status na MedusaPay
+      const auth = 'Basic ' + Buffer.from(MEDUSAPAY_CONFIG.publicKey + ':' + MEDUSAPAY_CONFIG.secretKey).toString('base64');
       
-      if (response.status === 'CONFIRMED' || response.status === 'RECEIVED' || response.status === 'PAID' || response.status === 'APPROVED' || response.status === 'SETTLED') {
+      const response = await fetch(`${MEDUSAPAY_CONFIG.apiUrl}/${paymentData.id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': auth,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erro ao verificar status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const newStatus = data.data.status;
+      
+      setPaymentStatus(newStatus);
+      
+      // Verificar se o pagamento foi confirmado
+      if (newStatus === 'paid' || newStatus === 'approved') {
+        console.log('Pagamento confirmado na MedusaPay!');
         onPaymentSuccess();
         onClose();
       }
     } catch (err) {
-      console.error('Erro ao verificar status:', err);
+      console.error('Erro ao verificar status na MedusaPay:', err);
     }
   };
 
@@ -175,18 +261,24 @@ export default function PixPaymentModal({
       case 'PAID':
       case 'APPROVED':
       case 'SETTLED':
+      case 'paid':
+      case 'approved':
         return 'text-green-500';
       case 'OVERDUE':
       case 'CANCELLED':
       case 'CANCELED':
       case 'UNPAID':
       case 'EXPIRED':
+      case 'cancelled':
+      case 'refused':
         return 'text-red-500';
       case 'IDENTIFIED':
       case 'CONTESTED':
         return 'text-orange-500';
       case 'WAITING':
       case 'NEW':
+      case 'waiting_payment':
+      case 'pending':
       default:
         return 'text-yellow-500';
     }
@@ -197,19 +289,24 @@ export default function PixPaymentModal({
       case 'CONFIRMED':
       case 'RECEIVED':
       case 'PAID':
+      case 'paid':
         return 'Pagamento Confirmado';
+      case 'APPROVED':
+      case 'approved':
+        return 'Pagamento Aprovado';
       case 'OVERDUE':
         return 'Vencido';
       case 'CANCELLED':
       case 'CANCELED':
+      case 'cancelled':
         return 'Cancelado';
       case 'WAITING':
       case 'NEW':
+      case 'waiting_payment':
+      case 'pending':
         return 'Aguardando Pagamento';
       case 'IDENTIFIED':
         return 'Pagamento Identificado';
-      case 'APPROVED':
-        return 'Pagamento Aprovado';
       case 'UNPAID':
         return 'Não Pago';
       case 'REFUNDED':
@@ -220,6 +317,8 @@ export default function PixPaymentModal({
         return 'Liquidado';
       case 'EXPIRED':
         return 'Expirado';
+      case 'refused':
+        return 'Recusado';
       default:
         return 'Aguardando Pagamento';
     }
