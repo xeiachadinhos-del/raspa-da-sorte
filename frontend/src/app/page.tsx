@@ -521,9 +521,9 @@ export default function Home() {
             <div>
               <h4 className="text-white font-bold mb-4">Regulamentos</h4>
               <ul className="space-y-2">
-                <li><Link href="/jogo-responsavel" className="text-gray-400 hover:text-white text-sm transition-colors">Jogo responsável</Link></li>
-                <li><Link href="/privacidade" className="text-gray-400 hover:text-white text-sm transition-colors">Política de Privacidade</Link></li>
-                <li><Link href="/termos" className="text-gray-400 hover:text-white text-sm transition-colors">Termos de Uso</Link></li>
+                <li><span className="text-gray-400 text-sm">Jogo responsável</span></li>
+                <li><span className="text-gray-400 text-sm">Política de Privacidade</span></li>
+                <li><span className="text-gray-400 text-sm">Termos de Uso</span></li>
               </ul>
             </div>
 
@@ -531,9 +531,9 @@ export default function Home() {
             <div>
               <h4 className="text-white font-bold mb-4">Ajuda</h4>
               <ul className="space-y-2">
-                <li><Link href="/faq" className="text-gray-400 hover:text-white text-sm transition-colors">Perguntas Frequentes</Link></li>
-                <li><Link href="/como-jogar" className="text-gray-400 hover:text-white text-sm transition-colors">Como Jogar</Link></li>
-                <li><Link href="/suporte" className="text-gray-400 hover:text-white text-sm transition-colors">Suporte Técnico</Link></li>
+                <li><span className="text-gray-400 text-sm">Perguntas Frequentes</span></li>
+                <li><span className="text-gray-400 text-sm">Como Jogar</span></li>
+                <li><span className="text-gray-400 text-sm">Suporte Técnico</span></li>
               </ul>
             </div>
           </div>
@@ -552,12 +552,12 @@ export default function Home() {
           </Link>
           
           {/* Raspadinhas */}
-          <Link href="/raspadinhas" className="flex flex-col items-center text-gray-400">
+          <div className="flex flex-col items-center text-gray-400">
             <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <span className="text-xs">Raspadinhas</span>
-          </Link>
+          </div>
           
           {/* Botão Central - Registrar/Depositar */}
           {isLoggedIn ? (
@@ -587,12 +587,12 @@ export default function Home() {
           )}
           
           {/* Prêmios */}
-          <Link href="/premios" className="flex flex-col items-center text-gray-400">
+          <div className="flex flex-col items-center text-gray-400">
             <svg className="w-6 h-6 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
             </svg>
             <span className="text-xs">Prêmios</span>
-          </Link>
+          </div>
           
           {/* Entrar/Conta */}
           {isLoggedIn ? (
