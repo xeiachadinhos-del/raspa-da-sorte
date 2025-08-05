@@ -17,9 +17,15 @@ app.use(cors({
     process.env.FRONTEND_URL || 'http://localhost:3000',
     'https://raspa-da-sorte-gray.vercel.app',
     'https://raspa-da-sorte.vercel.app',
-    'https://*.vercel.app'
+    'https://raspa-da-sorte-frontend.vercel.app',
+    'https://raspa-da-sorte-main.vercel.app',
+    'https://raspa-da-sorte-xeiachadinhos-del.vercel.app',
+    'https://*.vercel.app',
+    'https://vercel.app'
   ],
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
