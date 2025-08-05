@@ -111,11 +111,11 @@ export default function PixPaymentModal({
         amount: Math.round(numericAmount * 100), // MedusaPay usa centavos
         paymentMethod: 'pix',
         externalRef: `deposit_${user.id}_${Date.now()}`,
-        metadata: {
+        metadata: JSON.stringify({
           userId: user.id,
           userEmail: user.email,
           depositAmount: numericAmount
-        },
+        }),
         customer: {
           name: user.name || 'Usuário',
           email: user.email,
