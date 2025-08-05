@@ -171,49 +171,49 @@ export default function Home() {
   const featuredGames = [
     {
       id: 'raspadinha-1',
-      title: 'Raspadinha 1',
-      banner: 'RASPADINHA 1',
-      maxPrize: 'R$ 100,00',
+      title: 'Troco Premiado',
+      banner: 'TROCO PREMIADO',
+      maxPrize: 'R$ 1.000,00',
       price: 'R$ 0,50',
       icon: 'https://i.postimg.cc/FFW5mz44/imgi-74-troco-premiado.png'
     },
     {
       id: 'raspadinha-2',
-      title: 'Raspadinha 2',
-      banner: 'RASPADINHA 2',
-      maxPrize: 'R$ 200,00',
+      title: 'Tech Mania',
+      banner: 'TECH MANIA',
+      maxPrize: 'R$ 2.500,00',
       price: 'R$ 1,00',
       icon: 'https://i.postimg.cc/X7rMvWjy/imgi-75-Tech-Mania.png'
     },
     {
       id: 'raspadinha-3',
-      title: 'Raspadinha 3',
-      banner: 'RASPADINHA 3',
-      maxPrize: 'R$ 500,00',
+      title: 'Apple Mania',
+      banner: 'APPLE MANIA',
+      maxPrize: 'R$ 5.000,00',
       price: 'R$ 2,50',
       icon: 'https://i.postimg.cc/L6wcYW5Q/imgi-76-apple-mania.png'
     },
     {
       id: 'raspadinha-4',
-      title: 'Raspadinha 4',
-      banner: 'RASPADINHA 4',
-      maxPrize: 'R$ 1.000,00',
+      title: 'Beleza Premiada',
+      banner: 'BELEZA PREMIADA',
+      maxPrize: 'R$ 15.000,00',
       price: 'R$ 5,00',
       icon: 'https://i.postimg.cc/3xGPgZD8/imgi-77-beleza-premiada.png'
     },
     {
       id: 'raspadinha-5',
-      title: 'Raspadinha 5',
-      banner: 'RASPADINHA 5',
-      maxPrize: 'R$ 2.000,00',
+      title: 'Luxo Raspavel',
+      banner: 'LUXO RASPAVEL',
+      maxPrize: 'R$ 20.000,00',
       price: 'R$ 10,00',
       icon: 'https://i.postimg.cc/FFW5mz44/imgi-74-troco-premiado.png'
     },
     {
       id: 'raspadinha-6',
-      title: 'Raspadinha 6',
-      banner: 'RASPADINHA 6',
-      maxPrize: 'R$ 5.000,00',
+      title: 'Casa dos Sonhos',
+      banner: 'CASA DOS SONHOS',
+      maxPrize: 'R$ 50.000,00',
       price: 'R$ 25,00',
       icon: 'https://i.postimg.cc/X7rMvWjy/imgi-75-Tech-Mania.png'
     }
