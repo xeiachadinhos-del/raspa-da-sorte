@@ -175,8 +175,19 @@ export default function GamePage() {
   };
 
   const handleBuy = (gameSessionId: string) => {
-    setCurrentGameSessionId(gameSessionId);
-    setIsPlaying(true);
+    console.log('handleBuy chamado com gameSessionId:', gameSessionId);
+    
+    if (gameSessionId === '') {
+      // Voltar ao estado inicial de compra
+      setCurrentGameSessionId('');
+      setIsPlaying(false);
+      console.log('Voltando ao estado inicial de compra - isPlaying:', false);
+    } else {
+      // Iniciar novo jogo
+      setCurrentGameSessionId(gameSessionId);
+      setIsPlaying(true);
+      console.log('Jogo iniciado - isPlaying:', true);
+    }
   };
 
   const handleBalanceUpdate = (newBalance: number) => {
@@ -192,12 +203,12 @@ export default function GamePage() {
 
   const handlePlayAgain = () => {
     // Implementar lógica de jogar novamente
-    alert('Funcionalidade de jogar novamente será implementada!');
+    console.log('Jogar novamente - funcionalidade implementada no componente ScratchCard');
   };
 
   const handleAuto = () => {
     // Implementar lógica de auto
-    alert('Funcionalidade de auto será implementada!');
+    console.log('Auto - funcionalidade será implementada');
   };
 
   if (!game) {
