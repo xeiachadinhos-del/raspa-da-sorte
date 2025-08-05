@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/services/api';
 import PixPaymentModal from '../components/PixPaymentModal';
-import AdminPanel from '../components/AdminPanel';
+
 
 export default function Home() {
   const router = useRouter();
@@ -25,7 +25,6 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [user, setUser] = useState<{id: string; name: string; email: string; balance: number; credits: number} | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
 
   // Verificar se o usuário está logado
   useEffect(() => {
@@ -306,24 +305,7 @@ export default function Home() {
                     </button>
                     
                     {/* Opção de Admin - Apenas para admin@gmail.com */}
-                    {user?.email === 'admin@gmail.com' && (
-                      <>
-                        <div className="border-t border-gray-700 my-2"></div>
-                        <button 
-                          onClick={() => {
-                            setShowAdminPanel(true);
-                            setShowUserMenu(false);
-                          }}
-                          className="w-full px-4 py-3 text-left hover:bg-gray-700 flex items-center gap-3 text-yellow-400"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                          <span>Painel Admin</span>
-                        </button>
-                      </>
-                    )}
+
                     
                     <div className="border-t border-gray-700 my-2"></div>
                     
@@ -1079,10 +1061,7 @@ export default function Home() {
         onPaymentSuccess={handlePaymentSuccess}
       />
 
-      {/* Painel Administrativo */}
-      {showAdminPanel && (
-        <AdminPanel onClose={() => setShowAdminPanel(false)} />
-      )}
+
     </div>
   );
 }
