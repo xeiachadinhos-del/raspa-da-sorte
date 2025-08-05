@@ -155,6 +155,13 @@ export default function PixPaymentModal({
 
       const data = await response.json();
       console.log('Dados da MedusaPay:', data);
+      console.log('QR Code da MedusaPay:', data.data?.pix?.qrcode);
+      console.log('Status da MedusaPay:', data.data?.status);
+      
+      // Verificar se temos os dados necessários
+      if (!data.data?.pix?.qrcode) {
+        throw new Error('QR Code não foi gerado pela MedusaPay');
+      }
       
       // Converter resposta da MedusaPay para formato esperado
       const paymentData = {
@@ -169,9 +176,9 @@ export default function PixPaymentModal({
           message: 'Pagamento via PIX',
           status: data.data.status,
           details: {
-            pixQrCode: data.data.pix?.qrcode,
+            pixQrCode: data.data.pix.qrcode,
             pixKey: 'Chave PIX disponível no QR Code',
-            pixCode: data.data.pix?.qrcode
+            pixCode: data.data.pix.qrcode
           }
         },
         customer: {
@@ -186,6 +193,9 @@ export default function PixPaymentModal({
         callbackUrl: data.data.postbackUrl,
         metadata: data.data.metadata
       };
+      
+      console.log('PaymentData processado:', paymentData);
+      console.log('QR Code final:', paymentData.payment.details.pixQrCode);
       
       setPaymentData(paymentData);
       setPaymentStatus(data.data.status);
@@ -325,7 +335,7 @@ export default function PixPaymentModal({
   };
 
   // Modal deve permanecer aberto se forceOpen for true, mesmo se isOpen for false
-  console.log('Verificando renderização do modal - isOpen:', isOpen, 'forceOpen:', forceOpen, 'error:', error);
+  console.log('Verificando renderização do modal - isOpen:', isOpen, 'forceOpen:', forceOpen, 'error:', error, 'paymentData:', !!paymentData);
   
   if (!isOpen && !forceOpen) {
     console.log('Modal não deve ser renderizado');
@@ -398,7 +408,7 @@ export default function PixPaymentModal({
             <div className="text-center">
               <div className="bg-white p-4 rounded-lg inline-block">
                 <img
-                  src={`data:image/png;base64,${paymentData.payment.details.pixQrCode}`}
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paymentData.payment.details.pixQrCode)}`}
                   alt="QR Code PIX"
                   className="w-48 h-48"
                 />
