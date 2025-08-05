@@ -101,6 +101,11 @@ export default function PixPaymentModal({
       console.log('Criando cobrança MedusaPay para valor:', numericAmount);
       console.log('Dados do usuário:', user);
       
+      // Verificar se temos dados do usuário
+      if (!user || !user.id || !user.email) {
+        throw new Error('Dados do usuário incompletos');
+      }
+      
       // Criar payload para MedusaPay
       const payload = {
         amount: Math.round(numericAmount * 100), // MedusaPay usa centavos
@@ -201,17 +206,19 @@ export default function PixPaymentModal({
       setPaymentStatus(data.data.status);
       
       console.log('=== FIM DO TESTE DE PIX (MEDUSAPAY) ===');
-    } catch (err) {
+    } catch (err: any) {
       console.error('=== ERRO DETALHADO (MEDUSAPAY) ===');
-      console.error('Mensagem de erro:', err.message);
-      console.error('Stack trace:', err.stack);
+      console.error('Mensagem de erro:', err?.message || 'Erro desconhecido');
+      console.error('Stack trace:', err?.stack);
       console.error('Erro completo:', err);
       console.error('=== FIM DO ERRO ===');
       
       console.log('Definindo erro no estado...');
-      setError(`❌ Erro ao gerar cobrança PIX: ${err.message}`);
+      const errorMessage = err?.message || 'Erro desconhecido ao gerar PIX';
+      setError(`❌ Erro ao gerar cobrança PIX: ${errorMessage}`);
       
       console.log('Erro definido, NÃO fechando modal!');
+      console.log('Modal deve permanecer aberto para debug');
     } finally {
       console.log('Finally executado, definindo loading: false');
       setLoading(false);
@@ -439,7 +446,7 @@ export default function PixPaymentModal({
                     />
                   </div>
                   <button
-                    onClick={() => copyToClipboard(paymentData.payment.details.pixCode)}
+                    onClick={() => copyToClipboard(paymentData.payment.details.pixCode || '')}
                     className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded text-sm font-medium transition-colors"
                   >
                     {copied ? 'Copiado!' : 'Copiar Código'}
@@ -477,7 +484,7 @@ export default function PixPaymentModal({
             <p>User Email: {user?.email || 'N/A'}</p>
             <p>Loading: {loading ? 'Sim' : 'Não'}</p>
             <p>Error: {error ? 'Sim' : 'Não'}</p>
-            <p>API URL: {paymentAPI.baseURL}</p>
+            <p>API URL: https://api.medusapay.com.br/v1/transactions</p>
           </div>
         </div>
       </div>
