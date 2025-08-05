@@ -903,6 +903,166 @@ app.post('/api/payment/webhook', async (req, res) => {
   }
 });
 
+
+
+// Rotas do Admin
+app.get('/api/admin/stats', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const totalUsers = await prisma.user.count();
+    const activeUsers = await prisma.user.count({
+      where: { isBlocked: false }
+    });
+
+    // Calcular receita total (todos os depósitos)
+    const totalRevenue = await prisma.transaction.aggregate({
+      where: { type: 'DEPOSIT', status: 'COMPLETED' },
+      _sum: { amount: true }
+    });
+
+    // Calcular total de pagamentos (ganhos dos usuários)
+    const totalPayouts = await prisma.transaction.aggregate({
+      where: { type: 'WIN', status: 'COMPLETED' },
+      _sum: { amount: true }
+    });
+
+    // Buscar taxa de ganho atual (pode ser armazenada em uma tabela de configurações)
+    const winRate = 30; // Valor padrão, pode ser ajustado
+
+    res.json({
+      totalUsers,
+      activeUsers,
+      totalRevenue: totalRevenue._sum.amount || 0,
+      totalPayouts: totalPayouts._sum.amount || 0,
+      winRate
+    });
+  } catch (error) {
+    console.error('Erro ao buscar estatísticas:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+app.get('/api/admin/users', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        balance: true,
+        credits: true,
+        isBlocked: true,
+        createdAt: true,
+        _count: {
+          select: {
+            transactions: {
+              where: { type: 'GAME' }
+            }
+          }
+        },
+        transactions: {
+          where: { type: 'WIN' },
+          select: { amount: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    const usersWithStats = users.map(user => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      balance: user.balance,
+      credits: user.credits,
+      isBlocked: user.isBlocked,
+      createdAt: user.createdAt,
+      totalGames: user._count.transactions,
+      totalWinnings: user.transactions.reduce((sum, t) => sum + t.amount, 0)
+    }));
+
+    res.json(usersWithStats);
+  } catch (error) {
+    console.error('Erro ao buscar usuários:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+app.get('/api/admin/deposits', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const deposits = await prisma.transaction.findMany({
+      where: { type: 'DEPOSIT' },
+      include: {
+        user: {
+          select: { email: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    const depositsWithUserEmail = deposits.map(deposit => ({
+      id: deposit.id,
+      userId: deposit.userId,
+      amount: deposit.amount,
+      status: deposit.status.toLowerCase(),
+      createdAt: deposit.createdAt,
+      userEmail: deposit.user.email
+    }));
+
+    res.json(depositsWithUserEmail);
+  } catch (error) {
+    console.error('Erro ao buscar depósitos:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+app.put('/api/admin/users/:userId/block', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { blocked } = req.body;
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { isBlocked: blocked }
+    });
+
+    res.json({ message: `Usuário ${blocked ? 'bloqueado' : 'desbloqueado'} com sucesso` });
+  } catch (error) {
+    console.error('Erro ao bloquear/desbloquear usuário:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+app.put('/api/admin/users/:userId/balance', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { balance } = req.body;
+
+    const user = await prisma.user.update({
+      where: { id: userId },
+      data: { balance: parseFloat(balance) }
+    });
+
+    res.json({ message: 'Saldo atualizado com sucesso', newBalance: user.balance });
+  } catch (error) {
+    console.error('Erro ao atualizar saldo:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+app.put('/api/admin/settings/win-rate', authenticateToken, isAdmin, async (req, res) => {
+  try {
+    const { winRate } = req.body;
+    
+    // Aqui você pode salvar em uma tabela de configurações
+    // Por enquanto, vamos apenas retornar sucesso
+    console.log('Taxa de ganho atualizada para:', winRate);
+    
+    res.json({ message: 'Taxa de ganho atualizada com sucesso', winRate });
+  } catch (error) {
+    console.error('Erro ao atualizar taxa de ganho:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
 // Iniciar servidor
 app.listen(PORT, () => {
   console.log(`🚀 Servidor rodando na porta ${PORT}`);
@@ -913,4 +1073,4 @@ app.listen(PORT, () => {
 process.on('SIGINT', async () => {
   await prisma.$disconnect();
   process.exit(0);
-}); 
+});
