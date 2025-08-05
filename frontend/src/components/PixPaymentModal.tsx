@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import paymentAPI from '../services/paymentAPI';
 
 // Configurações da MedusaPay
 const MEDUSAPAY_CONFIG = {
@@ -21,31 +20,13 @@ interface PixPaymentModalProps {
 interface PaymentData {
   id: string;
   amount: string;
-  dueDate: string;
   status: string;
-  accountId: string;
   payment: {
-    method: string;
-    amount: string;
-    message: string;
-    status: string;
     details: {
-      pixQrCode?: string;
-      pixKey?: string;
-      pixCode?: string;
+      pixQrCode: string;
+      pixCode: string;
     };
   };
-  customer: {
-    id: string;
-    name: string;
-    cpfCnpj: string;
-    email: string;
-    phone: string;
-  };
-  items: any[];
-  createdAt: string;
-  callbackUrl?: string;
-  metadata?: any;
 }
 
 export default function PixPaymentModal({ 
@@ -60,46 +41,24 @@ export default function PixPaymentModal({
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
-  const [forceOpen, setForceOpen] = useState(false);
 
   // Criar cobrança PIX quando o modal abrir
   useEffect(() => {
     if (isOpen && amount && user) {
       console.log('Modal aberto, iniciando criação de cobrança...');
-      console.log('isOpen:', isOpen);
-      console.log('amount:', amount);
-      console.log('user:', user);
-      
-      // Pequeno delay para garantir que o modal está aberto
-      setTimeout(() => {
-        console.log('Executando createPixCharge...');
-        createPixCharge();
-      }, 100);
+      createPixCharge();
     }
   }, [isOpen, amount, user]);
 
-  // Polling para verificar status do pagamento
-  useEffect(() => {
-    if (paymentData?.id && paymentStatus === 'pending') {
-      const interval = setInterval(checkPaymentStatus, 5000); // Verificar a cada 5 segundos
-      return () => clearInterval(interval);
-    }
-  }, [paymentData?.id, paymentStatus]);
-
   const createPixCharge = async () => {
-    console.log('=== INÍCIO DA FUNÇÃO createPixCharge (MEDUSAPAY) ===');
-    console.log('Estado inicial - loading:', loading, 'error:', error, 'forceOpen:', forceOpen);
+    console.log('=== INÍCIO DA FUNÇÃO createPixCharge ===');
     
     setLoading(true);
     setError(null);
-    setForceOpen(true); // Força o modal a permanecer aberto
-    
-    console.log('Estados atualizados - loading: true, error: null, forceOpen: true');
     
     try {
       const numericAmount = parseFloat(amount.replace(',', '.'));
       console.log('Criando cobrança MedusaPay para valor:', numericAmount);
-      console.log('Dados do usuário:', user);
       
       // Verificar se temos dados do usuário
       if (!user || !user.id || !user.email) {
@@ -160,8 +119,6 @@ export default function PixPaymentModal({
 
       const data = await response.json();
       console.log('Dados da MedusaPay:', data);
-      console.log('QR Code da MedusaPay:', data.data?.pix?.qrcode);
-      console.log('Status da MedusaPay:', data.data?.status);
       
       // Verificar se temos os dados necessários
       if (!data.data?.pix?.qrcode) {
@@ -172,92 +129,31 @@ export default function PixPaymentModal({
       const paymentData = {
         id: data.data.id.toString(),
         amount: (data.data.amount / 100).toFixed(2),
-        dueDate: data.data.pix?.expirationDate || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
         status: data.data.status,
-        accountId: data.data.tenantId,
         payment: {
-          method: 'pix',
-          amount: (data.data.amount / 100).toFixed(2),
-          message: 'Pagamento via PIX',
-          status: data.data.status,
           details: {
             pixQrCode: data.data.pix.qrcode,
-            pixKey: 'Chave PIX disponível no QR Code',
             pixCode: data.data.pix.qrcode
           }
-        },
-        customer: {
-          id: data.data.customer?.id?.toString() || user.id,
-          name: data.data.customer?.name || user.name,
-          cpfCnpj: data.data.customer?.document?.number || user.cpf,
-          email: data.data.customer?.email || user.email,
-          phone: data.data.customer?.phone || user.phone
-        },
-        items: data.data.items || [],
-        createdAt: data.data.createdAt,
-        callbackUrl: data.data.postbackUrl,
-        metadata: data.data.metadata
+        }
       };
       
       console.log('PaymentData processado:', paymentData);
-      console.log('QR Code final:', paymentData.payment.details.pixQrCode);
       
       setPaymentData(paymentData);
       setPaymentStatus(data.data.status);
       
-      console.log('=== FIM DO TESTE DE PIX (MEDUSAPAY) ===');
+      console.log('=== SUCESSO - PIX GERADO ===');
     } catch (err: any) {
-      console.error('=== ERRO DETALHADO (MEDUSAPAY) ===');
+      console.error('=== ERRO DETALHADO ===');
       console.error('Mensagem de erro:', err?.message || 'Erro desconhecido');
-      console.error('Stack trace:', err?.stack);
       console.error('Erro completo:', err);
-      console.error('=== FIM DO ERRO ===');
       
-      console.log('Definindo erro no estado...');
       const errorMessage = err?.message || 'Erro desconhecido ao gerar PIX';
       setError(`❌ Erro ao gerar cobrança PIX: ${errorMessage}`);
-      
-      console.log('Erro definido, NÃO fechando modal!');
-      console.log('Modal deve permanecer aberto para debug');
     } finally {
-      console.log('Finally executado, definindo loading: false');
       setLoading(false);
-      console.log('=== FIM DA FUNÇÃO createPixCharge (MEDUSAPAY) ===');
-    }
-  };
-
-  const checkPaymentStatus = async () => {
-    if (!paymentData?.id) return;
-
-    try {
-      // Verificar status na MedusaPay
-      const auth = 'Basic ' + Buffer.from(MEDUSAPAY_CONFIG.publicKey + ':' + MEDUSAPAY_CONFIG.secretKey).toString('base64');
-      
-      const response = await fetch(`${MEDUSAPAY_CONFIG.apiUrl}/${paymentData.id}`, {
-        method: 'GET',
-        headers: {
-          'Authorization': auth,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erro ao verificar status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const newStatus = data.data.status;
-      
-      setPaymentStatus(newStatus);
-      
-      // Verificar se o pagamento foi confirmado
-      if (newStatus === 'paid' || newStatus === 'approved') {
-        console.log('Pagamento confirmado na MedusaPay!');
-        onPaymentSuccess();
-        onClose();
-      }
-    } catch (err) {
-      console.error('Erro ao verificar status na MedusaPay:', err);
+      console.log('=== FIM DA FUNÇÃO createPixCharge ===');
     }
   };
 
@@ -271,85 +167,9 @@ export default function PixPaymentModal({
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'CONFIRMED':
-      case 'RECEIVED':
-      case 'PAID':
-      case 'APPROVED':
-      case 'SETTLED':
-      case 'paid':
-      case 'approved':
-        return 'text-green-500';
-      case 'OVERDUE':
-      case 'CANCELLED':
-      case 'CANCELED':
-      case 'UNPAID':
-      case 'EXPIRED':
-      case 'cancelled':
-      case 'refused':
-        return 'text-red-500';
-      case 'IDENTIFIED':
-      case 'CONTESTED':
-        return 'text-orange-500';
-      case 'WAITING':
-      case 'NEW':
-      case 'waiting_payment':
-      case 'pending':
-      default:
-        return 'text-yellow-500';
-    }
-  };
-
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'CONFIRMED':
-      case 'RECEIVED':
-      case 'PAID':
-      case 'paid':
-        return 'Pagamento Confirmado';
-      case 'APPROVED':
-      case 'approved':
-        return 'Pagamento Aprovado';
-      case 'OVERDUE':
-        return 'Vencido';
-      case 'CANCELLED':
-      case 'CANCELED':
-      case 'cancelled':
-        return 'Cancelado';
-      case 'WAITING':
-      case 'NEW':
-      case 'waiting_payment':
-      case 'pending':
-        return 'Aguardando Pagamento';
-      case 'IDENTIFIED':
-        return 'Pagamento Identificado';
-      case 'UNPAID':
-        return 'Não Pago';
-      case 'REFUNDED':
-        return 'Reembolsado';
-      case 'CONTESTED':
-        return 'Contestado';
-      case 'SETTLED':
-        return 'Liquidado';
-      case 'EXPIRED':
-        return 'Expirado';
-      case 'refused':
-        return 'Recusado';
-      default:
-        return 'Aguardando Pagamento';
-    }
-  };
-
-  // Modal deve permanecer aberto se forceOpen for true, mesmo se isOpen for false
-  console.log('Verificando renderização do modal - isOpen:', isOpen, 'forceOpen:', forceOpen, 'error:', error, 'paymentData:', !!paymentData);
-  
-  if (!isOpen && !forceOpen) {
-    console.log('Modal não deve ser renderizado');
+  if (!isOpen) {
     return null;
   }
-  
-  console.log('Modal será renderizado');
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -459,8 +279,8 @@ export default function PixPaymentModal({
           {/* Status do Pagamento */}
           {paymentStatus && paymentStatus !== 'pending' && (
             <div className="text-center">
-              <p className={`text-sm font-medium ${getStatusColor(paymentStatus)}`}>
-                {getStatusText(paymentStatus)}
+              <p className="text-yellow-500 text-sm font-medium">
+                Status: {paymentStatus}
               </p>
             </div>
           )}
@@ -474,7 +294,7 @@ export default function PixPaymentModal({
             </div>
           )}
 
-          {/* Debug Info (sempre visível para debug) */}
+          {/* Debug Info */}
           <div className="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-300">
             <p><strong>🔧 Informações Técnicas:</strong></p>
             <p>Status: {paymentStatus}</p>
