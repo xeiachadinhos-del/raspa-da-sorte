@@ -26,10 +26,20 @@ async function apiRequest(endpoint, options = {}) {
     const startTime = Date.now();
     
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
-    const data = await response.json();
     
     const endTime = Date.now();
     console.log(`API ${endpoint} - ${endTime - startTime}ms`);
+    
+    // Verificar se a resposta é JSON válido
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      console.error('Resposta não é JSON:', contentType);
+      const text = await response.text();
+      console.error('Conteúdo da resposta:', text);
+      throw new Error('Servidor retornou resposta inválida');
+    }
+    
+    const data = await response.json();
     
     if (!response.ok) {
       throw new Error(data.error || 'Erro na requisição');
@@ -47,6 +57,16 @@ async function apiRequest(endpoint, options = {}) {
           ...config,
           signal: AbortSignal.timeout(15000), // 15 segundos na segunda tentativa
         });
+        
+        // Verificar se a resposta é JSON válido
+        const retryContentType = retryResponse.headers.get('content-type');
+        if (!retryContentType || !retryContentType.includes('application/json')) {
+          console.error('Retry: Resposta não é JSON:', retryContentType);
+          const retryText = await retryResponse.text();
+          console.error('Retry: Conteúdo da resposta:', retryText);
+          throw new Error('Servidor retornou resposta inválida');
+        }
+        
         const retryData = await retryResponse.json();
         
         if (!retryResponse.ok) {
