@@ -191,14 +191,23 @@ export default function GamePage() {
   };
 
   const handleBalanceUpdate = (newBalance: number) => {
+    console.log('=== ATUALIZANDO SALDO ===');
+    console.log('Saldo anterior:', userBalance);
+    console.log('Novo saldo:', newBalance);
+    console.log('Tipo do novo saldo:', typeof newBalance);
+    
     setUserBalance(newBalance);
+    
     // Atualizar também no localStorage
     const user = localStorage.getItem('user');
     if (user) {
       const userData = JSON.parse(user);
       userData.balance = newBalance;
       localStorage.setItem('user', JSON.stringify(userData));
+      console.log('Saldo atualizado no localStorage');
     }
+    
+    console.log('=== SALDO ATUALIZADO ===');
   };
 
   const handlePlayAgain = () => {
