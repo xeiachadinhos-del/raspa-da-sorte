@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/services/api';
-import PixPaymentModal from '../components/PixPaymentModal';
 
 
 export default function Home() {
@@ -12,7 +11,6 @@ export default function Home() {
   const [showLoginSheet, setShowLoginSheet] = useState(false);
   const [showRegisterSheet, setShowRegisterSheet] = useState(false);
   const [showDepositSheet, setShowDepositSheet] = useState(false);
-  const [showPixPaymentModal, setShowPixPaymentModal] = useState(false);
   const [depositAmount, setDepositAmount] = useState('0,00');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -42,32 +40,15 @@ export default function Home() {
     setDepositAmount(amount);
   };
 
-  // Função para lidar com sucesso do pagamento PIX
-  const handlePaymentSuccess = async () => {
-    try {
-      // Atualizar saldo do usuário no backend
-      const numericAmount = parseFloat(depositAmount.replace(',', '.'));
-      await authAPI.addBalance(numericAmount);
-      
-      // Atualizar estado local
-      if (user) {
-        const updatedUser = { ...user, balance: user.balance + numericAmount };
-        setUser(updatedUser);
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-      }
-      
-      // Fechar modais
-      setShowDepositSheet(false);
-      setShowPixPaymentModal(false);
-      
-      // Resetar valor
-      setDepositAmount('0,00');
-      
-      alert('Depósito realizado com sucesso!');
-    } catch (error) {
-      console.error('Erro ao atualizar saldo:', error);
-      alert('Erro ao atualizar saldo. Entre em contato com o suporte.');
+  // Função para navegar para página de PIX
+  const handleGeneratePix = () => {
+    if (!depositAmount || depositAmount === '0,00') {
+      alert('Selecione um valor para depositar');
+      return;
     }
+    
+    // Navegar para a página de PIX
+    router.push(`/pix-payment/${depositAmount}`);
   };
 
   // Função de logout
@@ -1032,13 +1013,7 @@ export default function Home() {
               
                                       {/* Botão Gerar QR Code */}
                         <button 
-                          onClick={() => {
-                            if (depositAmount === '0,00') {
-                              alert('Selecione um valor para depositar');
-                              return;
-                            }
-                            setShowPixPaymentModal(true);
-                          }}
+                          onClick={handleGeneratePix}
                           className="active:scale-95 transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all bg-green-600 text-white shadow-xs hover:bg-green-700 h-10 rounded-md px-6 w-full mx-auto mt-4 relative overflow-hidden py-6 cursor-pointer"
                         >
                           <svg width="1em" height="1em" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
@@ -1052,14 +1027,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Modal de Pagamento PIX */}
-      <PixPaymentModal
-        isOpen={showPixPaymentModal}
-        onClose={() => setShowPixPaymentModal(false)}
-        amount={depositAmount}
-        user={user}
-        onPaymentSuccess={handlePaymentSuccess}
-      />
+
 
 
     </div>
