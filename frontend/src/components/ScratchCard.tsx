@@ -374,9 +374,28 @@ export default function ScratchCard({
 
     try {
       // Converter preço de string para número (remover "R$ " e vírgulas)
-      const priceValue = parseFloat(price.replace('R$ ', '').replace('.', '').replace(',', '.'));
+      let priceValue: number;
+      
+      if (price.includes('R$')) {
+        // Remover "R$ " e converter vírgula para ponto
+        const cleanPrice = price.replace('R$ ', '').replace('.', '').replace(',', '.');
+        priceValue = parseFloat(cleanPrice);
+        console.log('Preço limpo:', cleanPrice);
+      } else {
+        // Se não tem "R$", tentar converter diretamente
+        priceValue = parseFloat(price.replace(',', '.'));
+      }
+      
       console.log('Preço convertido para número:', priceValue);
       console.log('Tipo do preço:', typeof priceValue);
+      
+      // Verificar se o preço é válido
+      if (isNaN(priceValue) || priceValue <= 0) {
+        console.error('Preço inválido:', price, 'convertido para:', priceValue);
+        setError('Preço inválido');
+        setIsLoading(false);
+        return;
+      }
       
       if (userBalance < priceValue) {
         console.log('Saldo insuficiente - Saldo:', userBalance, 'Preço necessário:', priceValue);
