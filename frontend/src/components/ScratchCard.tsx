@@ -361,6 +361,7 @@ export default function ScratchCard({
     console.log('=== INÍCIO DA COMPRA DE RASPADINHA ===');
     console.log('Preço original:', price);
     console.log('Saldo atual:', userBalance);
+    console.log('Tipo do saldo:', typeof userBalance);
     console.log('Game ID:', gameId);
     
     if (!isLoggedIn) {
