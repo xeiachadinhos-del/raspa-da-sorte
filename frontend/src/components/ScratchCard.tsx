@@ -358,7 +358,10 @@ export default function ScratchCard({
   };
 
   const handleBuyScratch = async () => {
-    console.log('Iniciando compra de raspadinha...');
+    console.log('=== INÍCIO DA COMPRA DE RASPADINHA ===');
+    console.log('Preço original:', price);
+    console.log('Saldo atual:', userBalance);
+    console.log('Game ID:', gameId);
     
     if (!isLoggedIn) {
       console.log('Usuário não logado, redirecionando para login...');
@@ -366,27 +369,32 @@ export default function ScratchCard({
       return;
     }
 
-    console.log('Saldo atual:', userBalance, 'Preço:', price);
     setIsLoading(true);
     setError('');
 
     try {
       // Converter preço de string para número (remover "R$ " e vírgulas)
       const priceValue = parseFloat(price.replace('R$ ', '').replace('.', '').replace(',', '.'));
-      console.log('Preço convertido:', priceValue);
+      console.log('Preço convertido para número:', priceValue);
+      console.log('Tipo do preço:', typeof priceValue);
       
       if (userBalance < priceValue) {
-        console.log('Saldo insuficiente');
+        console.log('Saldo insuficiente - Saldo:', userBalance, 'Preço necessário:', priceValue);
         setError('Saldo insuficiente para comprar esta raspadinha');
         setIsLoading(false);
         return;
       }
 
-      console.log('Fazendo requisição para comprar raspadinha...');
+      console.log('Saldo suficiente, fazendo requisição para comprar raspadinha...');
+      console.log('Enviando para API - gameId:', gameId, 'price:', priceValue);
+      
       const response = await gameAPI.buyScratch(gameId, priceValue);
+      
+      console.log('Resposta da API:', response);
       
       if (response.success) {
         console.log('Compra realizada com sucesso!');
+        console.log('Novo saldo:', response.user.balance);
         onBalanceUpdate(response.user.balance);
         onBuy(response.gameSession.id);
       } else {
