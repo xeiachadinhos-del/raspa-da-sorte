@@ -1,148 +1,156 @@
-'use client';
-
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-
 export default function AdminLogin() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    // Verificar credenciais do admin
-    if (username === 'admin@gmail.com' && password === '123456') {
-      // Salvar token de admin no localStorage
-      localStorage.setItem('adminToken', 'admin-token-123');
-      localStorage.setItem('adminUser', JSON.stringify({
-        username: 'admin@gmail.com',
-        role: 'admin'
-      }));
-      
-      // Redirecionar para o dashboard
-      router.push('/admin/dashboard');
-    } else {
-      setError('Credenciais inválidas');
-    }
-    
-    setIsLoading(false);
-  };
-
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #1e3a8a 0%, #1f2937 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-        padding: '32px',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
-        <h1 style={{
-          fontSize: '24px',
-          fontWeight: 'bold',
-          color: '#1f2937',
-          textAlign: 'center',
-          marginBottom: '32px'
-        }}>
-          Login Admin
-        </h1>
-        
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div>
-            <label htmlFor="username" style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '500',
-              color: '#374151',
-              marginBottom: '8px'
-            }}>
-              Usuário
-            </label>
-            <input
-              type="text"
-              id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                fontSize: '16px',
-                outline: 'none'
-              }}
-              placeholder="Digite seu usuário"
-              required
-            />
-          </div>
+    <html>
+      <head>
+        <title>Login Admin</title>
+        <style>{`
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
           
-          <div>
-            <label htmlFor="password" style={{
-              display: 'block',
-              fontSize: '14px',
-              fontWeight: '500',
-              color: '#374151',
-              marginBottom: '8px'
-            }}>
-              Senha
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '12px 16px',
-                border: '1px solid #d1d5db',
-                borderRadius: '8px',
-                fontSize: '16px',
-                outline: 'none'
-              }}
-              placeholder="Digite sua senha"
-              required
-            />
-          </div>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1f2937 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+          }
           
-          {error && (
-            <div style={{ color: '#dc2626', fontSize: '14px', textAlign: 'center' }}>
-              {error}
+          .login-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            padding: 32px;
+            width: 100%;
+            max-width: 400px;
+          }
+          
+          .login-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+            text-align: center;
+            margin-bottom: 32px;
+          }
+          
+          .form-group {
+            margin-bottom: 24px;
+          }
+          
+          .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 8px;
+          }
+          
+          .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+          }
+          
+          .form-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+          }
+          
+          .login-button {
+            width: 100%;
+            background-color: #2563eb;
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+          
+          .login-button:hover {
+            background-color: #1d4ed8;
+          }
+          
+          .error-message {
+            color: #dc2626;
+            font-size: 14px;
+            text-align: center;
+            margin-bottom: 16px;
+          }
+        `}</style>
+      </head>
+      <body>
+        <div class="login-container">
+          <h1 class="login-title">Login Admin</h1>
+          
+          <form id="loginForm">
+            <div class="form-group">
+              <label for="username" class="form-label">Usuário</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                class="form-input"
+                placeholder="Digite seu usuário"
+                required
+              />
             </div>
-          )}
-          
-          <button
-            type="submit"
-            disabled={isLoading}
-            style={{
-              width: '100%',
-              backgroundColor: '#2563eb',
-              color: 'white',
-              padding: '12px 16px',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: '500',
-              border: 'none',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              opacity: isLoading ? 0.5 : 1
-            }}
-          >
-            {isLoading ? 'Entrando...' : 'Entrar'}
-          </button>
-        </form>
-      </div>
-    </div>
+            
+            <div class="form-group">
+              <label for="password" class="form-label">Senha</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                class="form-input"
+                placeholder="Digite sua senha"
+                required
+              />
+            </div>
+            
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+            
+            <button type="submit" class="login-button">
+              Entrar
+            </button>
+          </form>
+        </div>
+        
+        <script>{`
+          document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Verificar credenciais
+            if (username === 'admin@gmail.com' && password === '123456') {
+              // Salvar token de admin
+              localStorage.setItem('adminToken', 'admin-token-123');
+              localStorage.setItem('adminUser', JSON.stringify({
+                username: 'admin@gmail.com',
+                role: 'admin'
+              }));
+              
+              // Redirecionar para o dashboard
+              window.location.href = '/admin/dashboard';
+            } else {
+              errorMessage.textContent = 'Credenciais inválidas';
+              errorMessage.style.display = 'block';
+            }
+          });
+        `}</script>
+      </body>
+    </html>
   );
 } 
