@@ -41,6 +41,7 @@ export default function PixPaymentModal({
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
+  const [forceOpen, setForceOpen] = useState(false); // Força o modal a permanecer aberto
 
   // Criar cobrança PIX quando o modal abrir
   useEffect(() => {
@@ -55,6 +56,7 @@ export default function PixPaymentModal({
     
     setLoading(true);
     setError(null);
+    setForceOpen(true); // Força o modal a permanecer aberto
     
     try {
       const numericAmount = parseFloat(amount.replace(',', '.'));
@@ -151,6 +153,9 @@ export default function PixPaymentModal({
       
       const errorMessage = err?.message || 'Erro desconhecido ao gerar PIX';
       setError(`❌ Erro ao gerar cobrança PIX: ${errorMessage}`);
+      
+      console.log('Erro definido, NÃO fechando modal!');
+      console.log('Modal deve permanecer aberto para debug');
     } finally {
       setLoading(false);
       console.log('=== FIM DA FUNÇÃO createPixCharge ===');
@@ -167,9 +172,15 @@ export default function PixPaymentModal({
     }
   };
 
-  if (!isOpen) {
+  // Modal deve permanecer aberto se forceOpen for true, mesmo se isOpen for false
+  console.log('Verificando renderização do modal - isOpen:', isOpen, 'forceOpen:', forceOpen, 'error:', error, 'paymentData:', !!paymentData);
+  
+  if (!isOpen && !forceOpen) {
+    console.log('Modal não deve ser renderizado');
     return null;
   }
+  
+  console.log('Modal será renderizado');
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -178,7 +189,10 @@ export default function PixPaymentModal({
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <h2 className="text-xl font-semibold text-white">Depositar</h2>
           <button
-            onClick={onClose}
+            onClick={() => {
+              setForceOpen(false);
+              onClose();
+            }}
             className="text-gray-400 hover:text-white"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,7 +235,10 @@ export default function PixPaymentModal({
                   🔄 Tentar Novamente
                 </button>
                 <button
-                  onClick={onClose}
+                  onClick={() => {
+                    setForceOpen(false);
+                    onClose();
+                  }}
                   className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
                 >
                   ❌ Fechar
