@@ -48,14 +48,14 @@ export default function ScratchCard({
   const isScratchingRef = React.useRef(false);
   const lastPointRef = React.useRef<{x: number, y: number} | null>(null);
   
-  // Prêmios que aparecem atrás da raspadinha (otimizados para WebP)
+  // Prêmios que aparecem atrás da raspadinha (corrigidas para PNG)
   const prizes = [
-    { id: 1, name: 'R$ 1,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/1%20REAL.webp?updatedAt=1752047821586' },
-    { id: 2, name: 'R$ 2,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/2%20REAIS.webp?updatedAt=1752047821644' },
-    { id: 3, name: 'R$ 5,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/5%20REAIS.webp?updatedAt=1752047821734' },
-    { id: 4, name: 'R$ 10,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/10%20REAIS.webp?updatedAt=1752047821681' },
-    { id: 5, name: 'R$ 50,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/50%20REAIS.webp?updatedAt=1752047821745' },
-    { id: 6, name: 'R$ 100,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/100%20REAIS.webp?updatedAt=1752047821876' },
+    { id: 1, name: 'R$ 1,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/1%20REAL.png?updatedAt=1752047821586' },
+    { id: 2, name: 'R$ 2,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/2%20REAIS.png?updatedAt=1752047821644' },
+    { id: 3, name: 'R$ 5,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/5%20REAIS.png?updatedAt=1752047821734' },
+    { id: 4, name: 'R$ 10,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/10%20REAIS.png?updatedAt=1752047821681' },
+    { id: 5, name: 'R$ 50,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/50%20REAIS.png?updatedAt=1752047821745' },
+    { id: 6, name: 'R$ 100,00', image: 'https://ik.imagekit.io/azx3nlpdu/Notas/100%20REAIS.png?updatedAt=1752047821876' },
   ];
   
   // Gerar posições dos prêmios (3x3 grid)
