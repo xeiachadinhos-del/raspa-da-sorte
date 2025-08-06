@@ -41,7 +41,8 @@ export default function PixPaymentModal({
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
-  const [forceOpen, setForceOpen] = useState(false); // Força o modal a permanecer aberto
+  const [forceOpen, setForceOpen] = useState(false);
+  const [hasError, setHasError] = useState(false); // NOVA PROTEÇÃO
 
   // Criar cobrança PIX quando o modal abrir
   useEffect(() => {
@@ -57,6 +58,7 @@ export default function PixPaymentModal({
     setLoading(true);
     setError(null);
     setForceOpen(true); // Força o modal a permanecer aberto
+    setHasError(false); // Reset error flag
     
     try {
       const numericAmount = parseFloat(amount.replace(',', '.'));
@@ -153,9 +155,12 @@ export default function PixPaymentModal({
       
       const errorMessage = err?.message || 'Erro desconhecido ao gerar PIX';
       setError(`❌ Erro ao gerar cobrança PIX: ${errorMessage}`);
+      setHasError(true); // MARCA QUE HOUVE ERRO
       
       console.log('Erro definido, NÃO fechando modal!');
       console.log('Modal deve permanecer aberto para debug');
+      console.log('hasError:', true);
+      console.log('forceOpen:', true);
     } finally {
       setLoading(false);
       console.log('=== FIM DA FUNÇÃO createPixCharge ===');
@@ -172,15 +177,22 @@ export default function PixPaymentModal({
     }
   };
 
-  // Modal deve permanecer aberto se forceOpen for true, mesmo se isOpen for false
-  console.log('Verificando renderização do modal - isOpen:', isOpen, 'forceOpen:', forceOpen, 'error:', error, 'paymentData:', !!paymentData);
+  // MÚLTIPLAS PROTEÇÕES PARA NÃO FECHAR
+  const shouldRender = isOpen || forceOpen || hasError || error;
   
-  if (!isOpen && !forceOpen) {
-    console.log('Modal não deve ser renderizado');
+  console.log('=== VERIFICAÇÃO DE RENDERIZAÇÃO ===');
+  console.log('isOpen:', isOpen);
+  console.log('forceOpen:', forceOpen);
+  console.log('hasError:', hasError);
+  console.log('error:', error);
+  console.log('shouldRender:', shouldRender);
+  
+  if (!shouldRender) {
+    console.log('Modal NÃO deve ser renderizado');
     return null;
   }
   
-  console.log('Modal será renderizado');
+  console.log('Modal SERÁ renderizado');
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -190,7 +202,10 @@ export default function PixPaymentModal({
           <h2 className="text-xl font-semibold text-white">Depositar</h2>
           <button
             onClick={() => {
+              console.log('Botão X clicado - fechando modal');
               setForceOpen(false);
+              setHasError(false);
+              setError(null);
               onClose();
             }}
             className="text-gray-400 hover:text-white"
@@ -217,7 +232,7 @@ export default function PixPaymentModal({
             </div>
           )}
 
-          {/* Error */}
+          {/* Error - SEMPRE VISÍVEL SE HOUVER ERRO */}
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 space-y-3">
               <div className="flex items-center gap-2">
@@ -236,7 +251,10 @@ export default function PixPaymentModal({
                 </button>
                 <button
                   onClick={() => {
+                    console.log('Botão Fechar clicado - fechando modal');
                     setForceOpen(false);
+                    setHasError(false);
+                    setError(null);
                     onClose();
                   }}
                   className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
@@ -311,7 +329,7 @@ export default function PixPaymentModal({
             </div>
           )}
 
-          {/* Debug Info */}
+          {/* Debug Info - SEMPRE VISÍVEL */}
           <div className="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-300">
             <p><strong>🔧 Informações Técnicas:</strong></p>
             <p>Status: {paymentStatus}</p>
@@ -321,6 +339,9 @@ export default function PixPaymentModal({
             <p>User Email: {user?.email || 'N/A'}</p>
             <p>Loading: {loading ? 'Sim' : 'Não'}</p>
             <p>Error: {error ? 'Sim' : 'Não'}</p>
+            <p>Has Error: {hasError ? 'Sim' : 'Não'}</p>
+            <p>Force Open: {forceOpen ? 'Sim' : 'Não'}</p>
+            <p>Should Render: {shouldRender ? 'Sim' : 'Não'}</p>
             <p>API URL: https://api.medusapay.com.br/v1/transactions</p>
           </div>
         </div>
