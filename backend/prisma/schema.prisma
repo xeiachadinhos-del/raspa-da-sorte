@@ -9,7 +9,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -128,6 +128,6 @@ model DailyLogin {
   @@map("daily_logins")
 }
 
-// Enums convertidos para strings devido ao SQLite
+// Enums convertidos para strings devido ao PostgreSQL
 // TransactionType: CREDIT_PURCHASE, PRIZE_WITHDRAWAL, CREDIT_REFUND
 // TransactionStatus: PENDING, COMPLETED, FAILED, CANCELLED
