@@ -2,13 +2,6 @@
 
 import { useState, useEffect } from 'react';
 
-// Configurações da MedusaPay
-const MEDUSAPAY_CONFIG = {
-  publicKey: 'pk_duOO6JDHwX_dG9v1-ZPjPx6BZwWQvk6Nm794LRcYd9O4aiFf',
-  secretKey: 'sk_Zw464Zyjoa8JSNXSLXbb9SFjKKY0LbBdqamPCxuWwe68VBg9',
-  apiUrl: 'https://api.medusapay.com.br/v1/transactions'
-};
-
 interface PixPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -42,112 +35,39 @@ export default function PixPaymentModal({
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
   const [forceOpen, setForceOpen] = useState(false);
-  const [hasError, setHasError] = useState(false); // NOVA PROTEÇÃO
+  const [hasError, setHasError] = useState(false);
 
   // Criar cobrança PIX quando o modal abrir
   useEffect(() => {
     if (isOpen && amount && user) {
-      console.log('Modal aberto, iniciando criação de cobrança...');
-      createPixCharge();
+      console.log('Modal aberto, aguardando novo gateway...');
+      // TODO: Implementar novo gateway aqui
     }
   }, [isOpen, amount, user]);
 
   const createPixCharge = async () => {
-    console.log('=== INÍCIO DA FUNÇÃO createPixCharge ===');
+    console.log('=== INÍCIO DA FUNÇÃO createPixCharge (NOVO GATEWAY) ===');
     
     setLoading(true);
     setError(null);
-    setForceOpen(true); // Força o modal a permanecer aberto
-    setHasError(false); // Reset error flag
+    setForceOpen(true);
+    setHasError(false);
     
     try {
       const numericAmount = parseFloat(amount.replace(',', '.'));
-      console.log('Criando cobrança MedusaPay para valor:', numericAmount);
+      console.log('Criando cobrança para valor:', numericAmount);
       
       // Verificar se temos dados do usuário
       if (!user || !user.id || !user.email) {
         throw new Error('Dados do usuário incompletos');
       }
       
-      // Criar payload para MedusaPay
-      const payload = {
-        amount: Math.round(numericAmount * 100), // MedusaPay usa centavos
-        paymentMethod: 'pix',
-        externalRef: `deposit_${user.id}_${Date.now()}`,
-        metadata: JSON.stringify({
-          userId: user.id,
-          userEmail: user.email,
-          depositAmount: numericAmount
-        }),
-        customer: {
-          name: user.name || 'Usuário',
-          email: user.email,
-          phone: user.phone || '11999999999',
-          document: {
-            type: 'cpf',
-            number: user.cpf || '00000000000'
-          }
-        },
-        items: [
-          {
-            title: `Depósito - ${amount} reais`,
-            quantity: 1,
-            tangible: false,
-            unitPrice: Math.round(numericAmount * 100),
-            externalRef: `deposit_item_${Date.now()}`
-          }
-        ]
-      };
-
-      console.log('Payload MedusaPay:', payload);
+      // TODO: Implementar chamada para novo gateway
+      console.log('Aguardando configuração do novo gateway...');
       
-      // Autenticação Basic
-      const auth = 'Basic ' + Buffer.from(MEDUSAPAY_CONFIG.publicKey + ':' + MEDUSAPAY_CONFIG.secretKey).toString('base64');
+      // Simular erro por enquanto
+      throw new Error('Novo gateway ainda não configurado');
       
-      const response = await fetch(MEDUSAPAY_CONFIG.apiUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': auth,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      console.log('Resposta da MedusaPay:', response.status, response.statusText);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Erro da MedusaPay:', errorText);
-        throw new Error(`Erro da MedusaPay: ${response.status} - ${errorText}`);
-      }
-
-      const data = await response.json();
-      console.log('Dados da MedusaPay:', data);
-      
-      // Verificar se temos os dados necessários
-      if (!data.data?.pix?.qrcode) {
-        throw new Error('QR Code não foi gerado pela MedusaPay');
-      }
-      
-      // Converter resposta da MedusaPay para formato esperado
-      const paymentData = {
-        id: data.data.id.toString(),
-        amount: (data.data.amount / 100).toFixed(2),
-        status: data.data.status,
-        payment: {
-          details: {
-            pixQrCode: data.data.pix.qrcode,
-            pixCode: data.data.pix.qrcode
-          }
-        }
-      };
-      
-      console.log('PaymentData processado:', paymentData);
-      
-      setPaymentData(paymentData);
-      setPaymentStatus(data.data.status);
-      
-      console.log('=== SUCESSO - PIX GERADO ===');
     } catch (err: any) {
       console.error('=== ERRO DETALHADO ===');
       console.error('Mensagem de erro:', err?.message || 'Erro desconhecido');
@@ -155,7 +75,7 @@ export default function PixPaymentModal({
       
       const errorMessage = err?.message || 'Erro desconhecido ao gerar PIX';
       setError(`❌ Erro ao gerar cobrança PIX: ${errorMessage}`);
-      setHasError(true); // MARCA QUE HOUVE ERRO
+      setHasError(true);
       
       console.log('Erro definido, NÃO fechando modal!');
       console.log('Modal deve permanecer aberto para debug');
@@ -342,7 +262,7 @@ export default function PixPaymentModal({
             <p>Has Error: {hasError ? 'Sim' : 'Não'}</p>
             <p>Force Open: {forceOpen ? 'Sim' : 'Não'}</p>
             <p>Should Render: {shouldRender ? 'Sim' : 'Não'}</p>
-            <p>API URL: https://api.medusapay.com.br/v1/transactions</p>
+            <p>Gateway: Aguardando novo gateway</p>
           </div>
         </div>
       </div>
