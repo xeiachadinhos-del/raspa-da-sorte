@@ -249,21 +249,7 @@ export default function PixPaymentModal({
             </div>
           )}
 
-          {/* Debug Info - SEMPRE VISÍVEL */}
-          <div className="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-300">
-            <p><strong>🔧 Informações Técnicas:</strong></p>
-            <p>Status: {paymentStatus}</p>
-            <p>Payment ID: {paymentData?.id || 'N/A'}</p>
-            <p>Amount: R$ {amount}</p>
-            <p>User ID: {user?.id || 'N/A'}</p>
-            <p>User Email: {user?.email || 'N/A'}</p>
-            <p>Loading: {loading ? 'Sim' : 'Não'}</p>
-            <p>Error: {error ? 'Sim' : 'Não'}</p>
-            <p>Has Error: {hasError ? 'Sim' : 'Não'}</p>
-            <p>Force Open: {forceOpen ? 'Sim' : 'Não'}</p>
-            <p>Should Render: {shouldRender ? 'Sim' : 'Não'}</p>
-            <p>Gateway: Aguardando novo gateway</p>
-          </div>
+
         </div>
       </div>
     </div>
