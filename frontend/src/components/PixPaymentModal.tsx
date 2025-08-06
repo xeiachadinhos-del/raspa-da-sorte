@@ -40,28 +40,40 @@ export default function PixPaymentModal({
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
-  const [forceOpen, setForceOpen] = useState(false);
-  const [hasError, setHasError] = useState(false);
+  
+  // PROTEÇÕES MUITO FORTES PARA NÃO FECHAR
+  const [modalLocked, setModalLocked] = useState(false);
+  const [hasStartedProcess, setHasStartedProcess] = useState(false);
+  const [forceKeepOpen, setForceKeepOpen] = useState(false);
+  const [debugInfo, setDebugInfo] = useState<string[]>([]);
+
+  const addDebugInfo = (info: string) => {
+    console.log(`[DEBUG] ${info}`);
+    setDebugInfo(prev => [...prev, `${new Date().toLocaleTimeString()}: ${info}`]);
+  };
 
   // Criar cobrança PIX quando o modal abrir
   useEffect(() => {
     if (isOpen && amount && user) {
-      console.log('Modal aberto, iniciando criação de cobrança...');
+      addDebugInfo('Modal aberto, iniciando processo...');
+      setModalLocked(true);
+      setHasStartedProcess(true);
+      setForceKeepOpen(true);
       createPixCharge();
     }
   }, [isOpen, amount, user]);
 
   const createPixCharge = async () => {
-    console.log('=== INÍCIO DA FUNÇÃO createPixCharge (NOMADFY) ===');
+    addDebugInfo('=== INÍCIO DA FUNÇÃO createPixCharge ===');
     
     setLoading(true);
     setError(null);
-    setForceOpen(true);
-    setHasError(false);
+    setModalLocked(true);
+    setForceKeepOpen(true);
     
     try {
       const numericAmount = parseFloat(amount.replace(',', '.'));
-      console.log('Criando cobrança Nomadfy para valor:', numericAmount);
+      addDebugInfo(`Criando cobrança para valor: ${numericAmount}`);
       
       // Verificar se temos dados do usuário
       if (!user || !user.id || !user.email) {
@@ -100,7 +112,7 @@ export default function PixPaymentModal({
         }
       };
 
-      console.log('Payload Nomadfy:', payload);
+      addDebugInfo('Payload criado, fazendo requisição...');
       
       const response = await fetch(NOMADFY_CONFIG.apiUrl, {
         method: 'POST',
@@ -111,16 +123,16 @@ export default function PixPaymentModal({
         body: JSON.stringify(payload),
       });
 
-      console.log('Resposta do Nomadfy:', response.status, response.statusText);
+      addDebugInfo(`Resposta recebida: ${response.status} ${response.statusText}`);
       
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Erro do Nomadfy:', errorText);
+        addDebugInfo(`ERRO: ${response.status} - ${errorText}`);
         throw new Error(`Erro do Nomadfy: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
-      console.log('Dados do Nomadfy:', data);
+      addDebugInfo('Dados recebidos com sucesso');
       
       // Verificar se temos os dados necessários
       if (!data.payment?.details?.pixQrCode) {
@@ -140,28 +152,26 @@ export default function PixPaymentModal({
         }
       };
       
-      console.log('PaymentData processado:', paymentData);
+      addDebugInfo('PaymentData processado com sucesso');
       
       setPaymentData(paymentData);
       setPaymentStatus(data.status);
       
-      console.log('=== SUCESSO - PIX GERADO ===');
+      addDebugInfo('=== SUCESSO - PIX GERADO ===');
     } catch (err: any) {
-      console.error('=== ERRO DETALHADO ===');
-      console.error('Mensagem de erro:', err?.message || 'Erro desconhecido');
-      console.error('Erro completo:', err);
+      addDebugInfo('=== ERRO DETALHADO ===');
+      addDebugInfo(`Mensagem de erro: ${err?.message || 'Erro desconhecido'}`);
       
       const errorMessage = err?.message || 'Erro desconhecido ao gerar PIX';
       setError(`❌ Erro ao gerar cobrança PIX: ${errorMessage}`);
-      setHasError(true);
       
-      console.log('Erro definido, NÃO fechando modal!');
-      console.log('Modal deve permanecer aberto para debug');
-      console.log('hasError:', true);
-      console.log('forceOpen:', true);
+      // MANTER MODAL ABERTO EM CASO DE ERRO
+      setModalLocked(true);
+      setForceKeepOpen(true);
+      addDebugInfo('Modal BLOQUEADO devido ao erro');
     } finally {
       setLoading(false);
-      console.log('=== FIM DA FUNÇÃO createPixCharge ===');
+      addDebugInfo('=== FIM DA FUNÇÃO createPixCharge ===');
     }
   };
 
@@ -176,21 +186,38 @@ export default function PixPaymentModal({
   };
 
   // MÚLTIPLAS PROTEÇÕES PARA NÃO FECHAR
-  const shouldRender = isOpen || forceOpen || hasError || error;
+  const shouldRender = isOpen || modalLocked || hasStartedProcess || forceKeepOpen || error || loading;
   
-  console.log('=== VERIFICAÇÃO DE RENDERIZAÇÃO ===');
-  console.log('isOpen:', isOpen);
-  console.log('forceOpen:', forceOpen);
-  console.log('hasError:', hasError);
-  console.log('error:', error);
-  console.log('shouldRender:', shouldRender);
+  addDebugInfo(`=== VERIFICAÇÃO DE RENDERIZAÇÃO ===`);
+  addDebugInfo(`isOpen: ${isOpen}`);
+  addDebugInfo(`modalLocked: ${modalLocked}`);
+  addDebugInfo(`hasStartedProcess: ${hasStartedProcess}`);
+  addDebugInfo(`forceKeepOpen: ${forceKeepOpen}`);
+  addDebugInfo(`error: ${error}`);
+  addDebugInfo(`loading: ${loading}`);
+  addDebugInfo(`shouldRender: ${shouldRender}`);
   
   if (!shouldRender) {
-    console.log('Modal NÃO deve ser renderizado');
+    addDebugInfo('Modal NÃO deve ser renderizado');
     return null;
   }
   
-  console.log('Modal SERÁ renderizado');
+  addDebugInfo('Modal SERÁ renderizado');
+
+  const handleClose = () => {
+    addDebugInfo('Tentativa de fechar modal...');
+    
+    // Só permite fechar se não houver processo em andamento
+    if (!loading && !error && !modalLocked) {
+      addDebugInfo('Modal pode ser fechado');
+      setModalLocked(false);
+      setHasStartedProcess(false);
+      setForceKeepOpen(false);
+      onClose();
+    } else {
+      addDebugInfo('Modal NÃO pode ser fechado - bloqueado');
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
@@ -199,13 +226,7 @@ export default function PixPaymentModal({
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <h2 className="text-xl font-semibold text-white">Depositar</h2>
           <button
-            onClick={() => {
-              console.log('Botão X clicado - fechando modal');
-              setForceOpen(false);
-              setHasError(false);
-              setError(null);
-              onClose();
-            }}
+            onClick={handleClose}
             className="text-gray-400 hover:text-white"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -249,9 +270,10 @@ export default function PixPaymentModal({
                 </button>
                 <button
                   onClick={() => {
-                    console.log('Botão Fechar clicado - fechando modal');
-                    setForceOpen(false);
-                    setHasError(false);
+                    addDebugInfo('Fechando modal após erro');
+                    setModalLocked(false);
+                    setHasStartedProcess(false);
+                    setForceKeepOpen(false);
                     setError(null);
                     onClose();
                   }}
@@ -324,6 +346,16 @@ export default function PixPaymentModal({
               <p className="text-orange-400 text-sm">
                 O QR Code expira em: <span className="font-medium">24 horas</span>
               </p>
+            </div>
+          )}
+
+          {/* Debug Info (apenas em desenvolvimento) */}
+          {process.env.NODE_ENV === 'development' && debugInfo.length > 0 && (
+            <div className="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-300 max-h-32 overflow-y-auto">
+              <p className="font-bold mb-2">Debug Info:</p>
+              {debugInfo.slice(-5).map((info, index) => (
+                <div key={index} className="text-gray-400">{info}</div>
+              ))}
             </div>
           )}
         </div>
