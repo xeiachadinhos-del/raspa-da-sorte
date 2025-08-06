@@ -2,6 +2,12 @@
 
 import { useState, useEffect } from 'react';
 
+// Configurações do Nomadfy
+const NOMADFY_CONFIG = {
+  apiKey: 'nd-key.01987cf7-adb3-7559-97b4-abbaee94a20c.3BLOsdwhSnjqtAsFk5vd4FR9qqCw46SYLnEnOTTYm4LGASyQ19mGpWHxCNfaJtNkAenSa15NQBkvydmO2cNNl7EFgV0Wt4LWP2phE27npQnwHSwxAefz',
+  apiUrl: 'https://api.nomadfy.app/v1/charges'
+};
+
 interface PixPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -40,13 +46,13 @@ export default function PixPaymentModal({
   // Criar cobrança PIX quando o modal abrir
   useEffect(() => {
     if (isOpen && amount && user) {
-      console.log('Modal aberto, aguardando novo gateway...');
-      // TODO: Implementar novo gateway aqui
+      console.log('Modal aberto, iniciando criação de cobrança...');
+      createPixCharge();
     }
   }, [isOpen, amount, user]);
 
   const createPixCharge = async () => {
-    console.log('=== INÍCIO DA FUNÇÃO createPixCharge (NOVO GATEWAY) ===');
+    console.log('=== INÍCIO DA FUNÇÃO createPixCharge (NOMADFY) ===');
     
     setLoading(true);
     setError(null);
@@ -55,19 +61,91 @@ export default function PixPaymentModal({
     
     try {
       const numericAmount = parseFloat(amount.replace(',', '.'));
-      console.log('Criando cobrança para valor:', numericAmount);
+      console.log('Criando cobrança Nomadfy para valor:', numericAmount);
       
       // Verificar se temos dados do usuário
       if (!user || !user.id || !user.email) {
         throw new Error('Dados do usuário incompletos');
       }
       
-      // TODO: Implementar chamada para novo gateway
-      console.log('Aguardando configuração do novo gateway...');
+      // Criar payload para Nomadfy
+      const payload = {
+        customer: {
+          name: user.name || 'Usuário',
+          cpfCnpj: user.cpf || '00000000000',
+          email: user.email,
+          phone: user.phone || '(11) 99999-9999',
+          accountId: user.id
+        },
+        payment: {
+          method: 'PIX',
+          amount: amount,
+          message: `Depósito - ${amount} reais`,
+          installments: 1
+        },
+        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 24 horas
+        callbackUrl: 'https://raspa-da-sorte-gray.vercel.app/api/payment-callback',
+        items: [
+          {
+            name: `Depósito - ${amount} reais`,
+            unitPrice: amount,
+            quantity: 1,
+            externalRef: `deposit_${user.id}_${Date.now()}`
+          }
+        ],
+        metadata: {
+          userId: user.id,
+          userEmail: user.email,
+          depositAmount: numericAmount
+        }
+      };
+
+      console.log('Payload Nomadfy:', payload);
       
-      // Simular erro por enquanto
-      throw new Error('Novo gateway ainda não configurado');
+      const response = await fetch(NOMADFY_CONFIG.apiUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${NOMADFY_CONFIG.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      console.log('Resposta do Nomadfy:', response.status, response.statusText);
       
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Erro do Nomadfy:', errorText);
+        throw new Error(`Erro do Nomadfy: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Dados do Nomadfy:', data);
+      
+      // Verificar se temos os dados necessários
+      if (!data.payment?.details?.pixQrCode) {
+        throw new Error('QR Code não foi gerado pelo Nomadfy');
+      }
+      
+      // Converter resposta do Nomadfy para formato esperado
+      const paymentData = {
+        id: data.id,
+        amount: data.amount,
+        status: data.status,
+        payment: {
+          details: {
+            pixQrCode: data.payment.details.pixQrCode,
+            pixCode: data.payment.details.pixCode || data.payment.details.pixQrCode
+          }
+        }
+      };
+      
+      console.log('PaymentData processado:', paymentData);
+      
+      setPaymentData(paymentData);
+      setPaymentStatus(data.status);
+      
+      console.log('=== SUCESSO - PIX GERADO ===');
     } catch (err: any) {
       console.error('=== ERRO DETALHADO ===');
       console.error('Mensagem de erro:', err?.message || 'Erro desconhecido');
@@ -248,8 +326,6 @@ export default function PixPaymentModal({
               </p>
             </div>
           )}
-
-
         </div>
       </div>
     </div>
