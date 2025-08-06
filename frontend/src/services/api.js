@@ -1,8 +1,15 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
-// Função para fazer requisições à API
+// Cache para tokens e dados do usuário
+const cache = {
+  token: null,
+  user: null,
+  lastFetch: 0
+};
+
+// Função para fazer requisições à API com otimizações
 async function apiRequest(endpoint, options = {}) {
-  const token = localStorage.getItem('token');
+  const token = cache.token || localStorage.getItem('token');
   
   const config = {
     headers: {
@@ -11,11 +18,18 @@ async function apiRequest(endpoint, options = {}) {
       ...options.headers,
     },
     ...options,
+    // Timeout otimizado
+    signal: AbortSignal.timeout(10000), // 10 segundos
   };
 
   try {
+    const startTime = Date.now();
+    
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
     const data = await response.json();
+    
+    const endTime = Date.now();
+    console.log(`API ${endpoint} - ${endTime - startTime}ms`);
     
     if (!response.ok) {
       throw new Error(data.error || 'Erro na requisição');
@@ -24,74 +38,144 @@ async function apiRequest(endpoint, options = {}) {
     return data;
   } catch (error) {
     console.error('Erro na API:', error);
+    
+    // Se for erro de timeout, tentar novamente uma vez
+    if (error.name === 'TimeoutError') {
+      console.log('Timeout detectado, tentando novamente...');
+      try {
+        const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
+          ...config,
+          signal: AbortSignal.timeout(15000), // 15 segundos na segunda tentativa
+        });
+        const retryData = await retryResponse.json();
+        
+        if (!retryResponse.ok) {
+          throw new Error(retryData.error || 'Erro na requisição');
+        }
+        
+        return retryData;
+      } catch (retryError) {
+        throw new Error('Erro de conexão. Verifique sua internet.');
+      }
+    }
+    
     throw error;
   }
 }
 
-// Autenticação
+// Autenticação otimizada
 export const authAPI = {
   // Registrar novo usuário
   register: async (userData) => {
+    const startTime = Date.now();
+    
     const response = await apiRequest('/register', {
       method: 'POST',
       body: JSON.stringify(userData),
     });
     
     if (response.token) {
+      cache.token = response.token;
+      cache.user = response.user;
+      cache.lastFetch = Date.now();
+      
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
     }
     
+    const endTime = Date.now();
+    console.log(`Registro completado em ${endTime - startTime}ms`);
+    
     return response;
   },
 
-  // Fazer login
+  // Fazer login otimizado
   login: async (credentials) => {
+    const startTime = Date.now();
+    
     const response = await apiRequest('/login', {
       method: 'POST',
       body: JSON.stringify(credentials),
     });
     
     if (response.token) {
+      cache.token = response.token;
+      cache.user = response.user;
+      cache.lastFetch = Date.now();
+      
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
     }
     
+    const endTime = Date.now();
+    console.log(`Login completado em ${endTime - startTime}ms`);
+    
     return response;
   },
 
-  // Obter dados do usuário
+  // Obter dados do usuário com cache
   getUser: async () => {
-    return await apiRequest('/user');
+    // Usar cache se ainda for válido (menos de 5 minutos)
+    const now = Date.now();
+    if (cache.user && (now - cache.lastFetch) < 300000) {
+      return cache.user;
+    }
+    
+    const user = await apiRequest('/user');
+    cache.user = user;
+    cache.lastFetch = now;
+    
+    return user;
   },
 
   // Fazer logout
   logout: () => {
+    cache.token = null;
+    cache.user = null;
+    cache.lastFetch = 0;
+    
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   },
 
-  // Verificar se está logado
+  // Verificar se está logado (otimizado)
   isAuthenticated: () => {
-    return !!localStorage.getItem('token');
+    return !!(cache.token || localStorage.getItem('token'));
   },
 
-  // Obter usuário atual
+  // Obter usuário atual (otimizado)
   getCurrentUser: () => {
+    if (cache.user) {
+      return cache.user;
+    }
+    
     const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    if (user) {
+      cache.user = JSON.parse(user);
+      return cache.user;
+    }
+    
+    return null;
   },
 
   // Adicionar saldo ao usuário
   addBalance: async (amount) => {
-    return await apiRequest('/user/add-balance', {
+    const response = await apiRequest('/user/add-balance', {
       method: 'POST',
       body: JSON.stringify({ amount }),
     });
+    
+    // Atualizar cache do usuário
+    if (cache.user) {
+      cache.user.balance = (cache.user.balance || 0) + amount;
+      localStorage.setItem('user', JSON.stringify(cache.user));
+    }
+    
+    return response;
   },
 };
 
-// Jogo
+// Jogo otimizado
 export const gameAPI = {
   // Comprar raspadinha
   buyScratch: async (gameId, price) => {
@@ -116,14 +200,22 @@ export const gameAPI = {
 
   // Comprar créditos
   purchaseCredits: async (credits, amount) => {
-    return await apiRequest('/credits/purchase', {
+    const response = await apiRequest('/credits/purchase', {
       method: 'POST',
       body: JSON.stringify({ credits, amount }),
     });
+    
+    // Atualizar cache do usuário
+    if (cache.user) {
+      cache.user.credits = (cache.user.credits || 0) + credits;
+      localStorage.setItem('user', JSON.stringify(cache.user));
+    }
+    
+    return response;
   },
 };
 
-// Histórico
+// Histórico otimizado
 export const historyAPI = {
   // Obter prêmios
   getPrizes: async () => {
@@ -136,13 +228,21 @@ export const historyAPI = {
   },
 };
 
-// Sistema de Conquistas e Gamificação
+// Sistema de Conquistas e Gamificação otimizado
 export const gamificationAPI = {
   // Login diário
   dailyLogin: async () => {
-    return await apiRequest('/daily-login', {
+    const response = await apiRequest('/daily-login', {
       method: 'POST',
     });
+    
+    // Atualizar cache do usuário
+    if (cache.user && response.user) {
+      cache.user = response.user;
+      localStorage.setItem('user', JSON.stringify(response.user));
+    }
+    
+    return response;
   },
 
   // Obter conquistas
@@ -156,7 +256,7 @@ export const gamificationAPI = {
   },
 };
 
-// Utilitários
+// Utilitários otimizados
 export const utils = {
   // Formatar moeda
   formatCurrency: (value) => {
@@ -172,14 +272,14 @@ export const utils = {
   },
 };
 
-// API Administrativa
+// API Administrativa otimizada
 class AdminAPI {
   constructor() {
     this.baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
   }
 
   getHeaders() {
-    const token = localStorage.getItem('token');
+    const token = cache.token || localStorage.getItem('token');
     return {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
@@ -189,7 +289,8 @@ class AdminAPI {
   async getStats() {
     const response = await fetch(`${this.baseURL}/api/admin/stats`, {
       method: 'GET',
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      signal: AbortSignal.timeout(10000)
     });
 
     if (!response.ok) {
@@ -202,7 +303,8 @@ class AdminAPI {
   async getUsers() {
     const response = await fetch(`${this.baseURL}/api/admin/users`, {
       method: 'GET',
-      headers: this.getHeaders()
+      headers: this.getHeaders(),
+      signal: AbortSignal.timeout(10000)
     });
 
     if (!response.ok) {
@@ -216,7 +318,8 @@ class AdminAPI {
     const response = await fetch(`${this.baseURL}/api/admin/users/${userId}/block`, {
       method: 'PUT',
       headers: this.getHeaders(),
-      body: JSON.stringify({ blocked })
+      body: JSON.stringify({ blocked }),
+      signal: AbortSignal.timeout(10000)
     });
 
     if (!response.ok) {
@@ -230,7 +333,8 @@ class AdminAPI {
     const response = await fetch(`${this.baseURL}/api/admin/settings/win-rate`, {
       method: 'PUT',
       headers: this.getHeaders(),
-      body: JSON.stringify({ winRate })
+      body: JSON.stringify({ winRate }),
+      signal: AbortSignal.timeout(10000)
     });
 
     if (!response.ok) {
@@ -244,7 +348,8 @@ class AdminAPI {
     const response = await fetch(`${this.baseURL}/api/admin/payouts/${userId}/approve`, {
       method: 'POST',
       headers: this.getHeaders(),
-      body: JSON.stringify({ amount })
+      body: JSON.stringify({ amount }),
+      signal: AbortSignal.timeout(10000)
     });
 
     if (!response.ok) {

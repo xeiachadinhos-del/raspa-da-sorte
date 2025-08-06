@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authAPI } from "../../services/api";
@@ -10,23 +10,76 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isValid, setIsValid] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  // Validação em tempo real
+  const validateForm = useCallback(() => {
+    const emailValid = email.includes('@') && email.length > 5;
+    const passwordValid = password.length >= 6;
+    setIsValid(emailValid && passwordValid);
+  }, [email, password]);
+
+  // Debounce para validação
+  useMemo(() => {
+    const timeoutId = setTimeout(validateForm, 100);
+    return () => clearTimeout(timeoutId);
+  }, [email, password, validateForm]);
+
+  const handleSubmit = useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    if (!isValid) {
+      setError("Por favor, preencha todos os campos corretamente");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
     try {
-      await authAPI.login({ email, password });
+      // Feedback visual imediato
+      const button = e.currentTarget.querySelector('button[type="submit"]');
+      if (button) {
+        button.textContent = "Entrando...";
+        button.disabled = true;
+      }
+
+      // Cache do token para acesso rápido
+      const startTime = Date.now();
+      
+      const response = await authAPI.login({ email, password });
+      
+      const endTime = Date.now();
+      console.log(`Login realizado em ${endTime - startTime}ms`);
+
+      // Navegação otimizada
       router.push("/jogo");
+      
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : "Erro ao fazer login";
       setError(errorMessage);
+      
+      // Reativar botão em caso de erro
+      const button = e.currentTarget.querySelector('button[type="submit"]');
+      if (button) {
+        button.textContent = "Entrar";
+        button.disabled = false;
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [email, password, isValid, router]);
+
+  const handleEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    if (error) setError("");
+  }, [error]);
+
+  const handlePasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+    if (error) setError("");
+  }, [error]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 font-sans">
@@ -34,40 +87,89 @@ export default function Login() {
         <h1 className="text-3xl font-bold text-yellow-700 mb-6">Entrar</h1>
         
         {error && (
-          <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 animate-pulse">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full">
-          <input
-            type="email"
-            placeholder="E-mail"
-            value={email}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-            className="border border-yellow-300 rounded px-4 py-2 focus:outline-yellow-500"
-            required
-          />
-          <input
-            type="password"
-            placeholder="Senha"
-            value={password}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
-            className="border border-yellow-300 rounded px-4 py-2 focus:outline-yellow-500"
-            required
-          />
+          <div className="relative">
+            <input
+              type="email"
+              placeholder="E-mail"
+              value={email}
+              onChange={handleEmailChange}
+              className={`border rounded px-4 py-2 focus:outline-none transition-all duration-200 ${
+                email.length > 0 
+                  ? email.includes('@') 
+                    ? 'border-green-500 bg-green-50' 
+                    : 'border-red-500 bg-red-50'
+                  : 'border-yellow-300 focus:border-yellow-500'
+              }`}
+              required
+              autoComplete="email"
+            />
+            {email.length > 0 && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                {email.includes('@') ? (
+                  <span className="text-green-500">✓</span>
+                ) : (
+                  <span className="text-red-500">✗</span>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="relative">
+            <input
+              type="password"
+              placeholder="Senha"
+              value={password}
+              onChange={handlePasswordChange}
+              className={`border rounded px-4 py-2 focus:outline-none transition-all duration-200 ${
+                password.length > 0 
+                  ? password.length >= 6 
+                    ? 'border-green-500 bg-green-50' 
+                    : 'border-red-500 bg-red-50'
+                  : 'border-yellow-300 focus:border-yellow-500'
+              }`}
+              required
+              autoComplete="current-password"
+            />
+            {password.length > 0 && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                {password.length >= 6 ? (
+                  <span className="text-green-500">✓</span>
+                ) : (
+                  <span className="text-red-500">✗</span>
+                )}
+              </div>
+            )}
+          </div>
+
           <button
             type="submit"
-            disabled={loading}
-            className="bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-400 text-white font-bold py-2 rounded transition disabled:cursor-not-allowed"
+            disabled={loading || !isValid}
+            className={`font-bold py-2 rounded transition-all duration-200 ${
+              isValid && !loading
+                ? 'bg-yellow-500 hover:bg-yellow-600 text-white transform hover:scale-105'
+                : 'bg-gray-400 text-gray-600 cursor-not-allowed'
+            }`}
           >
-            {loading ? "Entrando..." : "Entrar"}
+            {loading ? (
+              <div className="flex items-center justify-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Entrando...
+              </div>
+            ) : (
+              "Entrar"
+            )}
           </button>
         </form>
         
         <p className="mt-4 text-sm text-yellow-800">
           Não tem conta?{" "}
-          <Link href="/cadastro" className="underline font-semibold">
+          <Link href="/cadastro" className="underline font-semibold hover:text-yellow-600 transition-colors">
             Cadastre-se
           </Link>
         </p>
