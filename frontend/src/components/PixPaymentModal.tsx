@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 // Configurações do Nomadfy
 const NOMADFY_CONFIG = {
@@ -41,24 +41,59 @@ export default function PixPaymentModal({
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
   
-  // PROTEÇÕES MUITO FORTES PARA NÃO FECHAR
+  // PROTEÇÕES MUITO FORTES - ESTADOS DE BLOQUEIO
   const [modalLocked, setModalLocked] = useState(false);
   const [hasStartedProcess, setHasStartedProcess] = useState(false);
   const [forceKeepOpen, setForceKeepOpen] = useState(false);
   const [debugInfo, setDebugInfo] = useState<string[]>([]);
+  const [showDebug, setShowDebug] = useState(true); // SEMPRE VISÍVEL
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const addDebugInfo = (info: string) => {
-    console.log(`[DEBUG] ${info}`);
-    setDebugInfo(prev => [...prev, `${new Date().toLocaleTimeString()}: ${info}`]);
+    const timestamp = new Date().toLocaleTimeString();
+    const debugMessage = `[${timestamp}] ${info}`;
+    console.log(debugMessage);
+    setDebugInfo(prev => [...prev, debugMessage]);
   };
+
+  // BLOQUEAR FECHAMENTO DO MODAL
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && (modalLocked || hasStartedProcess || error)) {
+        e.preventDefault();
+        addDebugInfo('ESCAPE BLOQUEADO - Modal não pode ser fechado');
+        return false;
+      }
+    };
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        if (modalLocked || hasStartedProcess || error) {
+          e.preventDefault();
+          addDebugInfo('CLIQUE FORA BLOQUEADO - Modal não pode ser fechado');
+          return false;
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [modalLocked, hasStartedProcess, error]);
 
   // Criar cobrança PIX quando o modal abrir
   useEffect(() => {
     if (isOpen && amount && user) {
-      addDebugInfo('Modal aberto, iniciando processo...');
+      addDebugInfo('=== MODAL ABERTO - INICIANDO PROCESSO ===');
       setModalLocked(true);
       setHasStartedProcess(true);
       setForceKeepOpen(true);
+      setError(null);
+      setDebugInfo([]);
       createPixCharge();
     }
   }, [isOpen, amount, user]);
@@ -79,6 +114,8 @@ export default function PixPaymentModal({
       if (!user || !user.id || !user.email) {
         throw new Error('Dados do usuário incompletos');
       }
+      
+      addDebugInfo(`Usuário: ${user.email} (ID: ${user.id})`);
       
       // Criar payload para Nomadfy
       const payload = {
@@ -113,6 +150,8 @@ export default function PixPaymentModal({
       };
 
       addDebugInfo('Payload criado, fazendo requisição...');
+      addDebugInfo(`URL: ${NOMADFY_CONFIG.apiUrl}`);
+      addDebugInfo(`API Key: ${NOMADFY_CONFIG.apiKey.substring(0, 20)}...`);
       
       const response = await fetch(NOMADFY_CONFIG.apiUrl, {
         method: 'POST',
@@ -127,15 +166,17 @@ export default function PixPaymentModal({
       
       if (!response.ok) {
         const errorText = await response.text();
-        addDebugInfo(`ERRO: ${response.status} - ${errorText}`);
+        addDebugInfo(`ERRO HTTP: ${response.status} - ${errorText}`);
         throw new Error(`Erro do Nomadfy: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
       addDebugInfo('Dados recebidos com sucesso');
+      addDebugInfo(`Dados: ${JSON.stringify(data, null, 2)}`);
       
       // Verificar se temos os dados necessários
       if (!data.payment?.details?.pixQrCode) {
+        addDebugInfo('ERRO: QR Code não encontrado na resposta');
         throw new Error('QR Code não foi gerado pelo Nomadfy');
       }
       
@@ -161,6 +202,7 @@ export default function PixPaymentModal({
     } catch (err: any) {
       addDebugInfo('=== ERRO DETALHADO ===');
       addDebugInfo(`Mensagem de erro: ${err?.message || 'Erro desconhecido'}`);
+      addDebugInfo(`Erro completo: ${JSON.stringify(err, null, 2)}`);
       
       const errorMessage = err?.message || 'Erro desconhecido ao gerar PIX';
       setError(`❌ Erro ao gerar cobrança PIX: ${errorMessage}`);
@@ -216,12 +258,13 @@ export default function PixPaymentModal({
       onClose();
     } else {
       addDebugInfo('Modal NÃO pode ser fechado - bloqueado');
+      addDebugInfo(`loading: ${loading}, error: ${error}, modalLocked: ${modalLocked}`);
     }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div className="bg-[#191919] rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div ref={modalRef} className="bg-[#191919] rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <h2 className="text-xl font-semibold text-white">Depositar</h2>
@@ -349,15 +392,21 @@ export default function PixPaymentModal({
             </div>
           )}
 
-          {/* Debug Info (apenas em desenvolvimento) */}
-          {process.env.NODE_ENV === 'development' && debugInfo.length > 0 && (
-            <div className="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-300 max-h-32 overflow-y-auto">
-              <p className="font-bold mb-2">Debug Info:</p>
-              {debugInfo.slice(-5).map((info, index) => (
-                <div key={index} className="text-gray-400">{info}</div>
-              ))}
+          {/* Debug Info - SEMPRE VISÍVEL */}
+          <div className="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-300 max-h-32 overflow-y-auto">
+            <div className="flex items-center justify-between mb-2">
+              <p className="font-bold">Debug Info:</p>
+              <button
+                onClick={() => setShowDebug(!showDebug)}
+                className="text-blue-400 hover:text-blue-300"
+              >
+                {showDebug ? 'Ocultar' : 'Mostrar'}
+              </button>
             </div>
-          )}
+            {showDebug && debugInfo.slice(-8).map((info, index) => (
+              <div key={index} className="text-gray-400 mb-1">{info}</div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
