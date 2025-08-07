@@ -435,7 +435,13 @@ export default function ScratchCard({
       console.log('Erro ao comprar raspadinha:', error);
       
       // Se o erro for de token inválido, redirecionar para login
-      if (error.message && (error.message.includes('token') || error.message.includes('logado') || error.message.includes('Sessão'))) {
+      if (error.message && (
+        error.message.includes('token') || 
+        error.message.includes('logado') || 
+        error.message.includes('Sessão') ||
+        error.message.includes('Token inválido') ||
+        error.message.toLowerCase().includes('token')
+      )) {
         console.log('Token inválido, redirecionando para login...');
         onLogin();
         return;

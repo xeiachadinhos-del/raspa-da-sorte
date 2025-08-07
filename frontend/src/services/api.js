@@ -56,8 +56,8 @@ async function apiRequest(endpoint, options = {}) {
     
     if (!response.ok) {
       // Se o erro for de token inválido, tentar renovar
-      if (response.status === 401 || (data.error && (data.error.includes('token') || data.error.includes('Token inválido')))) {
-        console.log('Token inválido, tentando renovar...');
+      if (response.status === 401 || (data.error && (data.error.includes('token') || data.error.includes('Token inválido') || data.error.toLowerCase().includes('token')))) {
+        console.log('Token inválido detectado, limpando dados e redirecionando...');
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         cache.token = null;
