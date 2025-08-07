@@ -370,6 +370,16 @@ export default function ScratchCard({
       return;
     }
 
+    // Verificar se o token ainda é válido
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (!token || !user) {
+      console.log('Token ou usuário não encontrado, redirecionando para login...');
+      onLogin();
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 
@@ -423,6 +433,14 @@ export default function ScratchCard({
       }
     } catch (error: any) {
       console.log('Erro ao comprar raspadinha:', error);
+      
+      // Se o erro for de token inválido, redirecionar para login
+      if (error.message && (error.message.includes('token') || error.message.includes('logado') || error.message.includes('Sessão'))) {
+        console.log('Token inválido, redirecionando para login...');
+        onLogin();
+        return;
+      }
+      
       setError(error.message || 'Erro ao comprar raspadinha');
     } finally {
       setIsLoading(false);

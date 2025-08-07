@@ -7,9 +7,22 @@ const cache = {
   lastFetch: 0
 };
 
+// Função para verificar se o usuário está logado
+function isLoggedIn() {
+  const token = cache.token || localStorage.getItem('token');
+  const user = cache.user || JSON.parse(localStorage.getItem('user') || 'null');
+  return token && user;
+}
+
 // Função para fazer requisições à API com otimizações
 async function apiRequest(endpoint, options = {}) {
   const token = cache.token || localStorage.getItem('token');
+  
+  // Se não há token e não é uma rota pública, redirecionar para login
+  if (!token && !endpoint.includes('/register') && !endpoint.includes('/login')) {
+    console.error('Usuário não está logado');
+    throw new Error('Usuário não está logado. Faça login novamente.');
+  }
   
   const config = {
     headers: {
@@ -42,6 +55,15 @@ async function apiRequest(endpoint, options = {}) {
     const data = await response.json();
     
     if (!response.ok) {
+      // Se o erro for de token inválido, tentar renovar
+      if (response.status === 401 && data.error && data.error.includes('token')) {
+        console.log('Token inválido, tentando renovar...');
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        cache.token = null;
+        cache.user = null;
+        throw new Error('Sessão expirada. Faça login novamente.');
+      }
       throw new Error(data.error || 'Erro na requisição');
     }
     
@@ -85,6 +107,25 @@ async function apiRequest(endpoint, options = {}) {
 
 // Autenticação otimizada
 export const authAPI = {
+  // Verificar se está logado
+  isLoggedIn: () => {
+    return isLoggedIn();
+  },
+
+  // Obter dados do usuário atual
+  getCurrentUser: () => {
+    return cache.user || JSON.parse(localStorage.getItem('user') || null);
+  },
+
+  // Fazer logout
+  logout: () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    cache.token = null;
+    cache.user = null;
+    cache.lastFetch = 0;
+  },
+
   // Registrar novo usuário
   register: async (userData) => {
     const startTime = Date.now();
