@@ -1,38 +1,6 @@
-'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 export default function AdminLogin() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
-
-    // Verificar credenciais do admin
-    if (username === 'admin@gmail.com' && password === '123456') {
-      // Salvar token de admin no localStorage
-      localStorage.setItem('adminToken', 'admin-token-123');
-      localStorage.setItem('adminUser', JSON.stringify({
-        username: 'admin@gmail.com',
-        role: 'admin'
-      }));
-      
-      // Redirecionar para o dashboard
-      router.push('/admin/dashboard');
-    } else {
-      setError('Credenciais inválidas');
-    }
-    
-    setIsLoading(false);
-  };
-
   return (
     <div style={{
       position: 'fixed',
@@ -46,7 +14,9 @@ export default function AdminLogin() {
       justifyContent: 'center',
       padding: '20px',
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-      zIndex: 9999
+      zIndex: 9999,
+      margin: 0,
+      border: 'none'
     }}>
       <div style={{
         backgroundColor: 'white',
@@ -78,7 +48,7 @@ export default function AdminLogin() {
           </p>
         </div>
         
-        <form onSubmit={handleSubmit} style={{
+        <form id="loginForm" style={{
           display: 'flex',
           flexDirection: 'column',
           gap: '24px'
@@ -96,8 +66,7 @@ export default function AdminLogin() {
             <input
               type="email"
               id="username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              name="username"
               style={{
                 width: '100%',
                 padding: '14px 16px',
@@ -125,8 +94,7 @@ export default function AdminLogin() {
             <input
               type="password"
               id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              name="password"
               style={{
                 width: '100%',
                 padding: '14px 16px',
@@ -141,23 +109,20 @@ export default function AdminLogin() {
             />
           </div>
           
-          {error && (
-            <div style={{
-              backgroundColor: '#fef2f2',
-              border: '1px solid #fecaca',
-              color: '#dc2626',
-              fontSize: '14px',
-              padding: '12px 16px',
-              borderRadius: '8px',
-              textAlign: 'center'
-            }}>
-              {error}
-            </div>
-          )}
+          <div id="errorMessage" style={{
+            backgroundColor: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: '#dc2626',
+            fontSize: '14px',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            display: 'none'
+          }}></div>
           
           <button
             type="submit"
-            disabled={isLoading}
+            id="loginButton"
             style={{
               width: '100%',
               backgroundColor: '#2563eb',
@@ -167,12 +132,11 @@ export default function AdminLogin() {
               fontSize: '16px',
               fontWeight: '600',
               border: 'none',
-              cursor: isLoading ? 'not-allowed' : 'pointer',
-              opacity: isLoading ? 0.6 : 1,
+              cursor: 'pointer',
               transition: 'background-color 0.2s'
             }}
           >
-            {isLoading ? 'Entrando...' : 'Entrar no Painel'}
+            Entrar no Painel
           </button>
         </form>
         
@@ -190,6 +154,45 @@ export default function AdminLogin() {
           Senha: 123456
         </div>
       </div>
+      
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('errorMessage');
+            const loginButton = document.getElementById('loginButton');
+            
+            // Mostrar loading
+            loginButton.textContent = 'Entrando...';
+            loginButton.style.opacity = '0.6';
+            loginButton.style.cursor = 'not-allowed';
+            
+            // Verificar credenciais
+            if (username === 'admin@gmail.com' && password === '123456') {
+              // Salvar token de admin
+              localStorage.setItem('adminToken', 'admin-token-123');
+              localStorage.setItem('adminUser', JSON.stringify({
+                username: 'admin@gmail.com',
+                role: 'admin'
+              }));
+              
+              // Redirecionar para o dashboard
+              window.location.href = '/admin/dashboard';
+            } else {
+              errorMessage.textContent = 'Credenciais inválidas';
+              errorMessage.style.display = 'block';
+              
+              // Resetar botão
+              loginButton.textContent = 'Entrar no Painel';
+              loginButton.style.opacity = '1';
+              loginButton.style.cursor = 'pointer';
+            }
+          });
+        `
+      }} />
     </div>
   );
 } 
