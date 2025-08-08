@@ -4,13 +4,14 @@ import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/services/api';
-
+import BalanceModal from '@/components/BalanceModal';
 
 export default function Home() {
   const router = useRouter();
   const [showLoginSheet, setShowLoginSheet] = useState(false);
   const [showRegisterSheet, setShowRegisterSheet] = useState(false);
   const [showDepositSheet, setShowDepositSheet] = useState(false);
+  const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [depositAmount, setDepositAmount] = useState('0,00');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -215,13 +216,16 @@ export default function Home() {
         
         {isLoggedIn ? (
           <div className="flex items-center gap-3">
-            {/* Saldo */}
-            <div className="bg-gray-800 rounded-lg px-3 py-2 flex items-center gap-2">
+            {/* Saldo - Agora clicável */}
+            <button 
+              onClick={() => setShowBalanceModal(true)}
+              className="bg-gray-800 rounded-lg px-3 py-2 flex items-center gap-2 hover:bg-gray-700 transition-colors cursor-pointer"
+            >
               <span className="text-white font-medium">R$ {user?.balance?.toFixed(2) || '0,00'}</span>
               <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
-            </div>
+            </button>
             
             {/* Botão Carteira */}
             <button className="bg-green-600 hover:bg-green-700 p-2 rounded-lg transition-colors">
@@ -1027,8 +1031,13 @@ export default function Home() {
         </div>
       )}
 
-
-
+      {/* Modal de Saldo */}
+      <BalanceModal
+        isOpen={showBalanceModal}
+        onClose={() => setShowBalanceModal(false)}
+        balance={user?.balance || 0}
+        bonus={0} // Por enquanto, bônus é 0
+      />
 
     </div>
   );
