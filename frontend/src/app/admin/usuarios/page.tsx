@@ -30,7 +30,11 @@ export default function AdminUsers() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/users`, {
+      
+      // URL da API com fallback
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://raspa-da-sorte-07vt.onrender.com';
+      
+      const response = await fetch(`${apiUrl}/api/admin/users`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
         }
@@ -56,7 +60,10 @@ export default function AdminUsers() {
     if (!editingUser || !newBalance) return;
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/users/${editingUser.id}/balance`, {
+      // URL da API com fallback
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://raspa-da-sorte-07vt.onrender.com';
+      
+      const response = await fetch(`${apiUrl}/api/admin/users/${editingUser.id}/balance`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

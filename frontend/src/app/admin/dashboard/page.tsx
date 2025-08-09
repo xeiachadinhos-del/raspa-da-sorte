@@ -45,8 +45,11 @@ export default function AdminDashboard() {
     try {
       setLoading(true);
       
+      // URL da API com fallback
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://raspa-da-sorte-07vt.onrender.com';
+      
       // Buscar estatísticas
-      const statsResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/stats?date=${selectedDate}`, {
+      const statsResponse = await fetch(`${apiUrl}/api/admin/stats?date=${selectedDate}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
         }
@@ -58,7 +61,7 @@ export default function AdminDashboard() {
       }
 
       // Buscar jogadas recentes
-      const gamesResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/recent-games`, {
+      const gamesResponse = await fetch(`${apiUrl}/api/admin/recent-games`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
         }

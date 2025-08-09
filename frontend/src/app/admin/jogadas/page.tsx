@@ -44,7 +44,10 @@ export default function AdminGames() {
       if (startDate) params.append('startDate', startDate);
       if (endDate) params.append('endDate', endDate);
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/games?${params}`, {
+      // URL da API com fallback
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://raspa-da-sorte-07vt.onrender.com';
+      
+      const response = await fetch(`${apiUrl}/api/admin/games?${params}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
         }
