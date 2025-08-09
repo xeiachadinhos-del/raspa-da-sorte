@@ -9,36 +9,106 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  password  String
-  credits   Int      @default(0)
-  balance   Float    @default(0)
-  level     Int      @default(1)
-  xp        Int      @default(0)
-  isBlocked Boolean  @default(false)
-  lastLogin DateTime?
+  id             String    @id @default(cuid())
+  name           String
+  email          String    @unique
+  password       String
+  balance        Float     @default(0)
+  credits        Int       @default(10)
+  lastLogin      DateTime?
   affiliateEmail String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   // Relacionamentos
-  transactions Transaction[]
-  prizes       Prize[]
-  achievements UserAchievement[]
-  dailyLogins  DailyLogin[]
-  gameSessions GameSession[]
-  games        Game[]
-  deposits     Deposit[]
-  withdrawals  Withdrawal[]
+  transactions   Transaction[]
+  prizes         Prize[]
+  gameSessions   GameSession[]
+  achievements   UserAchievement[]
+  dailyLogins    DailyLogin[]
+  games          Game[]
+  deposits       Deposit[]
+  withdrawals    Withdrawal[]
 
   @@map("users")
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String   // "DEPOSIT", "WITHDRAWAL", "GAME_WIN", "GAME_LOSS"
+  amount    Float
+  status    String   @default("PENDING") // "PENDING", "COMPLETED", "FAILED"
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("transactions")
+}
+
+model Prize {
+  id        String    @id @default(cuid())
+  userId    String
+  amount    Float
+  claimed   Boolean   @default(false)
+  claimedAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+
+  @@map("prizes")
+}
+
+model GameSession {
+  id         String   @id @default(cuid())
+  userId     String
+  creditsUsed Int
+  prizeWon   Float?
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@map("game_sessions")
+}
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  type        String   // "DAILY", "WEEKLY", "MONTHLY", "SPECIAL", "MILESTONE"
+  requirement Int
+  reward      Int
+  icon        String
+  createdAt   DateTime @default(now())
+
+  // Relacionamentos
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String      @id @default(cuid())
+  userId        String
+  achievementId String
+  earnedAt      DateTime    @default(now())
+  user          User        @relation(fields: [userId], references: [id])
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+model DailyLogin {
+  id        String   @id @default(cuid())
+  userId    String
+  loginDate DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, loginDate])
+  @@map("daily_logins")
 }
 
 model Game {
@@ -49,10 +119,7 @@ model Game {
   winAmount     Float   @default(0)
   affiliateEmail String?
   createdAt     DateTime @default(now())
-
-  // Relacionamentos
   user User @relation(fields: [userId], references: [id])
-
   @@map("games")
 }
 
@@ -60,12 +127,9 @@ model Deposit {
   id        String   @id @default(cuid())
   userId    String
   amount    Float
-  status    String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  status    String   @default("PENDING")
   createdAt DateTime @default(now())
-
-  // Relacionamentos
   user User @relation(fields: [userId], references: [id])
-
   @@map("deposits")
 }
 
@@ -73,103 +137,8 @@ model Withdrawal {
   id        String   @id @default(cuid())
   userId    String
   amount    Float
-  status    String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  status    String   @default("PENDING")
   createdAt DateTime @default(now())
-
-  // Relacionamentos
   user User @relation(fields: [userId], references: [id])
-
   @@map("withdrawals")
 }
-
-model Transaction {
-  id        String   @id @default(cuid())
-  userId    String
-  type      String   // CREDIT_PURCHASE, PRIZE_WITHDRAWAL, CREDIT_REFUND
-  amount    Float
-  credits   Int?
-  status    String   @default("PENDING") // PENDING, COMPLETED, FAILED, CANCELLED
-  createdAt DateTime @default(now())
-
-  // Relacionamentos
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("transactions")
-}
-
-model Prize {
-  id        String   @id @default(cuid())
-  userId    String
-  amount    Float
-  claimed   Boolean  @default(false)
-  claimedAt DateTime?
-  createdAt DateTime @default(now())
-
-  // Relacionamentos
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("prizes")
-}
-
-model GameSession {
-  id        String   @id @default(cuid())
-  userId    String
-  creditsUsed Int
-  prizeWon  Float?
-  xpEarned  Int      @default(0)
-  createdAt DateTime @default(now())
-
-  // Relacionamentos
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("game_sessions")
-}
-
-// Sistema de Conquistas
-model Achievement {
-  id          String   @id @default(cuid())
-  name        String
-  description String
-  type        String   // DAILY, WEEKLY, SPECIAL, MILESTONE
-  requirement Int      // Quantidade necessária
-  reward      Int      // Créditos de recompensa
-  icon        String   // Ícone da conquista
-  createdAt   DateTime @default(now())
-
-  // Relacionamentos
-  userAchievements UserAchievement[]
-
-  @@map("achievements")
-}
-
-model UserAchievement {
-  id            String   @id @default(cuid())
-  userId        String
-  achievementId String
-  earnedAt      DateTime @default(now())
-
-  // Relacionamentos
-  user        User        @relation(fields: [userId], references: [id])
-  achievement Achievement @relation(fields: [achievementId], references: [id])
-
-  @@unique([userId, achievementId])
-  @@map("user_achievements")
-}
-
-// Sistema de Login Diário
-model DailyLogin {
-  id        String   @id @default(cuid())
-  userId    String
-  loginDate DateTime @default(now())
-  reward    Int      @default(0)
-
-  // Relacionamentos
-  user User @relation(fields: [userId], references: [id])
-
-  @@unique([userId, loginDate])
-  @@map("daily_logins")
-}
-
-// Enums convertidos para strings devido ao PostgreSQL
-// TransactionType: CREDIT_PURCHASE, PRIZE_WITHDRAWAL, CREDIT_REFUND
-// TransactionStatus: PENDING, COMPLETED, FAILED, CANCELLED
