@@ -13,7 +13,7 @@ export default function AdminLogin() {
           
           body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1e3a8a 0%, #1f2937 100%);
+            background: #000000;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -24,9 +24,8 @@ export default function AdminLogin() {
           }
           
           .login-container {
-            background: white;
+            background: transparent;
             border-radius: 12px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             padding: 40px;
             width: 100%;
             max-width: 450px;
@@ -37,14 +36,14 @@ export default function AdminLogin() {
           .login-title {
             font-size: 28px;
             font-weight: bold;
-            color: #1f2937;
+            color: #ffffff;
             text-align: center;
             margin-bottom: 8px;
           }
           
           .login-subtitle {
             font-size: 16px;
-            color: #6b7280;
+            color: #9ca3af;
             text-align: center;
             margin-bottom: 32px;
           }
@@ -57,28 +56,50 @@ export default function AdminLogin() {
             display: block;
             font-size: 14px;
             font-weight: 600;
-            color: #374151;
+            color: #ffffff;
             margin-bottom: 8px;
           }
           
           .form-input {
             width: 100%;
             padding: 14px 16px;
-            border: 2px solid #e5e7eb;
+            border: 2px solid #50c50d;
             border-radius: 8px;
             font-size: 16px;
             outline: none;
             transition: border-color 0.2s;
+            background: #1f2937;
+            color: #ffffff;
           }
           
           .form-input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            border-color: #50c50d;
+            box-shadow: 0 0 0 3px rgba(80, 197, 13, 0.1);
+          }
+          
+          .form-input::placeholder {
+            color: #9ca3af;
+          }
+          
+          .password-container {
+            position: relative;
+          }
+          
+          .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #ffffff;
+            cursor: pointer;
+            font-size: 16px;
           }
           
           .login-button {
             width: 100%;
-            background-color: #2563eb;
+            background-color: #50c50d;
             color: white;
             padding: 16px 24px;
             border-radius: 8px;
@@ -90,13 +111,13 @@ export default function AdminLogin() {
           }
           
           .login-button:hover {
-            background-color: #1d4ed8;
+            background-color: #45b00a;
           }
           
           .error-message {
-            background-color: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
+            background-color: #dc2626;
+            border: 1px solid #dc2626;
+            color: #ffffff;
             font-size: 14px;
             padding: 12px 16px;
             border-radius: 8px;
@@ -109,10 +130,11 @@ export default function AdminLogin() {
             text-align: center;
             margin-top: 24px;
             padding: 16px;
-            background-color: #f8fafc;
+            background-color: #1f2937;
             border-radius: 8px;
             font-size: 14px;
-            color: #64748b;
+            color: #9ca3af;
+            border: 1px solid #374151;
           }
         `
       }} />
@@ -123,7 +145,7 @@ export default function AdminLogin() {
         left: 0,
         width: '100vw',
         height: '100vh',
-        background: 'linear-gradient(135deg, #1e3a8a 0%, #1f2937 100%)',
+        background: '#000000',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -134,12 +156,11 @@ export default function AdminLogin() {
         border: 'none'
       }}>
         <div className="login-container">
-          <h1 className="login-title">Painel Administrativo</h1>
-          <p className="login-subtitle">Faça login para acessar o dashboard</p>
+          <h1 className="login-title">Faça login</h1>
           
           <form id="loginForm">
             <div className="form-group">
-              <label htmlFor="username" className="form-label">Email</label>
+              <label htmlFor="username" className="form-label">E-mail*</label>
               <input
                 type="email"
                 id="username"
@@ -151,15 +172,42 @@ export default function AdminLogin() {
             </div>
             
             <div className="form-group">
-              <label htmlFor="password" className="form-label">Senha</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                className="form-input"
-                placeholder="Digite sua senha"
-                required
-              />
+              <label htmlFor="password" className="form-label">Senha*</label>
+              <div className="password-container">
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  className="form-input"
+                  placeholder="Digite sua senha"
+                  required
+                />
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => {
+                    const passwordInput = document.getElementById('password') as HTMLInputElement;
+                    const toggleButton = document.querySelector('.password-toggle') as HTMLButtonElement;
+                    
+                    if (passwordInput.type === 'password') {
+                      passwordInput.type = 'text';
+                      toggleButton.textContent = '🙈';
+                    } else {
+                      passwordInput.type = 'password';
+                      toggleButton.textContent = '👁️';
+                    }
+                  }}
+                >
+                  👁️
+                </button>
+              </div>
+            </div>
+            
+            <div className="form-group">
+              <label style={{display: 'flex', alignItems: 'center', gap: '8px', color: '#ffffff', fontSize: '14px'}}>
+                <input type="checkbox" style={{width: '16px', height: '16px'}} />
+                Lembre de mim
+              </label>
             </div>
             
             <div id="errorMessage" className="error-message"></div>
@@ -169,7 +217,7 @@ export default function AdminLogin() {
               id="loginButton"
               className="login-button"
             >
-              Entrar no Painel
+              Login
             </button>
           </form>
           
@@ -183,6 +231,19 @@ export default function AdminLogin() {
       
       <script dangerouslySetInnerHTML={{
         __html: `
+          function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleButton = document.querySelector('.password-toggle');
+            
+            if (passwordInput.type === 'password') {
+              passwordInput.type = 'text';
+              toggleButton.textContent = '🙈';
+            } else {
+              passwordInput.type = 'password';
+              toggleButton.textContent = '👁️';
+            }
+          }
+          
           document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -212,7 +273,7 @@ export default function AdminLogin() {
               errorMessage.style.display = 'block';
               
               // Resetar botão
-              loginButton.textContent = 'Entrar no Painel';
+              loginButton.textContent = 'Login';
               loginButton.style.opacity = '1';
               loginButton.style.cursor = 'pointer';
             }
