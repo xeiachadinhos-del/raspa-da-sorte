@@ -14,6 +14,10 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors({
   origin: [
+    'http://localhost:3000',
+    'http://localhost:3001',
+    'http://127.0.0.1:3000',
+    'http://127.0.0.1:3001',
     process.env.FRONTEND_URL || 'http://localhost:3000',
     'https://raspa-da-sorte-gray.vercel.app',
     'https://raspa-da-sorte.vercel.app',
@@ -25,7 +29,7 @@ app.use(cors({
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 app.use(express.json());
 
@@ -355,6 +359,38 @@ app.post('/api/games/reveal-scratch', authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error('Erro ao revelar raspadinha:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para adicionar saldo ao usuário
+app.post('/api/user/add-balance', authenticateToken, async (req, res) => {
+  try {
+    const { amount } = req.body;
+    
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Valor inválido' });
+    }
+
+    // Atualizar saldo do usuário
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.id },
+      data: { balance: req.user.balance + amount }
+    });
+
+    res.json({
+      success: true,
+      message: `Saldo adicionado: R$ ${amount.toFixed(2)}`,
+      user: {
+        id: updatedUser.id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        credits: updatedUser.credits,
+        balance: updatedUser.balance
+      }
+    });
+  } catch (error) {
+    console.error('Erro ao adicionar saldo:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 });
