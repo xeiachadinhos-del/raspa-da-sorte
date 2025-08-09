@@ -1,224 +1,204 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
-export default function AdminUsuarios() {
-  const [emailFilter, setEmailFilter] = useState('');
-  const [orderBy, setOrderBy] = useState('ID (Mais recente)');
-  const [onlyDepositors, setOnlyDepositors] = useState(false);
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  balance: number;
+  createdAt: string;
+  lastLogin?: string;
+  totalGames: number;
+  totalWins: number;
+  totalLosses: number;
+  affiliateEmail?: string;
+}
 
-  // Dados mockados baseados na imagem
-  const userStats = {
-    totalUsers: 4710,
-    totalBalance: 2767.00,
-    depositors: 1266,
-    registrationsToday: 268
+export default function AdminUsers() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [newBalance, setNewBalance] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all');
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/users`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+        }
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar usuários:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const users = [
-    {
-      id: 4981,
-      name: 'Samara costa pereira',
-      email: 'samcostta100@gmail.com',
-      balance: 14.00,
-      totalDeposited: 20.00,
-      createdOn: '06/08/2025 20:20',
-      referralId: 'ronielli69'
-    },
-    {
-      id: 4980,
-      name: 'Michelle Leal',
-      email: 'lealmichelle1311@gmail.com',
-      balance: 0.00,
-      totalDeposited: 20.00,
-      createdOn: '06/08/2025 20:10',
-      referralId: 'dalillarubim24'
-    },
-    {
-      id: 4979,
-      name: 'KARLA CAROLINE DOS SANTOS SAMENESES',
-      email: 'karlasameneses@gmail.com',
-      balance: 19.50,
-      totalDeposited: 40.00,
-      createdOn: '06/08/2025 20:10',
-      referralId: 'dalillarubim24'
-    },
-    {
-      id: 4978,
-      name: 'Rafaela',
-      email: 'rafaelabelizario03@gmail.com',
-      balance: 0.00,
-      totalDeposited: 0.00,
-      createdOn: '06/08/2025 20:08',
-      referralId: 'dalillarubim24'
-    },
-    {
-      id: 4977,
-      name: 'Priscila Silva',
-      email: 'prisciladorei5@gmail.com',
-      balance: 0.50,
-      totalDeposited: 20.00,
-      createdOn: '06/08/2025 20:05',
-      referralId: 'dalillarubim24'
+  const handleEditBalance = (user: User) => {
+    setEditingUser(user);
+    setNewBalance(user.balance.toString());
+  };
+
+  const handleSaveBalance = async () => {
+    if (!editingUser || !newBalance) return;
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/users/${editingUser.id}/balance`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('adminToken')}`
+        },
+        body: JSON.stringify({
+          balance: parseFloat(newBalance)
+        })
+      });
+
+      if (response.ok) {
+        // Atualizar a lista de usuários
+        setUsers(users.map(user => 
+          user.id === editingUser.id 
+            ? { ...user, balance: parseFloat(newBalance) }
+            : user
+        ));
+        setEditingUser(null);
+        setNewBalance('');
+        alert('Saldo atualizado com sucesso!');
+      } else {
+        alert('Erro ao atualizar saldo');
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar saldo:', error);
+      alert('Erro ao atualizar saldo');
     }
-  ];
+  };
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
-      currency: 'BRL',
+      currency: 'BRL'
     }).format(value);
   };
 
-  const formatNumber = (value: number) => {
-    return new Intl.NumberFormat('pt-BR').format(value);
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString('pt-BR');
   };
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         user.email.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    if (filterStatus === 'all') return matchesSearch;
+    if (filterStatus === 'active') return matchesSearch && user.lastLogin;
+    if (filterStatus === 'inactive') return matchesSearch && !user.lastLogin;
+    
+    return matchesSearch;
+  });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-xl text-gray-600">Carregando usuários...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Gestão de Usuários</h1>
+        <h1 className="text-3xl font-bold text-gray-900">Gerenciar Usuários</h1>
         <div className="text-sm text-gray-600">
-          Total: {formatNumber(userStats.totalUsers)} usuário(s)
+          Total: {users.length} usuários
         </div>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">TOTAL DE USUÁRIOS</h3>
-          <p className="text-3xl font-bold text-blue-600">{formatNumber(userStats.totalUsers)}</p>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">SALDO TOTAL</h3>
-          <p className="text-3xl font-bold text-green-600">{formatCurrency(userStats.totalBalance)}</p>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">DEPOSITANTES</h3>
-          <p className="text-3xl font-bold text-orange-600">{formatNumber(userStats.depositors)}</p>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">CADASTROS HOJE</h3>
-          <p className="text-3xl font-bold text-purple-600">{formatNumber(userStats.registrationsToday)}</p>
-        </div>
-      </div>
-
-      {/* Search Filters */}
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Filtros de Pesquisa</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Filtrar por Email</label>
+      {/* Filters */}
+      <div className="bg-white p-6 rounded-lg shadow-md">
+        <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Buscar usuário
+            </label>
             <input
               type="text"
-              value={emailFilter}
-              onChange={(e) => setEmailFilter(e.target.value)}
-              placeholder="Digite o email do usuário..."
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Nome ou email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Ordenar por</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Status
+            </label>
             <select
-              value={orderBy}
-              onChange={(e) => setOrderBy(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option>ID (Mais recente)</option>
-              <option>ID (Mais antigo)</option>
-              <option>Nome (A-Z)</option>
-              <option>Nome (Z-A)</option>
-              <option>Saldo (Maior)</option>
-              <option>Saldo (Menor)</option>
+              <option value="all">Todos</option>
+              <option value="active">Ativos</option>
+              <option value="inactive">Inativos</option>
             </select>
           </div>
-          
-          <div className="flex items-center">
-            <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={onlyDepositors}
-                onChange={(e) => setOnlyDepositors(e.target.checked)}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-              />
-              <span className="ml-2 text-sm text-gray-700">Apenas usuários que depositaram</span>
-            </label>
-          </div>
-        </div>
-        
-        <div className="flex space-x-2 mt-4">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-            Filtrar
-          </button>
-          <button className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors">
-            Limpar
-          </button>
         </div>
       </div>
 
       {/* Users Table */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Lista de Usuários</h2>
-        </div>
-        
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">USUÁRIO</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NOME</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">EMAIL</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SALDO</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TOTAL DEPOSITADO</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CRIADO EM</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">REFERRAL ID</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">JOGADAS</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">VITÓRIAS</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AFILIADO</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CADASTRO</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">AÇÕES</th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {users.map((user) => (
+              {filteredUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {user.id}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="flex-shrink-0 h-8 w-8">
-                        <div className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center">
-                          <span className="text-sm font-medium text-white">
-                            {user.name.charAt(0).toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="ml-3">
-                        <div className="text-sm font-medium text-gray-900">
-                          {user.name}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {user.email}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.id}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{user.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{user.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {formatCurrency(user.balance)}
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{user.totalGames}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {formatCurrency(user.totalDeposited)}
+                    {user.totalWins} / {user.totalLosses}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.createdOn}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {user.affiliateEmail || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    {user.referralId}
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {formatDate(user.createdAt)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                    <button className="text-blue-600 hover:text-blue-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button
+                      onClick={() => handleEditBalance(user)}
+                      className="text-blue-600 hover:text-blue-900 bg-blue-100 hover:bg-blue-200 px-3 py-1 rounded-md text-xs font-medium transition-colors"
+                    >
                       Editar Saldo
                     </button>
                   </td>
@@ -228,6 +208,50 @@ export default function AdminUsuarios() {
           </table>
         </div>
       </div>
+
+      {/* Edit Balance Modal */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Editar Saldo - {editingUser.name}
+            </h3>
+            
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Novo Saldo (R$)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={newBalance}
+                onChange={(e) => setNewBalance(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="0.00"
+              />
+            </div>
+
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={() => {
+                  setEditingUser(null);
+                  setNewBalance('');
+                }}
+                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSaveBalance}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Salvar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 } 
