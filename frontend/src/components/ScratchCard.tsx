@@ -277,7 +277,7 @@ export default function ScratchCard({
   };
 
   // Função para verificar vitória
-  const checkWin = () => {
+  const checkWin = async () => {
     console.log('Verificando vitória com prêmios:', prizePositions.map(p => p.name));
     
     const prizeCounts: {[key: string]: number} = {};
@@ -292,11 +292,19 @@ export default function ScratchCard({
       console.log('VITÓRIA! Prêmio:', winningPrize[0]);
       setWinningPrize(winningPrize[0]);
       
-      // Adicionar saldo baseado no prêmio ganho
-      const prizeValue = parseFloat(winningPrize[0].replace('R$ ', '').replace('.', '').replace(',', '.'));
-      const newBalance = userBalance + prizeValue;
-      console.log('Adicionando saldo:', prizeValue, 'Novo saldo:', newBalance);
-      onBalanceUpdate(newBalance);
+      // Adicionar saldo através da API existente
+      try {
+        const prizeValue = parseFloat(winningPrize[0].replace('R$ ', '').replace('.', '').replace(',', '.'));
+        console.log('Adicionando prêmio ao saldo:', prizeValue);
+        
+        // Usar a API existente para adicionar saldo
+        const { authAPI } = await import('@/services/api');
+        const response = await authAPI.addBalance(prizeValue);
+        console.log('Prêmio adicionado com sucesso:', response);
+        onBalanceUpdate(response.user.balance);
+      } catch (error) {
+        console.error('Erro ao adicionar prêmio:', error);
+      }
       
       return true;
     }
@@ -328,9 +336,9 @@ export default function ScratchCard({
     setGameCompleted(true);
     
     // Aguardar 2 segundos APÓS a revelação completa
-    setTimeout(() => {
+    setTimeout(async () => {
       console.log('Verificando vitória após 2 segundos...');
-      const won = checkWin();
+      const won = await checkWin();
       console.log('Resultado da verificação:', won ? 'VITÓRIA' : 'DERROTA');
       
       // Mostrar modal após 2 segundos
@@ -407,6 +415,9 @@ export default function ScratchCard({
         setIsLoading(false);
         return;
       }
+      
+      // IMPORTANTE: Sempre usar o preço fixo da raspadinha, nunca o valor do prêmio
+      console.log('Usando preço fixo da raspadinha:', priceValue);
       
       if (userBalance < priceValue) {
         console.log('Saldo insuficiente - Saldo:', userBalance, 'Preço necessário:', priceValue);

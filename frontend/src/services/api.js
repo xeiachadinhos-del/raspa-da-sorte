@@ -32,12 +32,13 @@ async function apiRequest(endpoint, options = {}) {
     },
     ...options,
     // Timeout otimizado
-    signal: AbortSignal.timeout(10000), // 10 segundos
+    signal: AbortSignal.timeout(15000), // 15 segundos
   };
 
   try {
     const startTime = Date.now();
     
+    console.log(`Tentando conectar com: ${API_BASE_URL}${endpoint}`);
     const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
     
     const endTime = Date.now();
@@ -71,13 +72,13 @@ async function apiRequest(endpoint, options = {}) {
   } catch (error) {
     console.error('Erro na API:', error);
     
-    // Se for erro de timeout, tentar novamente uma vez
-    if (error.name === 'TimeoutError') {
-      console.log('Timeout detectado, tentando novamente...');
+    // Se for erro de timeout ou conexão, tentar novamente uma vez
+    if (error.name === 'TimeoutError' || error.message.includes('Failed to fetch')) {
+      console.log('Timeout ou erro de conexão detectado, tentando novamente...');
       try {
         const retryResponse = await fetch(`${API_BASE_URL}${endpoint}`, {
           ...config,
-          signal: AbortSignal.timeout(15000), // 15 segundos na segunda tentativa
+          signal: AbortSignal.timeout(20000), // 20 segundos na segunda tentativa
         });
         
         // Verificar se a resposta é JSON válido
@@ -97,7 +98,8 @@ async function apiRequest(endpoint, options = {}) {
         
         return retryData;
       } catch (retryError) {
-        throw new Error('Erro de conexão. Verifique sua internet.');
+        console.error('Erro no retry:', retryError);
+        throw new Error('Erro de conexão. Verifique se o servidor está rodando.');
       }
     }
     

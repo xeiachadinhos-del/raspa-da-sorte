@@ -86,6 +86,7 @@ export default function GamePage() {
   const [currentGameSessionId, setCurrentGameSessionId] = useState('');
   const [user, setUser] = useState<any>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showBalanceModal, setShowBalanceModal] = useState(false);
 
   // Verificar se o usuário está logado e carregar saldo
   useEffect(() => {
@@ -248,15 +249,21 @@ export default function GamePage() {
           {isLoggedIn ? (
             <div className="flex items-center gap-3">
               {/* Saldo */}
-              <div className="bg-gray-800 rounded-lg px-3 py-2 flex items-center gap-2">
-                <span className="text-white font-medium">R$ {userBalance.toFixed(2)}</span>
-                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                </svg>
+              <div className="relative">
+                <button 
+                  onClick={() => setShowBalanceModal(true)}
+                  className="rounded-lg px-3 py-2 flex items-center gap-2 hover:bg-gray-700 transition-colors cursor-pointer"
+                  style={{backgroundColor: '#262626'}}
+                >
+                  <span className="text-white font-bold text-sm">R$ {userBalance.toFixed(2)}</span>
+                  <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
               </div>
               
               {/* Botão Carteira */}
-              <button className="bg-green-600 hover:bg-green-700 p-2 rounded-lg transition-colors">
+              <button className="p-2 rounded-lg transition-colors" style={{backgroundColor: '#50c50d'}}>
                 <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                 </svg>
@@ -268,7 +275,7 @@ export default function GamePage() {
                   onClick={() => setShowUserMenu(!showUserMenu)}
                   className="flex items-center gap-2"
                 >
-                  <div className="w-10 h-10 bg-gray-700 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{backgroundColor: '#262626'}}>
                     <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
