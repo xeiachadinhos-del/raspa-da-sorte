@@ -23,6 +23,8 @@ model User {
   level     Int      @default(1)
   xp        Int      @default(0)
   isBlocked Boolean  @default(false)
+  lastLogin DateTime?
+  affiliateEmail String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -32,8 +34,52 @@ model User {
   achievements UserAchievement[]
   dailyLogins  DailyLogin[]
   gameSessions GameSession[]
+  games        Game[]
+  deposits     Deposit[]
+  withdrawals  Withdrawal[]
 
   @@map("users")
+}
+
+model Game {
+  id            String   @id @default(cuid())
+  userId        String
+  gameType      String   @default("Raspadinha")
+  betAmount     Float
+  winAmount     Float   @default(0)
+  affiliateEmail String?
+  createdAt     DateTime @default(now())
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("games")
+}
+
+model Deposit {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Float
+  status    String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  createdAt DateTime @default(now())
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("deposits")
+}
+
+model Withdrawal {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Float
+  status    String   @default("PENDING") // PENDING, COMPLETED, FAILED
+  createdAt DateTime @default(now())
+
+  // Relacionamentos
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("withdrawals")
 }
 
 model Transaction {
@@ -100,10 +146,7 @@ model UserAchievement {
   id            String   @id @default(cuid())
   userId        String
   achievementId String
-  progress      Int      @default(0)
-  completed     Boolean  @default(false)
-  completedAt   DateTime?
-  createdAt     DateTime @default(now())
+  earnedAt      DateTime @default(now())
 
   // Relacionamentos
   user        User        @relation(fields: [userId], references: [id])
@@ -117,14 +160,13 @@ model UserAchievement {
 model DailyLogin {
   id        String   @id @default(cuid())
   userId    String
-  loginDate DateTime
-  streak    Int      @default(1) // Sequência de logins
-  reward    Int      @default(10) // Créditos ganhos
-  createdAt DateTime @default(now())
+  loginDate DateTime @default(now())
+  reward    Int      @default(0)
 
   // Relacionamentos
   user User @relation(fields: [userId], references: [id])
 
+  @@unique([userId, loginDate])
   @@map("daily_logins")
 }
 

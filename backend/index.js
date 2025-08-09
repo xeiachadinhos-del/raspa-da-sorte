@@ -59,6 +59,22 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
+// Middleware para verificar token de admin
+const verifyAdminToken = (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1];
+  
+  if (!token) {
+    return res.status(401).json({ error: 'Token não fornecido' });
+  }
+  
+  // Verificar se é o token de admin
+  if (token === 'admin-token-123') {
+    next();
+  } else {
+    res.status(401).json({ error: 'Token inválido' });
+  }
+};
+
 // Rotas de Autenticação
 app.post('/api/register', async (req, res) => {
   try {
@@ -242,52 +258,78 @@ app.post('/api/game/play', authenticateToken, async (req, res) => {
 });
 
 // Rota para comprar raspadinha
-app.post('/api/games/buy-scratch', authenticateToken, async (req, res) => {
+app.post('/api/buy-scratch', authenticateToken, async (req, res) => {
   try {
-    const { gameId, price } = req.body;
-    
-    if (!gameId || !price) {
-      return res.status(400).json({ error: 'ID do jogo e preço são obrigatórios' });
+    const { price } = req.body;
+    const userId = req.user.id;
+
+    if (!price || price <= 0) {
+      return res.status(400).json({ error: 'Preço inválido' });
     }
 
     // Verificar se o usuário tem saldo suficiente
     if (req.user.balance < price) {
-      return res.status(400).json({ error: 'Saldo insuficiente para comprar esta raspadinha' });
+      return res.status(400).json({ error: 'Saldo insuficiente' });
     }
 
     // Deduzir o valor do saldo
     const updatedUser = await prisma.user.update({
-      where: { id: req.user.id },
+      where: { id: userId },
       data: { balance: req.user.balance - price }
     });
 
-    // Criar sessão de jogo
-    const gameSession = await prisma.gameSession.create({
+    // Registrar a jogada
+    const game = await prisma.game.create({
       data: {
-        userId: req.user.id,
-        creditsUsed: 1,
-        xpEarned: 10
+        userId: userId,
+        gameType: 'Raspadinha',
+        betAmount: price,
+        winAmount: 0, // Será atualizado quando o usuário ganhar
+        affiliateEmail: req.user.affiliateEmail
       }
     });
 
-    res.json({
-      success: true,
-      message: 'Raspadinha comprada com sucesso!',
-      user: {
-        id: updatedUser.id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        credits: updatedUser.credits,
-        balance: updatedUser.balance
-      },
-      gameSession: {
-        id: gameSession.id,
-        creditsUsed: gameSession.creditsUsed,
-        xpEarned: gameSession.xpEarned
-      }
+    res.json({ 
+      success: true, 
+      newBalance: updatedUser.balance,
+      gameId: game.id
     });
   } catch (error) {
     console.error('Erro ao comprar raspadinha:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para adicionar saldo quando o usuário ganha
+app.post('/api/user/add-balance', authenticateToken, async (req, res) => {
+  try {
+    const { amount, gameId } = req.body;
+    const userId = req.user.id;
+
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ error: 'Valor inválido' });
+    }
+
+    // Atualizar o saldo do usuário
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { balance: req.user.balance + amount }
+    });
+
+    // Se foi fornecido um gameId, atualizar a jogada com o valor ganho
+    if (gameId) {
+      await prisma.game.update({
+        where: { id: gameId },
+        data: { winAmount: amount }
+      });
+    }
+
+    res.json({ 
+      success: true, 
+      newBalance: updatedUser.balance 
+    });
+  } catch (error) {
+    console.error('Erro ao adicionar saldo:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 });
@@ -363,34 +405,233 @@ app.post('/api/games/reveal-scratch', authenticateToken, async (req, res) => {
   }
 });
 
-// Rota para adicionar saldo ao usuário
-app.post('/api/user/add-balance', authenticateToken, async (req, res) => {
+// Rota para estatísticas do dashboard
+app.get('/api/admin/stats', verifyAdminToken, async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { date } = req.query;
     
-    if (!amount || amount <= 0) {
-      return res.status(400).json({ error: 'Valor inválido' });
-    }
-
-    // Atualizar saldo do usuário
-    const updatedUser = await prisma.user.update({
-      where: { id: req.user.id },
-      data: { balance: req.user.balance + amount }
+    // Buscar estatísticas do banco de dados
+    const totalUsers = await prisma.user.count();
+    
+    const totalRegistrations = date ? 
+      await prisma.user.count({
+        where: {
+          createdAt: {
+            gte: new Date(date),
+            lt: new Date(new Date(date).getTime() + 24 * 60 * 60 * 1000)
+          }
+        }
+      }) : 0;
+    
+    const totalGames = await prisma.game.count();
+    
+    const totalDeposits = await prisma.deposit.aggregate({
+      _sum: { amount: true }
     });
-
+    
+    const totalWithdrawals = await prisma.withdrawal.aggregate({
+      _sum: { amount: true }
+    });
+    
+    // Calcular receita total (apostas - ganhos)
+    const totalBets = await prisma.game.aggregate({
+      _sum: { betAmount: true }
+    });
+    
+    const totalWins = await prisma.game.aggregate({
+      _sum: { winAmount: true }
+    });
+    
+    const totalRevenue = (totalBets._sum.betAmount || 0) - (totalWins._sum.winAmount || 0);
+    
     res.json({
-      success: true,
-      message: `Saldo adicionado: R$ ${amount.toFixed(2)}`,
-      user: {
-        id: updatedUser.id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        credits: updatedUser.credits,
-        balance: updatedUser.balance
-      }
+      totalUsers,
+      totalRegistrations,
+      totalGames,
+      totalDeposits: totalDeposits._sum.amount || 0,
+      totalWithdrawals: totalWithdrawals._sum.amount || 0,
+      totalRevenue
     });
   } catch (error) {
-    console.error('Erro ao adicionar saldo:', error);
+    console.error('Erro ao buscar estatísticas:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para jogadas recentes
+app.get('/api/admin/recent-games', verifyAdminToken, async (req, res) => {
+  try {
+    const games = await prisma.game.findMany({
+      take: 20,
+      orderBy: { createdAt: 'desc' },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true
+          }
+        }
+      }
+    });
+    
+    const formattedGames = games.map(game => ({
+      id: game.id,
+      userId: game.userId,
+      userName: game.user.name,
+      affiliateEmail: game.affiliateEmail,
+      gameType: game.gameType,
+      betAmount: game.betAmount,
+      winAmount: game.winAmount,
+      result: game.winAmount > 0 ? 'VITÓRIA' : 'DERROTA',
+      profit: game.winAmount - game.betAmount,
+      createdAt: game.createdAt
+    }));
+    
+    res.json(formattedGames);
+  } catch (error) {
+    console.error('Erro ao buscar jogadas recentes:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para listar usuários
+app.get('/api/admin/users', verifyAdminToken, async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: {
+        games: {
+          select: {
+            id: true,
+            winAmount: true,
+            betAmount: true
+          }
+        }
+      }
+    });
+    
+    const formattedUsers = users.map(user => {
+      const totalGames = user.games.length;
+      const totalWins = user.games.filter(g => g.winAmount > 0).length;
+      const totalLosses = totalGames - totalWins;
+      
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        balance: user.balance,
+        createdAt: user.createdAt,
+        lastLogin: user.lastLogin,
+        totalGames,
+        totalWins,
+        totalLosses,
+        affiliateEmail: user.affiliateEmail
+      };
+    });
+    
+    res.json(formattedUsers);
+  } catch (error) {
+    console.error('Erro ao buscar usuários:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para atualizar saldo do usuário
+app.put('/api/admin/users/:userId/balance', verifyAdminToken, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { balance } = req.body;
+    
+    if (typeof balance !== 'number' || balance < 0) {
+      return res.status(400).json({ error: 'Saldo inválido' });
+    }
+    
+    const updatedUser = await prisma.user.update({
+      where: { id: userId },
+      data: { balance }
+    });
+    
+    res.json({ message: 'Saldo atualizado com sucesso', user: updatedUser });
+  } catch (error) {
+    console.error('Erro ao atualizar saldo:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para listar jogadas com filtros
+app.get('/api/admin/games', verifyAdminToken, async (req, res) => {
+  try {
+    const { page = 1, limit = 50, search, result, startDate, endDate } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    // Construir filtros
+    const where = {};
+    
+    if (search) {
+      where.user = {
+        name: {
+          contains: search,
+          mode: 'insensitive'
+        }
+      };
+    }
+    
+    if (result && result !== 'all') {
+      if (result === 'VITÓRIA') {
+        where.winAmount = { gt: 0 };
+      } else if (result === 'DERROTA') {
+        where.winAmount = { equals: 0 };
+      }
+    }
+    
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) where.createdAt.gte = new Date(startDate);
+      if (endDate) where.createdAt.lte = new Date(endDate);
+    }
+    
+    // Buscar jogadas
+    const [games, totalGames] = await Promise.all([
+      prisma.game.findMany({
+        where,
+        skip,
+        take: parseInt(limit),
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: {
+            select: {
+              name: true,
+              email: true
+            }
+          }
+        }
+      }),
+      prisma.game.count({ where })
+    ]);
+    
+    const formattedGames = games.map(game => ({
+      id: game.id,
+      userId: game.userId,
+      userName: game.user.name,
+      affiliateEmail: game.affiliateEmail,
+      gameType: game.gameType,
+      betAmount: game.betAmount,
+      winAmount: game.winAmount,
+      result: game.winAmount > 0 ? 'VITÓRIA' : 'DERROTA',
+      profit: game.winAmount - game.betAmount,
+      createdAt: game.createdAt
+    }));
+    
+    const totalPages = Math.ceil(totalGames / parseInt(limit));
+    
+    res.json({
+      games: formattedGames,
+      totalGames,
+      totalPages,
+      currentPage: parseInt(page)
+    });
+  } catch (error) {
+    console.error('Erro ao buscar jogadas:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 });
