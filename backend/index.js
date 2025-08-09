@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 
+// Forçar novo deploy - Admin routes fix
 dotenv.config();
 
 const app = express();
