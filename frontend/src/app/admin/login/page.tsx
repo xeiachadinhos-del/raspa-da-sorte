@@ -184,19 +184,8 @@ export default function AdminLogin() {
                 />
                 <button
                   type="button"
+                  id="passwordToggle"
                   className="password-toggle"
-                  onClick={() => {
-                    const passwordInput = document.getElementById('password') as HTMLInputElement;
-                    const toggleButton = document.querySelector('.password-toggle') as HTMLButtonElement;
-                    
-                    if (passwordInput.type === 'password') {
-                      passwordInput.type = 'text';
-                      toggleButton.textContent = '🙈';
-                    } else {
-                      passwordInput.type = 'password';
-                      toggleButton.textContent = '👁️';
-                    }
-                  }}
                 >
                   👁️
                 </button>
@@ -231,9 +220,10 @@ export default function AdminLogin() {
       
       <script dangerouslySetInnerHTML={{
         __html: `
+          // Função para alternar visibilidade da senha
           function togglePassword() {
             const passwordInput = document.getElementById('password');
-            const toggleButton = document.querySelector('.password-toggle');
+            const toggleButton = document.getElementById('passwordToggle');
             
             if (passwordInput.type === 'password') {
               passwordInput.type = 'text';
@@ -244,6 +234,10 @@ export default function AdminLogin() {
             }
           }
           
+          // Adicionar evento ao botão de toggle da senha
+          document.getElementById('passwordToggle').addEventListener('click', togglePassword);
+          
+          // Função de login
           document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -282,4 +276,4 @@ export default function AdminLogin() {
       }} />
     </>
   );
-} // Forçar novo deploy
+} 
