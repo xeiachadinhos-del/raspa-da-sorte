@@ -14,6 +14,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Se estiver na página de login, não aplicar o layout de autenticação
+  if (pathname === '/admin/login') {
+    return <>{children}</>;
+  }
+
   useEffect(() => {
     const adminToken = localStorage.getItem('adminToken');
     const adminUserData = localStorage.getItem('adminUser');
