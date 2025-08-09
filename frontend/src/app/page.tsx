@@ -1078,80 +1078,133 @@ export default function Home() {
 
       {/* Formulário de Saque */}
       {showWithdrawSheet && (
-        <div className="fixed inset-0 z-50 flex items-end">
-          {/* Backdrop */}
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-50"
+          onClick={() => setShowWithdrawSheet(false)}
+        >
           <div 
-            className="absolute inset-0 bg-black/50"
-            onClick={() => setShowWithdrawSheet(false)}
-          />
-          
-          {/* Formulário */}
-          <div 
-            className="bg-black rounded-t-3xl p-6 w-full max-w-md mx-auto shadow-2xl relative z-10"
+            className="absolute bottom-0 left-0 right-0 bg-[#191919] rounded-t-lg max-h-[80vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header com Banner Grande */}
-            <div className="mb-6">
-              {/* Banner Grande */}
-              <div className="mb-4">
+            {/* Handle superior */}
+            <div className="bg-gray-600 mx-auto mt-4 h-2 w-[100px] shrink-0 rounded-full"></div>
+            
+            {/* Header com Banner */}
+            <div className="flex flex-col gap-1.5 p-4 text-center">
+              <div className="relative overflow-hidden rounded-t-lg">
                 <img 
                   src="https://i.postimg.cc/HWtDWn9H/imgi-65-SAQUE.jpg" 
-                  alt="Banner de Saque" 
-                  className="w-full h-32 object-cover rounded-t-3xl"
+                  className="w-full h-32 object-cover"
+                  alt="Withdraw Banner"
                 />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/10 to-black/30"></div>
               </div>
-              {/* Título Sacar */}
-              <h2 className="text-white text-lg font-semibold text-left">Sacar</h2>
             </div>
-
-            <form onSubmit={handleWithdraw} className="space-y-6">
-              {/* Valor */}
+            
+            {/* Título */}
+            <div className="flex items-center gap-2 px-4 mb-4">
+              <svg className="w-7 h-7 text-green-500" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h1 className="text-2xl font-medium text-white">Sacar</h1>
+            </div>
+            
+            {/* Formulário */}
+            <form onSubmit={handleWithdraw} className="space-y-3 overflow-hidden px-4 pb-6">
+              {/* Campo de Valor */}
               <div>
-                <label className="block text-white text-sm font-medium mb-2">
+                <label className="flex items-center font-medium select-none mb-2 text-base text-white">
                   Valor:
                 </label>
-                <input
-                  type="text"
-                  value={withdrawAmount}
-                  onChange={(e) => setWithdrawAmount(e.target.value)}
-                  className="w-full bg-gray-800 text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:border-green-500"
-                  placeholder="R$ 0,00"
-                />
-                <div className="flex gap-2 mt-3">
-                  <button
+                <div className="relative">
+                  <span className="font-semibold opacity-80 absolute left-3 top-2/4 -translate-y-2/4 text-white">R$</span>
+                  <input
+                    type="tel"
+                    value={withdrawAmount}
+                    readOnly
+                    className="pl-10 w-full rounded-md border bg-gray-800 px-3.5 py-2.5 text-base text-white border-gray-600"
+                  />
+                </div>
+                <div className="mt-1 text-xs text-rose-600/90">O valor mínimo é R$ 50,00</div>
+              </div>
+              
+              {/* Botões de Valores */}
+              <div className="overflow-hidden">
+                <div className="flex gap-2 overflow-x-auto pb-2 pt-3">
+                  <button 
                     type="button"
                     onClick={() => setWithdrawAmount('50,00')}
-                    className="flex-1 bg-[#121e0e] text-[#50c50d] border border-[#50c50d] rounded-lg py-2 text-sm font-medium hover:bg-[#50c50d] hover:text-white transition-colors"
+                    className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer whitespace-nowrap border transition-colors ${
+                      withdrawAmount === '50,00' 
+                        ? 'bg-green-600 text-white border-green-600' 
+                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30'
+                    }`}
                   >
                     R$ 50,00
                   </button>
-                  <button
+                  <button 
                     type="button"
                     onClick={() => setWithdrawAmount('100,00')}
-                    className="flex-1 bg-[#121e0e] text-[#50c50d] border border-[#50c50d] rounded-lg py-2 text-sm font-medium hover:bg-[#50c50d] hover:text-white transition-colors"
+                    className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer relative whitespace-nowrap border transition-colors ${
+                      withdrawAmount === '100,00' 
+                        ? 'bg-green-600 text-white border-green-600 ring-2 ring-yellow-400' 
+                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30 ring-2 ring-yellow-400'
+                    }`}
                   >
+                    <span className="bg-yellow-400 rounded-md absolute -top-0.5 left-2/4 -translate-y-2/4 -translate-x-2/4 text-xs text-black leading-4 px-1 uppercase flex gap-1 items-center">
+                      <svg width="1em" height="1em" fill="currentColor" className="w-3 h-3" viewBox="0 0 16 16">
+                        <path d="M8 16c3.314 0 6-2 6-5.5 0-1.5-.5-4-2.5-6 .25 1.5-1.25 2-1.25 2C11 4 9 .5 6 0c.357 2 .5 4-2 6-1.25 1-2 2.729-2 4.5C2 14 4.686 16 8 16m0-1c-1.657 0-3-1-3-2.75 0-.75.25-2 1.25-3C6.125 10 7 10.5 7 10.5c-.375-1.25.5-3.25 2-3.5-.179 1-.25 2 1 3 .625.5 1 1.364 1 2.25C11 14 9.657 15 8 15"></path>
+                      </svg>
+                      QUENTE
+                    </span>
                     R$ 100,00
                   </button>
-                  <button
+                  <button 
                     type="button"
                     onClick={() => setWithdrawAmount('200,00')}
-                    className="flex-1 bg-[#121e0e] text-[#50c50d] border border-[#50c50d] rounded-lg py-2 text-sm font-medium hover:bg-[#50c50d] hover:text-white transition-colors"
+                    className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer whitespace-nowrap border transition-colors ${
+                      withdrawAmount === '200,00' 
+                        ? 'bg-green-600 text-white border-green-600' 
+                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30'
+                    }`}
                   >
                     R$ 200,00
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setWithdrawAmount('500,00')}
+                    className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer whitespace-nowrap border transition-colors ${
+                      withdrawAmount === '500,00' 
+                        ? 'bg-green-600 text-white border-green-600' 
+                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30'
+                    }`}
+                  >
+                    R$ 500,00
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setWithdrawAmount('1000,00')}
+                    className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer whitespace-nowrap border transition-colors ${
+                      withdrawAmount === '1000,00' 
+                        ? 'bg-green-600 text-white border-green-600' 
+                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30'
+                    }`}
+                  >
+                    R$ 1.000,00
                   </button>
                 </div>
               </div>
 
-              {/* Chave PIX */}
+              {/* Campo Chave PIX */}
               <div>
-                <label className="block text-white text-sm font-medium mb-2">
-                  Chave PIX
+                <label className="flex items-center font-medium select-none mb-2 text-base text-white">
+                  Chave PIX:
                 </label>
                 <div className="flex gap-2">
                   <select
                     value={pixKeyType}
                     onChange={(e) => setPixKeyType(e.target.value)}
-                    className="bg-gray-800 text-white border border-gray-600 rounded-lg px-3 py-3 focus:outline-none focus:border-green-500"
+                    className="bg-gray-800 text-white border border-gray-600 rounded-lg px-3 py-2.5 focus:outline-none focus:border-green-500"
                   >
                     <option value="email">Email</option>
                     <option value="cpf">CPF</option>
@@ -1162,21 +1215,22 @@ export default function Home() {
                     type="text"
                     value={pixKey}
                     onChange={(e) => setPixKey(e.target.value)}
-                    className="flex-1 bg-gray-800 text-white border border-gray-600 rounded-lg px-4 py-3 focus:outline-none focus:border-green-500"
+                    className="flex-1 bg-gray-800 text-white border border-gray-600 rounded-lg px-3 py-2.5 focus:outline-none focus:border-green-500"
                     placeholder="Digite sua chave PIX..."
                   />
                 </div>
               </div>
-
+              
               {/* Botão Solicitar Saque */}
-              <button
+              <button 
                 type="submit"
-                className="w-full bg-[#50c50d] hover:bg-[#45b00a] text-white font-semibold py-4 rounded-lg flex items-center justify-center gap-2 transition-colors"
+                className="active:scale-95 transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all bg-green-600 text-white shadow-xs hover:bg-green-700 h-10 rounded-md px-6 w-full mx-auto mt-4 relative overflow-hidden py-6 cursor-pointer"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Solicitar Saque
+                <span className="bg-black/20 absolute left-0 top-0 bottom-0 w-0"></span>
               </button>
             </form>
           </div>
