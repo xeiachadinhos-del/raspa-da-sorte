@@ -282,4 +282,4 @@ export default function AdminLogin() {
       }} />
     </>
   );
-} 
+} // Forçar novo deploy
