@@ -139,8 +139,14 @@ export default function PixPaymentModal({
                      data.pixCode;
       
       if (!pixCode) {
-        console.error('PIX Code não encontrado na resposta:', data);
-        throw new Error(`PIX Code não foi gerado pelo Nomadfy`);
+        // Se não encontrar PIX Code, usar o payload do QR Code como PIX Code
+        const qrPayload = data.payment?.details?.qrcode?.payload;
+        if (qrPayload) {
+          console.log('Usando payload do QR Code como PIX Code:', qrPayload);
+        } else {
+          console.error('PIX Code não encontrado na resposta:', data);
+          throw new Error(`PIX Code não foi gerado pelo Nomadfy`);
+        }
       }
       
       // Converter resposta do Nomadfy para formato esperado
@@ -151,7 +157,7 @@ export default function PixPaymentModal({
         payment: {
           details: {
             pixQrCode: data.payment.details.qrcode.payload,
-            pixCode: pixCode
+            pixCode: pixCode || data.payment.details.qrcode.payload // Usar payload como fallback
           }
         }
       };
@@ -197,32 +203,24 @@ export default function PixPaymentModal({
           </button>
         </div>
 
-        <div className="p-4 space-y-4">
-          {/* Instruções */}
-          <div className="text-center">
-            <p className="text-white text-sm">
-              Escaneie o QR Code abaixo usando o app do seu banco para realizar o pagamento
-            </p>
+        {/* Conteúdo do Modal */}
+        {loading && (
+          <div className="p-6 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+            <p className="text-white">Gerando cobrança PIX...</p>
           </div>
+        )}
 
-          {/* Loading */}
-          {loading && (
-            <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto"></div>
-              <p className="text-gray-400 mt-2">Gerando cobrança PIX...</p>
-            </div>
-          )}
-
-          {/* Error */}
-          {error && (
-            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 space-y-3">
-              <div className="flex items-center gap-2">
+        {error && (
+          <div className="p-6 space-y-4">
+            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-3">
                 <svg className="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
                 <p className="text-red-400 font-medium">Erro no Pagamento</p>
               </div>
-              <p className="text-red-300 text-sm">{error}</p>
+              <p className="text-red-300 text-sm mb-4">{error}</p>
               <div className="flex gap-2">
                 <button
                   onClick={createPixCharge}
@@ -238,72 +236,89 @@ export default function PixPaymentModal({
                 </button>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* QR Code */}
-          {paymentData?.payment?.details?.pixQrCode && !loading && !error && (
+        {paymentData && !error && (
+          <div className="p-6 space-y-6">
+            {/* Sucesso */}
             <div className="text-center">
-              <div className="bg-white p-4 rounded-lg inline-block">
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(paymentData.payment.details.pixQrCode)}`}
-                  alt="QR Code PIX"
-                  className="w-48 h-48"
-                />
-              </div>
-            </div>
-          )}
-
-          {/* Detalhes do Depósito */}
-          {paymentData && !loading && !error && (
-            <div className="border-2 border-dashed border-white rounded-lg p-4 space-y-3">
-              {/* Valor */}
-              <div className="flex items-center justify-between">
-                <span className="text-green-500 text-xl font-bold">R$ {amount}</span>
-                <svg className="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
+              <h3 className="text-xl font-semibold text-white mb-2">Cobrança PIX Gerada!</h3>
+              <p className="text-gray-300">Copie o código PIX abaixo e cole no app do seu banco</p>
+            </div>
 
-              {/* Código PIX */}
-              {paymentData.payment?.details?.pixCode && (
-                <div className="space-y-2">
-                  <div className="bg-gray-800 rounded px-3 py-2">
-                    <input
-                      type="text"
-                      value={paymentData.payment.details.pixCode}
-                      readOnly
-                      className="w-full bg-transparent text-white text-sm border-none outline-none"
-                    />
-                  </div>
-                  <button
-                    onClick={() => copyToClipboard(paymentData.payment.details.pixCode || '')}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded text-sm font-medium transition-colors"
-                  >
-                    {copied ? 'Copiado!' : 'Copiar Código'}
-                  </button>
-                </div>
+            {/* Código PIX */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-gray-300">Código PIX:</label>
+              <div className="relative">
+                <textarea
+                  readOnly
+                  value={paymentData.payment.details.pixCode}
+                  className="w-full h-24 bg-gray-800 border border-gray-600 rounded-lg p-3 text-white text-sm font-mono resize-none"
+                />
+                <button
+                  onClick={() => copyToClipboard(paymentData.payment.details.pixCode)}
+                  className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-white p-2 rounded-md transition-colors"
+                  title="Copiar código PIX"
+                >
+                  {copied ? (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+              {copied && (
+                <p className="text-green-400 text-sm text-center">Código PIX copiado!</p>
               )}
             </div>
-          )}
 
-          {/* Status do Pagamento */}
-          {paymentStatus && paymentStatus !== 'pending' && (
-            <div className="text-center">
-              <p className="text-yellow-500 text-sm font-medium">
-                Status: {paymentStatus}
-              </p>
+            {/* Status do Pagamento */}
+            <div className="bg-gray-800 rounded-lg p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-300">Status:</span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  paymentStatus === 'PAID' ? 'bg-green-500 text-white' :
+                  paymentStatus === 'WAITING' ? 'bg-yellow-500 text-black' :
+                  'bg-gray-500 text-white'
+                }`}>
+                  {paymentStatus === 'PAID' ? 'Pago' :
+                   paymentStatus === 'WAITING' ? 'Aguardando' :
+                   paymentStatus}
+                </span>
+              </div>
+              <div className="mt-2 text-sm text-gray-400">
+                <p>Valor: R$ {paymentData.amount}</p>
+                <p>ID: {paymentData.id}</p>
+              </div>
             </div>
-          )}
 
-          {/* Aviso de Expiração */}
-          {paymentData && !loading && !error && (
-            <div className="text-center">
-              <p className="text-orange-400 text-sm">
-                O QR Code expira em: <span className="font-medium">24 horas</span>
-              </p>
+            {/* Botões */}
+            <div className="flex gap-3">
+              <button
+                onClick={onClose}
+                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg font-medium transition-colors"
+              >
+                Fechar
+              </button>
+              <button
+                onClick={createPixCharge}
+                className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg font-medium transition-colors"
+              >
+                Gerar Nova Cobrança
+              </button>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
