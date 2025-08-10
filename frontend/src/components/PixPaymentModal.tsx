@@ -12,8 +12,7 @@ interface PixPaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
   amount: string;
-  user: any;
-  onPaymentSuccess: () => void;
+  onPaymentSuccess?: () => void;
 }
 
 interface PaymentData {
@@ -32,7 +31,6 @@ export default function PixPaymentModal({
   isOpen, 
   onClose, 
   amount, 
-  user, 
   onPaymentSuccess 
 }: PixPaymentModalProps) {
   const [paymentData, setPaymentData] = useState<PaymentData | null>(null);
@@ -43,51 +41,49 @@ export default function PixPaymentModal({
 
   // Criar cobrança PIX quando o modal abrir
   useEffect(() => {
-    if (isOpen && amount && user) {
+    if (isOpen && amount) {
       createPixCharge();
     }
-  }, [isOpen, amount, user]);
+  }, [isOpen, amount]);
 
   const createPixCharge = async () => {
     setLoading(true);
-    setError(null);
-    
+    setError('');
+    setPaymentData(null);
+
     try {
-      // Converter valor de "100,00" para "100.00" para compatibilidade com Nomadfy
-      const numericAmount = parseFloat(amount.replace(',', '.'));
-      const formattedAmount = numericAmount.toFixed(2); // Garantir formato "100.00"
-      
-      // Verificar se temos dados do usuário
-      if (!user || !user.id || !user.email) {
-        throw new Error('Dados do usuário incompletos');
-      }
-      
-      // Criar payload para Nomadfy
       const payload = {
         customer: {
-          name: user.name || 'Usuário',
-          email: user.email,
-          phone: user.phone || '(11) 99999-9999',
-          cpfCnpj: user.cpf || '12345678900',
-          accountId: user.id // Campo obrigatório
+          name: "Usuário",
+          cpfCnpj: "00000000000",
+          email: "usuario@raspa.com",
+          phone: "(11) 99999-9999",
+          accountId: "123e4567-e89b-12d3-a456-426614174000"
         },
         payment: {
-          method: 'PIX',
-          amount: formattedAmount,
-          message: `Depósito - R$ ${formattedAmount}`,
+          method: "PIX",
+          amount: parseFloat(amount.replace(',', '.')).toFixed(2),
+          message: `Depósito - R$ ${amount}`,
+          card: {
+            number: "1234567890123456",
+            holderName: "Usuário",
+            expirationMonth: "12",
+            expirationYear: "2025",
+            cvv: "123"
+          },
           installments: 1
         },
-        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Campo obrigatório
-        callbackUrl: 'https://raspa-da-sore-gray.vercel.app/api/payment-callback',
-        items: [ // Campo obrigatório
+        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        callbackUrl: `${window.location.origin}/api/payment-callback`,
+        items: [
           {
-            name: `Depósito - R$ ${formattedAmount}`,
-            unitPrice: formattedAmount,
+            name: `Depósito - R$ ${amount}`,
+            unitPrice: parseFloat(amount.replace(',', '.')).toFixed(2),
             quantity: 1,
-            externalRef: `deposit_${user.id}_${Date.now()}`
+            externalRef: `deposit_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
           }
         ],
-        metadata: { userId: user.id, userEmail: user.email, depositAmount: numericAmount }
+        metadata: {}
       };
 
       const response = await fetch(NOMADFY_CONFIG.apiUrl, {
@@ -180,6 +176,37 @@ export default function PixPaymentModal({
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Erro ao copiar:', err);
+    }
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!paymentData || !paymentData.id) {
+      setError('Não foi possível confirmar o pagamento: dados da cobrança incompletos.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`${NOMADFY_CONFIG.apiUrl}/${paymentData.id}/pay`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${NOMADFY_CONFIG.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Erro ao confirmar pagamento: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Pagamento confirmado com sucesso:', data);
+      setPaymentStatus('PAID');
+      onPaymentSuccess?.(); // Chamar a função de sucesso passada como prop
+      onClose();
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Erro desconhecido ao confirmar pagamento';
+      setError(`❌ Erro ao confirmar pagamento: ${errorMessage}`);
     }
   };
 
@@ -282,39 +309,27 @@ export default function PixPaymentModal({
               )}
             </div>
 
-            {/* Status do Pagamento */}
-            <div className="bg-gray-800 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-300">Status:</span>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  paymentStatus === 'PAID' ? 'bg-green-500 text-white' :
-                  paymentStatus === 'WAITING' ? 'bg-yellow-500 text-black' :
-                  'bg-gray-500 text-white'
-                }`}>
-                  {paymentStatus === 'PAID' ? 'Pago' :
-                   paymentStatus === 'WAITING' ? 'Aguardando' :
-                   paymentStatus}
-                </span>
-              </div>
-              <div className="mt-2 text-sm text-gray-400">
-                <p>Valor: R$ {paymentData.amount}</p>
-                <p>ID: {paymentData.id}</p>
-              </div>
-            </div>
+            {/* Botão Copiar Código PIX */}
+            <button
+              onClick={() => copyToClipboard(paymentData.payment.details.pixCode)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+            >
+              {copied ? 'Código Copiado!' : 'Copiar Código PIX'}
+            </button>
 
             {/* Botões */}
             <div className="flex gap-3">
               <button
                 onClick={onClose}
-                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg font-medium transition-colors"
+                className="flex-1 bg-gray-600 hover:bg-gray-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
               >
                 Fechar
               </button>
               <button
-                onClick={createPixCharge}
-                className="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-3 rounded-lg font-medium transition-colors"
+                onClick={handleConfirmPayment}
+                className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
               >
-                Gerar Nova Cobrança
+                Já Paguei
               </button>
             </div>
           </div>

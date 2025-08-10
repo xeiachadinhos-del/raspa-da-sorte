@@ -1260,7 +1260,6 @@ export default function Home() {
           isOpen={showPixModal}
           onClose={() => setShowPixModal(false)}
           amount={depositAmount}
-          user={user}
           onPaymentSuccess={handlePixPaymentSuccess}
         />
       )}
