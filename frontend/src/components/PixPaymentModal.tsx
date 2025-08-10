@@ -233,8 +233,9 @@ export default function PixPaymentModal({
         {/* Conteúdo do Modal */}
         {loading && (
           <div className="p-6 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
-            <p className="text-white">Gerando cobrança PIX...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{borderColor: '#4ec50d'}}></div>
+            <h3 className="text-xl font-semibold text-white mb-2">Gerando Cobrança PIX...</h3>
+            <p className="text-gray-300">Aguarde um momento</p>
           </div>
         )}
 
@@ -270,7 +271,7 @@ export default function PixPaymentModal({
           <div className="p-6 space-y-6">
             {/* Sucesso */}
             <div className="text-center">
-              <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style={{backgroundColor: '#4ec50d'}}>
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
@@ -290,29 +291,31 @@ export default function PixPaymentModal({
                 />
                 <button
                   onClick={() => copyToClipboard(paymentData.payment.details.pixCode)}
-                  className="absolute top-2 right-2 bg-green-500 hover:bg-green-600 text-white p-2 rounded-md transition-colors"
+                  className="absolute top-2 right-2 p-2 rounded-md transition-colors"
+                  style={{backgroundColor: '#4ec50d'}}
                   title="Copiar código PIX"
                 >
                   {copied ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
                   ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
                   )}
                 </button>
               </div>
               {copied && (
-                <p className="text-green-400 text-sm text-center">Código PIX copiado!</p>
+                <p className="text-sm text-center" style={{color: '#4ec50d'}}>Código PIX copiado!</p>
               )}
             </div>
 
             {/* Botão Copiar Código PIX */}
             <button
               onClick={() => copyToClipboard(paymentData.payment.details.pixCode)}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              className="w-full text-white px-4 py-2 rounded-lg font-medium transition-colors"
+              style={{backgroundColor: '#4ec50d'}}
             >
               {copied ? 'Código Copiado!' : 'Copiar Código PIX'}
             </button>
@@ -327,7 +330,8 @@ export default function PixPaymentModal({
               </button>
               <button
                 onClick={handleConfirmPayment}
-                className="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                className="flex-1 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+                style={{backgroundColor: '#4ec50d'}}
               >
                 Já Paguei
               </button>
