@@ -110,10 +110,12 @@ export default function PixPaymentModal({
       console.log('Resposta completa do Nomadfy:', JSON.stringify(data, null, 2));
       
       // Verificar se temos os dados necessários
-      if (!data.payment?.details?.qrcode?.payload) {
+      if (data.payment?.details?.qrcode?.payload) {
+        // QR Code encontrado no local correto
+        console.log('QR Code encontrado:', data.payment.details.qrcode.payload);
+      } else {
         // Tentar outros campos possíveis
-        const qrCode = data.payment?.details?.qrcode?.payload || 
-                      data.payment?.details?.pixQrCode || 
+        const qrCode = data.payment?.details?.pixQrCode || 
                       data.pixQrCode || 
                       data.qrCode || 
                       data.payment?.pixQrCode;
