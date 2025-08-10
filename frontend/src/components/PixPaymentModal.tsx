@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 // Configurações do Nomadfy
 const NOMADFY_CONFIG = {
@@ -40,82 +40,25 @@ export default function PixPaymentModal({
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState<string>('pending');
-  
-  // PROTEÇÕES MUITO FORTES - ESTADOS DE BLOQUEIO
-  const [modalLocked, setModalLocked] = useState(false);
-  const [hasStartedProcess, setHasStartedProcess] = useState(false);
-  const [forceKeepOpen, setForceKeepOpen] = useState(false);
-  const [debugInfo, setDebugInfo] = useState<string[]>([]);
-  const [showDebug, setShowDebug] = useState(true); // SEMPRE VISÍVEL
-  const modalRef = useRef<HTMLDivElement>(null);
-
-  const addDebugInfo = (info: string) => {
-    const timestamp = new Date().toLocaleTimeString();
-    const debugMessage = `[${timestamp}] ${info}`;
-    console.log(debugMessage);
-    setDebugInfo(prev => [...prev, debugMessage]);
-  };
-
-  // BLOQUEAR FECHAMENTO DO MODAL
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && (modalLocked || hasStartedProcess || error)) {
-        e.preventDefault();
-        addDebugInfo('ESCAPE BLOQUEADO - Modal não pode ser fechado');
-        return false;
-      }
-    };
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        if (modalLocked || hasStartedProcess || error) {
-          e.preventDefault();
-          addDebugInfo('CLIQUE FORA BLOQUEADO - Modal não pode ser fechado');
-          return false;
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleEscape);
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [modalLocked, hasStartedProcess, error]);
 
   // Criar cobrança PIX quando o modal abrir
   useEffect(() => {
     if (isOpen && amount && user) {
-      addDebugInfo('=== MODAL ABERTO - INICIANDO PROCESSO ===');
-      setModalLocked(true);
-      setHasStartedProcess(true);
-      setForceKeepOpen(true);
-      setError(null);
-      setDebugInfo([]);
       createPixCharge();
     }
   }, [isOpen, amount, user]);
 
   const createPixCharge = async () => {
-    addDebugInfo('=== INÍCIO DA FUNÇÃO createPixCharge ===');
-    
     setLoading(true);
     setError(null);
-    setModalLocked(true);
-    setForceKeepOpen(true);
     
     try {
       const numericAmount = parseFloat(amount.replace(',', '.'));
-      addDebugInfo(`Criando cobrança para valor: ${numericAmount}`);
       
       // Verificar se temos dados do usuário
       if (!user || !user.id || !user.email) {
         throw new Error('Dados do usuário incompletos');
       }
-      
-      addDebugInfo(`Usuário: ${user.email} (ID: ${user.id})`);
       
       // Criar payload para Nomadfy
       const payload = {
@@ -149,10 +92,6 @@ export default function PixPaymentModal({
         }
       };
 
-      addDebugInfo('Payload criado, fazendo requisição...');
-      addDebugInfo(`URL: ${NOMADFY_CONFIG.apiUrl}`);
-      addDebugInfo(`API Key: ${NOMADFY_CONFIG.apiKey.substring(0, 20)}...`);
-      
       const response = await fetch(NOMADFY_CONFIG.apiUrl, {
         method: 'POST',
         headers: {
@@ -161,22 +100,16 @@ export default function PixPaymentModal({
         },
         body: JSON.stringify(payload),
       });
-
-      addDebugInfo(`Resposta recebida: ${response.status} ${response.statusText}`);
       
       if (!response.ok) {
         const errorText = await response.text();
-        addDebugInfo(`ERRO HTTP: ${response.status} - ${errorText}`);
         throw new Error(`Erro do Nomadfy: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
-      addDebugInfo('Dados recebidos com sucesso');
-      addDebugInfo(`Dados: ${JSON.stringify(data, null, 2)}`);
       
       // Verificar se temos os dados necessários
       if (!data.payment?.details?.pixQrCode) {
-        addDebugInfo('ERRO: QR Code não encontrado na resposta');
         throw new Error('QR Code não foi gerado pelo Nomadfy');
       }
       
@@ -193,27 +126,14 @@ export default function PixPaymentModal({
         }
       };
       
-      addDebugInfo('PaymentData processado com sucesso');
-      
       setPaymentData(paymentData);
       setPaymentStatus(data.status);
       
-      addDebugInfo('=== SUCESSO - PIX GERADO ===');
     } catch (err: any) {
-      addDebugInfo('=== ERRO DETALHADO ===');
-      addDebugInfo(`Mensagem de erro: ${err?.message || 'Erro desconhecido'}`);
-      addDebugInfo(`Erro completo: ${JSON.stringify(err, null, 2)}`);
-      
       const errorMessage = err?.message || 'Erro desconhecido ao gerar PIX';
       setError(`❌ Erro ao gerar cobrança PIX: ${errorMessage}`);
-      
-      // MANTER MODAL ABERTO EM CASO DE ERRO
-      setModalLocked(true);
-      setForceKeepOpen(true);
-      addDebugInfo('Modal BLOQUEADO devido ao erro');
     } finally {
       setLoading(false);
-      addDebugInfo('=== FIM DA FUNÇÃO createPixCharge ===');
     }
   };
 
@@ -227,49 +147,18 @@ export default function PixPaymentModal({
     }
   };
 
-  // MÚLTIPLAS PROTEÇÕES PARA NÃO FECHAR
-  const shouldRender = isOpen || modalLocked || hasStartedProcess || forceKeepOpen || error || loading;
-  
-  addDebugInfo(`=== VERIFICAÇÃO DE RENDERIZAÇÃO ===`);
-  addDebugInfo(`isOpen: ${isOpen}`);
-  addDebugInfo(`modalLocked: ${modalLocked}`);
-  addDebugInfo(`hasStartedProcess: ${hasStartedProcess}`);
-  addDebugInfo(`forceKeepOpen: ${forceKeepOpen}`);
-  addDebugInfo(`error: ${error}`);
-  addDebugInfo(`loading: ${loading}`);
-  addDebugInfo(`shouldRender: ${shouldRender}`);
-  
-  if (!shouldRender) {
-    addDebugInfo('Modal NÃO deve ser renderizado');
+  if (!isOpen) {
     return null;
   }
-  
-  addDebugInfo('Modal SERÁ renderizado');
-
-  const handleClose = () => {
-    addDebugInfo('Tentativa de fechar modal...');
-    
-    // Só permite fechar se não houver processo em andamento
-    if (!loading && !error && !modalLocked) {
-      addDebugInfo('Modal pode ser fechado');
-      setModalLocked(false);
-      setHasStartedProcess(false);
-      setForceKeepOpen(false);
-      onClose();
-    } else {
-      addDebugInfo('Modal NÃO pode ser fechado - bloqueado');
-      addDebugInfo(`loading: ${loading}, error: ${error}, modalLocked: ${modalLocked}`);
-    }
-  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-      <div ref={modalRef} className="bg-[#191919] rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#191919] rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           <h2 className="text-xl font-semibold text-white">Depositar</h2>
           <button
-            onClick={handleClose}
+            onClick={onClose}
             className="text-gray-400 hover:text-white"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -294,7 +183,7 @@ export default function PixPaymentModal({
             </div>
           )}
 
-          {/* Error - SEMPRE VISÍVEL SE HOUVER ERRO */}
+          {/* Error */}
           {error && (
             <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 space-y-3">
               <div className="flex items-center gap-2">
@@ -312,14 +201,7 @@ export default function PixPaymentModal({
                   🔄 Tentar Novamente
                 </button>
                 <button
-                  onClick={() => {
-                    addDebugInfo('Fechando modal após erro');
-                    setModalLocked(false);
-                    setHasStartedProcess(false);
-                    setForceKeepOpen(false);
-                    setError(null);
-                    onClose();
-                  }}
+                  onClick={onClose}
                   className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
                 >
                   ❌ Fechar
@@ -391,22 +273,6 @@ export default function PixPaymentModal({
               </p>
             </div>
           )}
-
-          {/* Debug Info - SEMPRE VISÍVEL */}
-          <div className="mt-4 p-3 bg-gray-800 rounded text-xs text-gray-300 max-h-32 overflow-y-auto">
-            <div className="flex items-center justify-between mb-2">
-              <p className="font-bold">Debug Info:</p>
-              <button
-                onClick={() => setShowDebug(!showDebug)}
-                className="text-blue-400 hover:text-blue-300"
-              >
-                {showDebug ? 'Ocultar' : 'Mostrar'}
-              </button>
-            </div>
-            {showDebug && debugInfo.slice(-8).map((info, index) => (
-              <div key={index} className="text-gray-400 mb-1">{info}</div>
-            ))}
-          </div>
         </div>
       </div>
     </div>
