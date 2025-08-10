@@ -53,7 +53,9 @@ export default function PixPaymentModal({
     setError(null);
     
     try {
+      // Converter valor de "100,00" para "100.00" para compatibilidade com Nomadfy
       const numericAmount = parseFloat(amount.replace(',', '.'));
+      const formattedAmount = numericAmount.toFixed(2); // Garantir formato "100.00"
       
       // Verificar se temos dados do usuário
       if (!user || !user.id || !user.email) {
@@ -71,16 +73,16 @@ export default function PixPaymentModal({
         },
         payment: {
           method: 'PIX',
-          amount: amount,
-          message: `Depósito - ${amount} reais`,
+          amount: formattedAmount, // Usar formato "100.00"
+          message: `Depósito - R$ ${formattedAmount}`,
           installments: 1
         },
         dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 24 horas
         callbackUrl: 'https://raspa-da-sorte-gray.vercel.app/api/payment-callback',
         items: [
           {
-            name: `Depósito - ${amount} reais`,
-            unitPrice: amount,
+            name: `Depósito - R$ ${formattedAmount}`,
+            unitPrice: formattedAmount, // Usar formato "100.00"
             quantity: 1,
             externalRef: `deposit_${user.id}_${Date.now()}`
           }
