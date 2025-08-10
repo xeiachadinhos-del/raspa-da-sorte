@@ -110,9 +110,26 @@ export default function PixPaymentModal({
 
       const data = await response.json();
       
+      // Log para debug - remover depois
+      console.log('Resposta completa do Nomadfy:', JSON.stringify(data, null, 2));
+      
       // Verificar se temos os dados necessários
       if (!data.payment?.details?.pixQrCode) {
-        throw new Error('QR Code não foi gerado pelo Nomadfy');
+        // Tentar outros campos possíveis
+        const qrCode = data.payment?.details?.pixQrCode || 
+                      data.pixQrCode || 
+                      data.qrCode || 
+                      data.payment?.pixQrCode;
+        
+        if (!qrCode) {
+          console.error('Estrutura da resposta:', data);
+          throw new Error(`QR Code não foi gerado pelo Nomadfy. Estrutura da resposta: ${JSON.stringify(data, null, 2)}`);
+        }
+        
+        // Se encontrou em outro campo, usar
+        data.payment = data.payment || {};
+        data.payment.details = data.payment.details || {};
+        data.payment.details.pixQrCode = qrCode;
       }
       
       // Converter resposta do Nomadfy para formato esperado
