@@ -66,32 +66,28 @@ export default function PixPaymentModal({
       const payload = {
         customer: {
           name: user.name || 'Usuário',
-          cpfCnpj: user.cpf || '00000000000',
           email: user.email,
           phone: user.phone || '(11) 99999-9999',
-          accountId: user.id
+          cpfCnpj: user.cpf || '12345678900',
+          accountId: user.id // Campo obrigatório
         },
         payment: {
           method: 'PIX',
-          amount: formattedAmount, // Usar formato "100.00"
+          amount: formattedAmount,
           message: `Depósito - R$ ${formattedAmount}`,
           installments: 1
         },
-        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 24 horas
-        callbackUrl: 'https://raspa-da-sorte-gray.vercel.app/api/payment-callback',
-        items: [
+        dueDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Campo obrigatório
+        callbackUrl: 'https://raspa-da-sore-gray.vercel.app/api/payment-callback',
+        items: [ // Campo obrigatório
           {
             name: `Depósito - R$ ${formattedAmount}`,
-            unitPrice: formattedAmount, // Usar formato "100.00"
+            unitPrice: formattedAmount,
             quantity: 1,
             externalRef: `deposit_${user.id}_${Date.now()}`
           }
         ],
-        metadata: {
-          userId: user.id,
-          userEmail: user.email,
-          depositAmount: numericAmount
-        }
+        metadata: { userId: user.id, userEmail: user.email, depositAmount: numericAmount }
       };
 
       const response = await fetch(NOMADFY_CONFIG.apiUrl, {
@@ -132,6 +128,16 @@ export default function PixPaymentModal({
         data.payment.details.pixQrCode = qrCode;
       }
       
+      // Buscar o PIX Code também
+      const pixCode = data.payment?.details?.pixCode || 
+                     data.payment?.pixCode || 
+                     data.pixCode;
+      
+      if (!pixCode) {
+        console.error('PIX Code não encontrado na resposta:', data);
+        throw new Error(`PIX Code não foi gerado pelo Nomadfy`);
+      }
+      
       // Converter resposta do Nomadfy para formato esperado
       const paymentData = {
         id: data.id,
@@ -140,7 +146,7 @@ export default function PixPaymentModal({
         payment: {
           details: {
             pixQrCode: data.payment.details.pixQrCode,
-            pixCode: data.payment.details.pixCode || data.payment.details.pixQrCode
+            pixCode: pixCode
           }
         }
       };
