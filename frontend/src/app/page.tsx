@@ -528,7 +528,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="bg-black py-8 px-6 mt-8">
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             {/* Logo e Copyright */}
             <div>
               <div className="flex items-center mb-4">
@@ -565,6 +565,68 @@ export default function Home() {
                 <li><span className="text-gray-400 text-sm">Suporte Técnico</span></li>
               </ul>
             </div>
+          </div>
+
+          {/* Certificações e Selos */}
+          <div className="border-t border-gray-800 pt-6 mb-6">
+            <div className="flex flex-wrap justify-center items-center gap-6">
+              {/* BeGambleAware */}
+              <div className="flex flex-col items-center">
+                <img 
+                  src="https://i.postimg.cc/8CQZQZQZ/begambleaware.png" 
+                  alt="BeGambleAware" 
+                  className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"
+                  title="BeGambleAware - Jogue com responsabilidade"
+                />
+              </div>
+              
+              {/* GambleTrust */}
+              <div className="flex flex-col items-center">
+                <img 
+                  src="https://i.postimg.cc/8CQZQZQZ/gambletrust.png" 
+                  alt="GambleTrust" 
+                  className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"
+                  title="GambleTrust - Confiança em jogos online"
+                />
+              </div>
+              
+              {/* IBIA */}
+              <div className="flex flex-col items-center">
+                <img 
+                  src="https://i.postimg.cc/8CQZQZQZ/ibia.png" 
+                  alt="IBIA - International Betting Integrity Association" 
+                  className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"
+                  title="IBIA - Associação Internacional de Integridade de Apostas"
+                />
+              </div>
+              
+              {/* ReclameAQUI */}
+              <div className="flex flex-col items-center">
+                <img 
+                  src="https://i.postimg.cc/8CQZQZQZ/reclameaqui.png" 
+                  alt="ReclameAQUI - Verificado" 
+                  className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"
+                  title="ReclameAQUI - Empresa verificada"
+                />
+              </div>
+              
+              {/* Ministério da Fazenda */}
+              <div className="flex flex-col items-center">
+                <img 
+                  src="https://i.postimg.cc/8CQZQZQZ/ministerio-fazenda.png" 
+                  alt="Autorizado pelo Ministério da Fazenda" 
+                  className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"
+                  title="Autorizado pelo Ministério da Fazenda"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Texto Legal */}
+          <div className="border-t border-gray-800 pt-6">
+            <p className="text-gray-500 text-xs leading-relaxed text-center max-w-4xl mx-auto">
+              É um site de entretenimento online que oferece aos seus usuários uma experiência única em apostas esportivas e jogos online. Esse site é operado pela Sabiá Administração LTDA, uma empresa registrada no Brasil, sob número de CNPJ 04.426.418/0001-16, com sede em Rua Padre Joao Porto, 1293 - Apartamento 03 - CEP 35640-000 - Volta do Brejo - Pompéu/MG, entidade devidamente autorizada a operar a modalidade lotérica de apostas de quota fixa no Brasil, em temática desportiva e jogos online, conjuntamente, pela Secretaria de Prêmios e Apostas do Ministério da Fazenda, conforme Portaria SPA/MF nº 399/2025, publicada em 24 de fevereiro de 2025 no Diário Oficial da República Federativa do Brasil. Ao acessar, continuar a usar ou navegar neste site, você concorda que podemos usar determinados cookies do navegador para melhorar sua experiência ao usar nosso site. Utilizamos cookies apenas para melhorar a sua experiência e isso não interfere na sua privacidade.
+            </p>
           </div>
         </div>
       </footer>
