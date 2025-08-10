@@ -110,9 +110,10 @@ export default function PixPaymentModal({
       console.log('Resposta completa do Nomadfy:', JSON.stringify(data, null, 2));
       
       // Verificar se temos os dados necessários
-      if (!data.payment?.details?.pixQrCode) {
+      if (!data.payment?.details?.qrcode?.payload) {
         // Tentar outros campos possíveis
-        const qrCode = data.payment?.details?.pixQrCode || 
+        const qrCode = data.payment?.details?.qrcode?.payload || 
+                      data.payment?.details?.pixQrCode || 
                       data.pixQrCode || 
                       data.qrCode || 
                       data.payment?.pixQrCode;
@@ -125,11 +126,13 @@ export default function PixPaymentModal({
         // Se encontrou em outro campo, usar
         data.payment = data.payment || {};
         data.payment.details = data.payment.details || {};
-        data.payment.details.pixQrCode = qrCode;
+        data.payment.details.qrcode = data.payment.details.qrcode || {};
+        data.payment.details.qrcode.payload = qrCode;
       }
       
-      // Buscar o PIX Code também
-      const pixCode = data.payment?.details?.pixCode || 
+      // Buscar o PIX Code também (pode estar em diferentes campos)
+      const pixCode = data.payment?.details?.txid || 
+                     data.payment?.details?.pixCode || 
                      data.payment?.pixCode || 
                      data.pixCode;
       
@@ -145,7 +148,7 @@ export default function PixPaymentModal({
         status: data.status,
         payment: {
           details: {
-            pixQrCode: data.payment.details.pixQrCode,
+            pixQrCode: data.payment.details.qrcode.payload,
             pixCode: pixCode
           }
         }
