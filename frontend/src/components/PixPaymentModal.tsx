@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 
 // Configurações do Nomadfy
 const NOMADFY_CONFIG = {
-  apiKey: 'nd-key.01987cf7-adb3-7559-97b4-abbaee94a20c.3BLOsdwhSnjqtAsFk5vd4FR9qqCw46SYLnEnOTTYm4LGASyQ19mGpWHxCNfaJtNkAenSa15NQBkvydmO2cNNl7EFgV0Wt4LWP2phE27npQnwHSwxAefz',
+  apiKey: 'nd-key.01989213-1c51-7328-8c9c-44490628b4de.kSreIixZMjroPdfLRpxo2sonRL5leCAAyxx52J6sbW6uMUtlkEP5N76eUw6n3UCwPkSxiqRjli6uocHDj0Z781tRtEYsdJbo4CD2UigvDUTayjFgcrjw',
   apiUrl: 'https://api.nomadfy.app/v1/charges'
 };
 
