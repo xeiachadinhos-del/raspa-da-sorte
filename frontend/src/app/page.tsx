@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authAPI } from '@/services/api';
 import BalanceModal from '@/components/BalanceModal';
+import PixPaymentModal from '@/components/PixPaymentModal';
 
 export default function Home() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function Home() {
   const [showDepositSheet, setShowDepositSheet] = useState(false);
   const [showBalanceModal, setShowBalanceModal] = useState(false);
   const [showWithdrawSheet, setShowWithdrawSheet] = useState(false);
+  const [showPixModal, setShowPixModal] = useState(false);
   const [depositAmount, setDepositAmount] = useState('0,00');
   const [withdrawAmount, setWithdrawAmount] = useState('0,00');
   const [pixKey, setPixKey] = useState('');
@@ -52,8 +54,9 @@ export default function Home() {
       return;
     }
     
-    // Navegar para a página de PIX
-    router.push(`/pix-payment/${depositAmount}`);
+    // Abrir modal de PIX
+    setShowPixModal(true);
+    setShowDepositSheet(false); // Fechar modal de depósito
   };
 
   // Função para lidar com saque
@@ -81,6 +84,20 @@ export default function Home() {
     setShowWithdrawSheet(false);
     setWithdrawAmount('0,00');
     setPixKey('');
+  };
+
+  // Função para lidar com sucesso do pagamento PIX
+  const handlePixPaymentSuccess = () => {
+    setShowPixModal(false);
+    // Aqui você pode adicionar lógica adicional após o pagamento
+    // Por exemplo, atualizar o saldo do usuário
+    if (user) {
+      // Recarregar dados do usuário para atualizar o saldo
+      const userData = localStorage.getItem('user');
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    }
   };
 
   // Função de logout
@@ -1235,6 +1252,17 @@ export default function Home() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* Modal de PIX */}
+      {showPixModal && user && (
+        <PixPaymentModal
+          isOpen={showPixModal}
+          onClose={() => setShowPixModal(false)}
+          amount={depositAmount}
+          user={user}
+          onPaymentSuccess={handlePixPaymentSuccess}
+        />
       )}
 
     </div>
