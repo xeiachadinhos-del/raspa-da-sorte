@@ -569,13 +569,13 @@ export default function Home() {
 
           {/* Certificações e Selos */}
           <div className="border-t border-gray-800 pt-6 mb-6">
-            <div className="flex flex-wrap justify-center items-center gap-6">
+            <div className="flex flex-col items-center space-y-4">
               {/* BeGambleAware */}
               <div className="flex flex-col items-center">
                 <img 
-                  src="https://i.postimg.cc/8CQZQZQZ/begambleaware.png" 
+                  src="https://i.postimg.cc/HLcc51Pg/be.png" 
                   alt="BeGambleAware" 
-                  className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"
+                  className="h-16 w-auto opacity-90 hover:opacity-100 transition-opacity"
                   title="BeGambleAware - Jogue com responsabilidade"
                 />
               </div>
@@ -583,9 +583,9 @@ export default function Home() {
               {/* GambleTrust */}
               <div className="flex flex-col items-center">
                 <img 
-                  src="https://i.postimg.cc/8CQZQZQZ/gambletrust.png" 
+                  src="https://i.postimg.cc/rwYRKwjj/gt-logo.webp" 
                   alt="GambleTrust" 
-                  className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"
+                  className="h-16 w-auto opacity-90 hover:opacity-100 transition-opacity"
                   title="GambleTrust - Confiança em jogos online"
                 />
               </div>
@@ -593,9 +593,9 @@ export default function Home() {
               {/* IBIA */}
               <div className="flex flex-col items-center">
                 <img 
-                  src="https://i.postimg.cc/8CQZQZQZ/ibia.png" 
+                  src="https://i.postimg.cc/HnHVfcWY/ibia.png" 
                   alt="IBIA - International Betting Integrity Association" 
-                  className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"
+                  className="h-16 w-auto opacity-90 hover:opacity-100 transition-opacity"
                   title="IBIA - Associação Internacional de Integridade de Apostas"
                 />
               </div>
@@ -603,9 +603,9 @@ export default function Home() {
               {/* ReclameAQUI */}
               <div className="flex flex-col items-center">
                 <img 
-                  src="https://i.postimg.cc/8CQZQZQZ/reclameaqui.png" 
+                  src="https://i.postimg.cc/VNxSWZ3b/verificada-reaclame-aqui.png" 
                   alt="ReclameAQUI - Verificado" 
-                  className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"
+                  className="h-16 w-auto opacity-90 hover:opacity-100 transition-opacity"
                   title="ReclameAQUI - Empresa verificada"
                 />
               </div>
@@ -613,9 +613,9 @@ export default function Home() {
               {/* Ministério da Fazenda */}
               <div className="flex flex-col items-center">
                 <img 
-                  src="https://i.postimg.cc/8CQZQZQZ/ministerio-fazenda.png" 
+                  src="https://i.postimg.cc/rFjr2Jtv/autorizado-frv-Yi-UAO.png" 
                   alt="Autorizado pelo Ministério da Fazenda" 
-                  className="h-12 w-auto opacity-80 hover:opacity-100 transition-opacity"
+                  className="h-16 w-auto opacity-90 hover:opacity-100 transition-opacity"
                   title="Autorizado pelo Ministério da Fazenda"
                 />
               </div>
