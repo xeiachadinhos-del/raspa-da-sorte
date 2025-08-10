@@ -409,10 +409,10 @@ export default function Home() {
             {/* Seção AO VIVO */}
             <section className="py-1 px-6">
               <div className="flex items-center gap-2 mb-6">
-                <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <div className="w-3 h-3 rounded-full animate-pulse" style={{backgroundColor: '#4ec50d'}}></div>
                 <h2 className="text-xl font-bold">
                   <span className="text-gray-400">AO</span>
-                  <span className="text-green-500 ml-1">VIVO</span>
+                  <span className="ml-1" style={{color: '#4ec50d'}}>VIVO</span>
                 </h2>
               </div>
 
@@ -996,9 +996,13 @@ export default function Home() {
                     onClick={() => handleDepositAmountChange('10,00')}
                     className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer whitespace-nowrap border transition-colors ${
                       depositAmount === '10,00' 
-                        ? 'bg-green-600 text-white border-green-600' 
-                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30'
+                        ? 'text-white border-current' 
+                        : 'text-white border-current/30 hover:border-current/50'
                     }`}
+                    style={{
+                      backgroundColor: depositAmount === '10,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.2)',
+                      borderColor: depositAmount === '10,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.3)'
+                    }}
                   >
                     R$ 10,00
                   </button>
@@ -1007,9 +1011,13 @@ export default function Home() {
                     onClick={() => handleDepositAmountChange('30,00')}
                     className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer relative whitespace-nowrap border transition-colors ${
                       depositAmount === '30,00' 
-                        ? 'bg-green-600 text-white border-green-600 ring-2 ring-yellow-400' 
-                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30 ring-2 ring-yellow-400'
+                        ? 'text-white border-current ring-2 ring-yellow-400' 
+                        : 'text-white border-current/30 hover:border-current/50 ring-2 ring-yellow-400'
                     }`}
+                    style={{
+                      backgroundColor: depositAmount === '30,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.2)',
+                      borderColor: depositAmount === '30,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.3)'
+                    }}
                   >
                     <span className="bg-yellow-400 rounded-md absolute -top-0.5 left-2/4 -translate-y-2/4 -translate-x-2/4 text-xs text-black leading-4 px-1 uppercase flex gap-1 items-center">
                       <svg width="1em" height="1em" fill="currentColor" className="w-3 h-3" viewBox="0 0 16 16">
@@ -1024,9 +1032,13 @@ export default function Home() {
                     onClick={() => handleDepositAmountChange('50,00')}
                     className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer whitespace-nowrap border transition-colors ${
                       depositAmount === '50,00' 
-                        ? 'bg-green-600 text-white border-green-600' 
-                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30'
+                        ? 'text-white border-current' 
+                        : 'text-white border-current/30 hover:border-current/50'
                     }`}
+                    style={{
+                      backgroundColor: depositAmount === '50,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.2)',
+                      borderColor: depositAmount === '50,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.3)'
+                    }}
                   >
                     R$ 50,00
                   </button>
@@ -1035,9 +1047,13 @@ export default function Home() {
                     onClick={() => handleDepositAmountChange('100,00')}
                     className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer whitespace-nowrap border transition-colors ${
                       depositAmount === '100,00' 
-                        ? 'bg-green-600 text-white border-green-600' 
-                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30'
+                        ? 'text-white border-current' 
+                        : 'text-white border-current/30 hover:border-current/50'
                     }`}
+                    style={{
+                      backgroundColor: depositAmount === '100,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.2)',
+                      borderColor: depositAmount === '100,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.3)'
+                    }}
                   >
                     R$ 100,00
                   </button>
@@ -1046,9 +1062,13 @@ export default function Home() {
                     onClick={() => handleDepositAmountChange('200,00')}
                     className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer whitespace-nowrap border transition-colors ${
                       depositAmount === '200,00' 
-                        ? 'bg-green-600 text-white border-green-600' 
-                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30'
+                        ? 'text-white border-current' 
+                        : 'text-white border-current/30 hover:border-current/50'
                     }`}
+                    style={{
+                      backgroundColor: depositAmount === '200,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.2)',
+                      borderColor: depositAmount === '200,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.3)'
+                    }}
                   >
                     R$ 200,00
                   </button>
@@ -1057,9 +1077,13 @@ export default function Home() {
                     onClick={() => handleDepositAmountChange('500,00')}
                     className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer whitespace-nowrap border transition-colors ${
                       depositAmount === '500,00' 
-                        ? 'bg-green-600 text-white border-green-600' 
-                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30'
+                        ? 'text-white border-current' 
+                        : 'text-white border-current/30 hover:border-current/50'
                     }`}
+                    style={{
+                      backgroundColor: depositAmount === '500,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.2)',
+                      borderColor: depositAmount === '500,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.3)'
+                    }}
                   >
                     R$ 500,00
                   </button>
@@ -1069,7 +1093,8 @@ export default function Home() {
                                       {/* Botão Gerar QR Code */}
                         <button 
                           onClick={handleGeneratePix}
-                          className="active:scale-95 transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all bg-green-600 text-white shadow-xs hover:bg-green-700 h-10 rounded-md px-6 w-full mx-auto mt-4 relative overflow-hidden py-6 cursor-pointer"
+                          className="active:scale-95 transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all text-white shadow-xs h-10 rounded-md px-6 w-full mx-auto mt-4 relative overflow-hidden py-6 cursor-pointer"
+                          style={{backgroundColor: '#4ec50d'}}
                         >
                           <svg width="1em" height="1em" fill="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
                             <path fill="currentColor" d="M8 6H6v2h2zm-5-.75A2.25 2.25 0 0 1 5.25 3h3.5A2.25 2.25 0 0 1 11 5.25v3.5A2.25 2.25 0 0 1 8.75 11h-3.5A2.25 2.25 0 0 1 3 8.75zm2.25-.75a.75.75 0 0 0-.75.75v3.5c0 .414.336.75.75.75h3.5a.75.75 0 0 0 .75-.75v-3.5a.75.75 0 0 0-.75-.75zM6 16h2v2H6zm-3-.75A2.25 2.25 0 0 1 5.25 13h3.5A2.25 2.25 0 0 1 11 15.25v3.5A2.25 2.25 0 0 1 8.75 21h-3.5A2.25 2.25 0 0 1 3 18.75zm2.25-.75a.75.75 0 0 0-.75.75v3.5c0 .414.336.75.75.75h3.5a.75.75 0 0 0 .75-.75v-3.5a.75.75 0 0 0-.75-.75zM18 6h-2v2h2zm-2.75-3A2.25 2.25 0 0 0 13 5.25v3.5A2.25 2.25 0 0 0 15.25 11h3.5A2.25 2.25 0 0 0 21 8.75v-3.5A2.25 2.25 0 0 0 18.75 3zm-.75 2.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-.75.75h-3.5a.75.75 0 0 1-.75-.75zM13 13h2.75v2.75H13zm5.25 2.75h-2.5v2.5H13V21h2.75v-2.75h2.5V21H21v-2.75h-2.75zm0 0V13H21v2.75z"></path>
@@ -1142,9 +1167,13 @@ export default function Home() {
                     onClick={() => setWithdrawAmount('50,00')}
                     className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer whitespace-nowrap border transition-colors ${
                       withdrawAmount === '50,00' 
-                        ? 'bg-green-600 text-white border-green-600' 
-                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30'
+                        ? 'text-white border-current' 
+                        : 'text-white border-current/30 hover:border-current/50'
                     }`}
+                    style={{
+                      backgroundColor: withdrawAmount === '50,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.2)',
+                      borderColor: withdrawAmount === '50,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.3)'
+                    }}
                   >
                     R$ 50,00
                   </button>
@@ -1153,9 +1182,13 @@ export default function Home() {
                     onClick={() => setWithdrawAmount('100,00')}
                     className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer relative whitespace-nowrap border transition-colors ${
                       withdrawAmount === '100,00' 
-                        ? 'bg-green-600 text-white border-green-600 ring-2 ring-yellow-400' 
-                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30 ring-2 ring-yellow-400'
+                        ? 'text-white border-current ring-2 ring-yellow-400' 
+                        : 'text-white border-current/30 hover:border-current/50 ring-2 ring-yellow-400'
                     }`}
+                    style={{
+                      backgroundColor: withdrawAmount === '100,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.2)',
+                      borderColor: withdrawAmount === '100,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.3)'
+                    }}
                   >
                     <span className="bg-yellow-400 rounded-md absolute -top-0.5 left-2/4 -translate-y-2/4 -translate-x-2/4 text-xs text-black leading-4 px-1 uppercase flex gap-1 items-center">
                       <svg width="1em" height="1em" fill="currentColor" className="w-3 h-3" viewBox="0 0 16 16">
@@ -1170,9 +1203,13 @@ export default function Home() {
                     onClick={() => setWithdrawAmount('200,00')}
                     className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer whitespace-nowrap border transition-colors ${
                       withdrawAmount === '200,00' 
-                        ? 'bg-green-600 text-white border-green-600' 
-                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30'
+                        ? 'text-white border-current' 
+                        : 'text-white border-current/30 hover:border-current/50'
                     }`}
+                    style={{
+                      backgroundColor: withdrawAmount === '200,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.2)',
+                      borderColor: withdrawAmount === '200,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.3)'
+                    }}
                   >
                     R$ 200,00
                   </button>
@@ -1181,9 +1218,13 @@ export default function Home() {
                     onClick={() => setWithdrawAmount('500,00')}
                     className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer whitespace-nowrap border transition-colors ${
                       withdrawAmount === '500,00' 
-                        ? 'bg-green-600 text-white border-green-600' 
-                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30'
+                        ? 'text-white border-current' 
+                        : 'text-white border-current/30 hover:border-current/50'
                     }`}
+                    style={{
+                      backgroundColor: withdrawAmount === '500,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.2)',
+                      borderColor: withdrawAmount === '500,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.3)'
+                    }}
                   >
                     R$ 500,00
                   </button>
@@ -1192,9 +1233,13 @@ export default function Home() {
                     onClick={() => setWithdrawAmount('1000,00')}
                     className={`text-base font-semibold rounded-md p-3 py-2 cursor-pointer whitespace-nowrap border transition-colors ${
                       withdrawAmount === '1000,00' 
-                        ? 'bg-green-600 text-white border-green-600' 
-                        : 'bg-green-600/20 text-green-500 border-green-600/30 hover:bg-green-600/30'
+                        ? 'text-white border-current' 
+                        : 'text-white border-current/30 hover:border-current/50'
                     }`}
+                    style={{
+                      backgroundColor: withdrawAmount === '1000,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.2)',
+                      borderColor: withdrawAmount === '1000,00' ? '#4ec50d' : 'rgba(78, 197, 13, 0.3)'
+                    }}
                   >
                     R$ 1.000,00
                   </button>
@@ -1230,7 +1275,8 @@ export default function Home() {
               {/* Botão Solicitar Saque */}
               <button 
                 type="submit"
-                className="active:scale-95 transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all bg-green-600 text-white shadow-xs hover:bg-green-700 h-10 rounded-md px-6 w-full mx-auto mt-4 relative overflow-hidden py-6 cursor-pointer"
+                className="active:scale-95 transition-all inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium transition-all text-white shadow-xs h-10 rounded-md px-6 w-full mx-auto mt-4 relative overflow-hidden py-6 cursor-pointer"
+                style={{backgroundColor: '#4ec50d'}}
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
