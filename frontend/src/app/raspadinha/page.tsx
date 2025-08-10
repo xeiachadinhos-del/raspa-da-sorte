@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import ScratchCard from '@/components/ScratchCard';
 import MobileNavigation from '@/components/MobileNavigation';
+import PrizesDisplay from '@/components/PrizesDisplay';
 
 export default function RaspadinhaPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -71,16 +72,11 @@ export default function RaspadinhaPage() {
           </div>
         </div>
 
-        {/* Informações adicionais */}
-        <div className="bg-[#191919] rounded-lg p-6">
-          <h4 className="text-lg font-semibold mb-4">Como Jogar</h4>
-          <ul className="space-y-2 text-gray-400 text-sm">
-            <li>• Escolha o valor da sua raspadinha</li>
-            <li>• Raspe a área indicada para revelar o prêmio</li>
-            <li>• Ganhos são creditados automaticamente na sua conta</li>
-            <li>• Jogue com responsabilidade</li>
-          </ul>
-        </div>
+        {/* Exibição dos Prêmios */}
+        <PrizesDisplay 
+          title="Prêmios TechMania"
+          description="Confira todos os prêmios que você pode ganhar na raspadinha TechMania!"
+        />
       </main>
 
       {/* Navegação Mobile */}
